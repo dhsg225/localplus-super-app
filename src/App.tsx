@@ -24,6 +24,7 @@ import CuisineExplorer from "./modules/restaurants/components/CuisineExplorer";
 import TodaysDeals from "./modules/restaurants/components/TodaysDeals";
 import PassportPage from "./modules/passport/components/PassportPage";
 import SubscriptionUpgrade from "./modules/passport/components/SubscriptionUpgrade";
+import DiscountPassportInfo from "./modules/passport/components/DiscountPassportInfo";
 
 // Auth components
 import LoginPage from "./modules/auth/components/LoginPage";
@@ -60,6 +61,7 @@ function App() {
               <Route path="/todays-deals" element={<TodaysDeals />} />
               <Route path="/passport" element={<PassportPage />} />
               <Route path="/passport/upgrade" element={<SubscriptionUpgrade />} />
+              <Route path="/passport/info" element={<DiscountPassportInfo />} />
               
               {/* Auth Routes */}
               <Route path="/auth/login" element={<LoginPage />} />

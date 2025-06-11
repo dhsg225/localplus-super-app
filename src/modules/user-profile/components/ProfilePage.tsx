@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit3, Settings, Shield, Bell, MapPin, Calendar, Mail, Phone, Crown, Star, Award } from 'lucide-react';
 import { useAuth } from '../../auth/context/AuthContext';
 
@@ -65,6 +65,25 @@ const ProfilePage: React.FC = () => {
       </div>
 
       <div className="p-4 space-y-6">
+        {/* Discount Passport Info Link */}
+        <Link 
+          to="/passport/info"
+          className="block bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-lg mb-1 flex items-center">
+                <Award size={20} className="mr-2" />
+                Learn About Discount Passport
+              </h3>
+              <p className="text-orange-100 text-sm">Everything about gamification, rewards, and exclusive benefits</p>
+            </div>
+            <div className="text-white">
+              <ArrowLeft size={20} className="rotate-180" />
+            </div>
+          </div>
+        </Link>
+
         {/* Profile Overview Card */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {/* Profile Header */}

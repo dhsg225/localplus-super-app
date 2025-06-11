@@ -213,21 +213,42 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Off Peak Dining Banner */}
-      <div className="px-4 mb-6">
+      <div className="px-4 mb-4">
         <Link
           to="/off-peak"
-          className="block bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+          className="block bg-gradient-to-r from-purple-600 to-blue-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-lg mb-1 flex items-center">
-                <Clock size={20} className="mr-2" />
+              <h3 className="font-semibold text-base mb-1 flex items-center">
+                <Clock size={18} className="mr-2" />
                 Off Peak Dining
               </h3>
-              <p className="text-purple-100 text-sm">Save up to 50% during off-peak hours</p>
+              <p className="text-purple-100 text-xs">Save up to 50% during off-peak hours</p>
             </div>
             <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
               UP TO 50% OFF
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Discount Passport Promotion Banner */}
+      <div className="px-4 mb-6">
+        <Link
+          to="/passport"
+          className="block bg-gradient-to-r from-orange-500 to-red-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-base mb-1 flex items-center">
+                <Award size={18} className="mr-2" />
+                Discount Passport
+              </h3>
+              <p className="text-orange-100 text-xs">Instant savings at 500+ businesses</p>
+            </div>
+            <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
+              ฿199/MONTH
             </div>
           </div>
         </Link>
@@ -238,76 +259,76 @@ const HomePage: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <Link
             to="/restaurants"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <Search size={32} className="text-red-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Restaurants</h3>
-            <p className="text-sm text-gray-500">Find great places to eat</p>
+            <Search size={28} className="text-red-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Restaurants</h3>
+            <p className="text-xs text-gray-500">Find great places to eat</p>
           </Link>
 
           <Link
             to="/events"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <Calendar size={32} className="text-red-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Events</h3>
-            <p className="text-sm text-gray-500">Discover local events</p>
+            <Calendar size={28} className="text-red-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Events</h3>
+            <p className="text-xs text-gray-500">Discover local events</p>
           </Link>
 
           <Link
             to="/services"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <Wrench size={32} className="text-red-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Services</h3>
-            <p className="text-sm text-gray-500">Local service providers</p>
+            <Wrench size={28} className="text-red-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Services</h3>
+            <p className="text-xs text-gray-500">Local service providers</p>
           </Link>
 
           <Link
             to="/ai-assistant"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <MessageCircle size={32} className="text-red-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">AI Assistant</h3>
-            <p className="text-sm text-gray-500">Ask about anything local</p>
+            <MessageCircle size={28} className="text-red-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">AI Assistant</h3>
+            <p className="text-xs text-gray-500">Ask about anything local</p>
           </Link>
 
           <Link
             to="/passport"
-            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-yellow-300"
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-yellow-300"
           >
-            <div className="flex items-center justify-between mb-3">
-              <Award size={32} className="text-yellow-600" />
+            <div className="flex items-center justify-between mb-2">
+              <Award size={28} className="text-yellow-600" />
               <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                 NEW
               </span>
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">Discount Book</h3>
-            <p className="text-sm text-gray-500">Instant savings at 500+ businesses</p>
-            <div className="mt-2 text-xs text-yellow-700 font-medium">
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Discount Passport</h3>
+            <p className="text-xs text-gray-500">Instant savings at 500+ businesses</p>
+            <div className="mt-1 text-xs text-yellow-700 font-medium">
               ฿199/month • 7-day free trial
             </div>
           </Link>
 
           <Link
             to="/explore-cuisines"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <Search size={32} className="text-purple-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Explore Cuisines</h3>
-            <p className="text-sm text-gray-500">Discover new flavors</p>
+            <Search size={28} className="text-purple-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Explore Cuisines</h3>
+            <p className="text-xs text-gray-500">Discover new flavors</p>
           </Link>
 
           <Link
             to="/todays-deals"
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <Clock size={32} className="text-green-500 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-1">Today's Deals</h3>
-            <p className="text-sm text-gray-500">Limited time offers</p>
+            <Clock size={28} className="text-green-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Today's Deals</h3>
+            <p className="text-xs text-gray-500">Limited time offers</p>
           </Link>
         </div>
       </div>

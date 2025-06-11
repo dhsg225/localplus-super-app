@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { 
   Home, 
   Search, 
-  ClipboardList, 
-  Wallet, 
+  MessageCircle, 
+  Award, 
   User 
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -15,8 +15,8 @@ import { useAuth } from "../../modules/auth/context/AuthContext";
 const getNavigationItems = (isAuthenticated: boolean) => [
   { path: "/", icon: Home, label: "Home" },
   { path: "/restaurants", icon: Search, label: "Explore" },
-  { path: "/orders", icon: ClipboardList, label: "Orders" },
-  { path: "/wallet", icon: Wallet, label: "Wallet" },
+  { path: "/ai-assistant", icon: MessageCircle, label: "AI Assistant" },
+  { path: "/passport", icon: Award, label: "Passport" },
   { path: isAuthenticated ? "/profile" : "/auth/login", icon: User, label: "Profile" },
 ];
 
