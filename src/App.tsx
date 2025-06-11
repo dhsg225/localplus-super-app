@@ -3,6 +3,9 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { motion } from "framer-motion";
 
+// Authentication
+import { AuthProvider } from "./modules/auth/context/AuthContext";
+
 // Core components
 import Navigation from "./core/navigation/Navigation";
 
@@ -19,6 +22,16 @@ import MenuManagement from "./modules/business-management/components/MenuManagem
 import DealsManagement from "./modules/business-management/components/DealsManagement";
 import CuisineExplorer from "./modules/restaurants/components/CuisineExplorer";
 import TodaysDeals from "./modules/restaurants/components/TodaysDeals";
+import PassportPage from "./modules/passport/components/PassportPage";
+import SubscriptionUpgrade from "./modules/passport/components/SubscriptionUpgrade";
+
+// Auth components
+import LoginPage from "./modules/auth/components/LoginPage";
+import RegisterPage from "./modules/auth/components/RegisterPage";
+
+// User Profile components
+import ProfilePage from "./modules/user-profile/components/ProfilePage";
+import ProfileEditPage from "./modules/user-profile/components/ProfileEditPage";
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
@@ -26,31 +39,43 @@ import LoadingSpinner from "./ui-components/common/LoadingSpinner";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container-mobile">
-        {/* Main Content */}
-        <main className="pb-20">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/restaurants" element={<RestaurantsPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/ai-assistant" element={<AIAssistantPage />} />
-            <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
-            <Route path="/off-peak" element={<OffPeakPage />} />
-            <Route path="/business" element={<BusinessManagementDashboard />} />
-                      <Route path="/business/profile" element={<BusinessProfileEditor />} />
-          <Route path="/business/menu" element={<MenuManagement />} />
-          <Route path="/business/deals" element={<DealsManagement />} />
-          <Route path="/explore-cuisines" element={<CuisineExplorer />} />
-          <Route path="/todays-deals" element={<TodaysDeals />} />
-          </Routes>
-        </main>
-        
-        {/* Bottom Navigation */}
-        <Navigation />
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container-mobile">
+          {/* Main Content */}
+          <main className="pb-20">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/restaurants" element={<RestaurantsPage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/ai-assistant" element={<AIAssistantPage />} />
+              <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
+              <Route path="/off-peak" element={<OffPeakPage />} />
+              <Route path="/business" element={<BusinessManagementDashboard />} />
+              <Route path="/business/profile" element={<BusinessProfileEditor />} />
+              <Route path="/business/menu" element={<MenuManagement />} />
+              <Route path="/business/deals" element={<DealsManagement />} />
+              <Route path="/explore-cuisines" element={<CuisineExplorer />} />
+              <Route path="/todays-deals" element={<TodaysDeals />} />
+              <Route path="/passport" element={<PassportPage />} />
+              <Route path="/passport/upgrade" element={<SubscriptionUpgrade />} />
+              
+              {/* Auth Routes */}
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/register" element={<RegisterPage />} />
+              
+              {/* Profile Routes */}
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<ProfileEditPage />} />
+            </Routes>
+          </main>
+          
+          {/* Bottom Navigation */}
+          <Navigation />
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }
 

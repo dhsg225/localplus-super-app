@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import App from "./App";
 import "./styles/globals.css";
 
+console.log("🚀 Main.tsx loaded");
+
 // Configure React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,12 +20,22 @@ const queryClient = new QueryClient({
   },
 });
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+console.log("📱 About to render React app");
+
+const rootElement = document.getElementById("root");
+console.log("🎯 Root element:", rootElement);
+
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+  console.log("✅ React app rendered successfully");
+} else {
+  console.error("❌ Root element not found!");
+}

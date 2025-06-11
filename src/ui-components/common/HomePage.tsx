@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown } from 'lucide-react';
+import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award } from 'lucide-react';
 
 // Location interface
 interface LocationData {
@@ -273,6 +273,41 @@ const HomePage: React.FC = () => {
             <MessageCircle size={32} className="text-red-500 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-1">AI Assistant</h3>
             <p className="text-sm text-gray-500">Ask about anything local</p>
+          </Link>
+
+          <Link
+            to="/passport"
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-yellow-300"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <Award size={32} className="text-yellow-600" />
+              <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                NEW
+              </span>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-1">Discount Book</h3>
+            <p className="text-sm text-gray-500">Instant savings at 500+ businesses</p>
+            <div className="mt-2 text-xs text-yellow-700 font-medium">
+              ฿199/month • 7-day free trial
+            </div>
+          </Link>
+
+          <Link
+            to="/explore-cuisines"
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+          >
+            <Search size={32} className="text-purple-500 mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-1">Explore Cuisines</h3>
+            <p className="text-sm text-gray-500">Discover new flavors</p>
+          </Link>
+
+          <Link
+            to="/todays-deals"
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+          >
+            <Clock size={32} className="text-green-500 mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-1">Today's Deals</h3>
+            <p className="text-sm text-gray-500">Limited time offers</p>
           </Link>
         </div>
       </div>

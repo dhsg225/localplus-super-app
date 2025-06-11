@@ -10,13 +10,13 @@ export const mockRestaurantProfile: RestaurantProfile = {
   phone: '+66-2-123-4567',
   website: 'https://spicemerchant.co.th',
   address: {
-    street: '123 Sukhumvit Soi 21',
-    city: 'Bangkok',
-    district: 'Watthana',
-    postalCode: '10110',
+    street: '123 Petchkasem Road',
+    city: 'Hua Hin',
+    district: 'Hua Hin Beach',
+    postalCode: '77110',
     coordinates: {
-      lat: 13.7563,
-      lng: 100.5018
+      lat: 12.5684,
+      lng: 99.9578
     }
   },
   images: [

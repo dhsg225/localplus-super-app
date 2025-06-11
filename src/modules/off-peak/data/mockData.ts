@@ -87,16 +87,16 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
 
 // Restaurant data
 const restaurants = [
-  { id: '1', name: 'The Spice Merchant', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400', cuisine: 'Thai', location: 'Bangkok', rating: 4.7, reviewCount: 1850, basePrice: 680 },
-  { id: '2', name: 'Siam Bistro', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', cuisine: 'Fusion', location: 'Bangkok', rating: 4.6, reviewCount: 1450, basePrice: 1200 },
-  { id: '3', name: 'Riverfront Grill', image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400', cuisine: 'Seafood', location: 'Bangkok', rating: 4.8, reviewCount: 2100, basePrice: 1500 },
-  { id: '4', name: 'Urban Eats', image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=400', cuisine: 'Modern', location: 'Bangkok', rating: 4.4, reviewCount: 980, basePrice: 750 },
-  { id: '5', name: 'Golden Spoon', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', cuisine: 'Fine Dining', location: 'Bangkok', rating: 4.9, reviewCount: 850, basePrice: 2200 },
-  { id: '6', name: 'Thai Delights', image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400', cuisine: 'Authentic', location: 'Bangkok', rating: 4.5, reviewCount: 1320, basePrice: 580 },
-  { id: '7', name: 'Ocean Breeze', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', cuisine: 'Seafood', location: 'Pattaya', rating: 4.6, reviewCount: 890, basePrice: 1100 },
-  { id: '8', name: 'Mountain View', image: 'https://images.unsplash.com/photo-1590725175061-ed6bdf0bc2ac?w=400', cuisine: 'International', location: 'Hua Hin', rating: 4.3, reviewCount: 670, basePrice: 950 },
-  { id: '9', name: 'Sunset Café', image: 'https://images.unsplash.com/photo-1552566090-a0818202e2e8?w=400', cuisine: 'Café', location: 'Phuket', rating: 4.4, reviewCount: 1150, basePrice: 420 },
-  { id: '10', name: 'Royal Garden', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', cuisine: 'Thai', location: 'Krabi', rating: 4.7, reviewCount: 1980, basePrice: 1300 }
+  { id: '1', name: 'The Spice Merchant', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400', cuisine: 'Thai', location: 'Hua Hin', rating: 4.7, reviewCount: 1850, basePrice: 680 },
+  { id: '2', name: 'Siam Bistro', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', cuisine: 'Fusion', location: 'Hua Hin', rating: 4.6, reviewCount: 1450, basePrice: 1200 },
+  { id: '3', name: 'Beachfront Grill', image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400', cuisine: 'Seafood', location: 'Hua Hin', rating: 4.8, reviewCount: 2100, basePrice: 1500 },
+  { id: '4', name: 'Seaside Eats', image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=400', cuisine: 'Modern', location: 'Hua Hin', rating: 4.4, reviewCount: 980, basePrice: 750 },
+  { id: '5', name: 'Golden Spoon', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', cuisine: 'Fine Dining', location: 'Hua Hin', rating: 4.9, reviewCount: 850, basePrice: 2200 },
+  { id: '6', name: 'Thai Delights', image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400', cuisine: 'Authentic', location: 'Hua Hin', rating: 4.5, reviewCount: 1320, basePrice: 580 },
+  { id: '7', name: 'Ocean Breeze', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400', cuisine: 'Seafood', location: 'Hua Hin Beach', rating: 4.6, reviewCount: 890, basePrice: 1100 },
+  { id: '8', name: 'Mountain View', image: 'https://images.unsplash.com/photo-1590725175061-ed6bdf0bc2ac?w=400', cuisine: 'International', location: 'Hua Hin Hills', rating: 4.3, reviewCount: 670, basePrice: 950 },
+  { id: '9', name: 'Sunset Café', image: 'https://images.unsplash.com/photo-1552566090-a0818202e2e8?w=400', cuisine: 'Café', location: 'Hua Hin Beach', rating: 4.4, reviewCount: 1150, basePrice: 420 },
+  { id: '10', name: 'Royal Garden', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', cuisine: 'Thai', location: 'Hua Hin Town', rating: 4.7, reviewCount: 1980, basePrice: 1300 }
 ];
 
 // Generate all deals

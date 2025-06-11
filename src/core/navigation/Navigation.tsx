@@ -10,23 +10,30 @@ import {
   User 
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useAuth } from "../../modules/auth/context/AuthContext";
 
-const navigationItems = [
+const getNavigationItems = (isAuthenticated: boolean) => [
   { path: "/", icon: Home, label: "Home" },
   { path: "/restaurants", icon: Search, label: "Explore" },
   { path: "/orders", icon: ClipboardList, label: "Orders" },
   { path: "/wallet", icon: Wallet, label: "Wallet" },
-  { path: "/profile", icon: User, label: "Profile" },
+  { path: isAuthenticated ? "/profile" : "/auth/login", icon: User, label: "Profile" },
 ];
 
 const Navigation: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // Update profile navigation based on auth state
+  const getProfilePath = () => {
+    return isAuthenticated ? "/profile" : "/auth/login";
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="container-mobile">
         <div className="flex justify-around items-center py-2">
-          {navigationItems.map((item) => {
+          {getNavigationItems(isAuthenticated).map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             
