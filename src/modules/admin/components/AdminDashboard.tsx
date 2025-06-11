@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3 } from 'lucide-react';
 import { businessAPI, Business, DiscountOffer } from '../../../lib/supabase';
+import BusinessDiscovery from './BusinessDiscovery';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface BusinessFormData {
   name: string;
@@ -25,12 +27,13 @@ interface DiscountFormData {
 }
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'businesses' | 'discounts' | 'analytics'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'discovery' | 'discounts' | 'analytics'>('businesses');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showAddBusiness, setShowAddBusiness] = useState(false);
   const [showAddDiscount, setShowAddDiscount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   const [businessForm, setBusinessForm] = useState<BusinessFormData>({
     name: '',
@@ -60,7 +63,43 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     loadBusinesses();
+    detectLocation();
   }, []);
+
+  const detectLocation = async () => {
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+          },
+          async () => {
+            // Fallback to IP geolocation
+            try {
+              const response = await fetch('https://ipapi.co/json/');
+              const data = await response.json();
+              setUserLocation({
+                lat: data.latitude || 12.5684,
+                lng: data.longitude || 99.9578
+              });
+            } catch (error) {
+              // Final fallback to Hua Hin
+              setUserLocation({ lat: 12.5684, lng: 99.9578 });
+            }
+          }
+        );
+      } else {
+        // Fallback location
+        setUserLocation({ lat: 12.5684, lng: 99.9578 });
+      }
+    } catch (error) {
+      console.error('Location detection failed:', error);
+      setUserLocation({ lat: 12.5684, lng: 99.9578 });
+    }
+  };
 
   const loadBusinesses = async () => {
     setLoading(true);
@@ -92,6 +131,12 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleBusinessAdded = (newBusiness: Business) => {
+    setBusinesses(prev => [...prev, newBusiness]);
+    setMessage({ type: 'success', text: `${newBusiness.name} added successfully!` });
+    setTimeout(() => setMessage(null), 5000);
+  };
+
   const handleAddBusiness = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -108,7 +153,7 @@ const AdminDashboard: React.FC = () => {
       });
 
       if (newBusiness) {
-        setMessage({ type: 'success', text: 'Business added successfully!' });
+        handleBusinessAdded(newBusiness);
         setShowAddBusiness(false);
         setBusinessForm({
           name: '',
@@ -211,8 +256,9 @@ const AdminDashboard: React.FC = () => {
         <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
           {[
             { id: 'businesses', label: 'Businesses', icon: MapPin },
+            { id: 'discovery', label: 'Business Discovery', icon: Search },
             { id: 'discounts', label: 'Discount Offers', icon: CheckCircle },
-            { id: 'analytics', label: 'Analytics', icon: Clock }
+            { id: 'analytics', label: 'Analytics', icon: BarChart3 }
           ].map(tab => {
             const Icon = tab.icon;
             return (
@@ -232,17 +278,33 @@ const AdminDashboard: React.FC = () => {
           })}
         </div>
 
+        {/* Business Discovery Tab */}
+        {activeTab === 'discovery' && userLocation && (
+          <BusinessDiscovery 
+            userLocation={userLocation}
+            onBusinessAdded={handleBusinessAdded}
+          />
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && <AnalyticsDashboard />}
+
         {/* Businesses Tab */}
         {activeTab === 'businesses' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Business Directory</h2>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Business Directory</h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Manage existing businesses or use Business Discovery to find new ones
+                </p>
+              </div>
               <button
                 onClick={() => setShowAddBusiness(true)}
                 className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Plus size={16} className="mr-2" />
-                Add Business
+                Add Manually
               </button>
             </div>
 
@@ -324,16 +386,6 @@ const AdminDashboard: React.FC = () => {
 
             <div className="bg-white rounded-lg shadow p-6">
               <p className="text-gray-600">Discount management interface will be displayed here.</p>
-            </div>
-          </div>
-        )}
-
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Platform Analytics</h2>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600">Analytics dashboard will be displayed here.</p>
             </div>
           </div>
         )}
