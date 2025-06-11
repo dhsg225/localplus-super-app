@@ -175,8 +175,26 @@ const RestaurantsPage: React.FC = () => {
   };
 
   const handleExploreClick = (type: string) => {
-    console.log('Explore:', type);
-    // TODO: Navigate to respective feature
+    switch (type) {
+      case 'explore-cuisines':
+        // Navigate to restaurants page with cuisine filter
+        navigate('/off-peak');
+        break;
+      case 'discount-book':
+        // Navigate to discount/deals page
+        navigate('/off-peak');
+        break;
+      case 'todays-deals':
+        // Navigate to today's special deals
+        navigate('/off-peak?deals=today');
+        break;
+      case 'ai-assistant':
+        // Navigate to AI assistant
+        navigate('/ai-assistant');
+        break;
+      default:
+        console.log('Explore:', type);
+    }
   };
 
   return (

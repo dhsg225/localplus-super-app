@@ -1,22 +1,148 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Search, Calendar, Wrench, MessageCircle, Clock, Settings } from 'lucide-react';
+import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown } from 'lucide-react';
+
+// Location interface
+interface LocationData {
+  city: string;
+  country: string;
+  isDetected: boolean;
+}
 
 const HomePage: React.FC = () => {
+  const [currentLocation, setCurrentLocation] = useState<LocationData>({
+    city: 'Bangkok',
+    country: 'Thailand',
+    isDetected: false
+  });
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+
+  const availableLocations = [
+    'Bangkok',
+    'Pattaya', 
+    'Hua Hin',
+    'Krabi',
+    'Samui',
+    'Phuket',
+    'Chiang Mai',
+    'Phuket Town'
+  ];
+
+  // Detect location on component mount
+  useEffect(() => {
+    detectLocation();
+  }, []);
+
+  const detectLocation = async () => {
+    try {
+      // Try to get user's geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            // In a real app, you'd call a reverse geocoding API
+            // For demo purposes, we'll simulate detection
+            const detectedLocation = await simulateLocationDetection(latitude, longitude);
+            
+            setCurrentLocation({
+              ...detectedLocation,
+              isDetected: true
+            });
+          },
+          (error) => {
+            console.log('Geolocation error:', error);
+            // Fallback to IP-based detection or default
+            fallbackLocationDetection();
+          }
+        );
+      } else {
+        fallbackLocationDetection();
+      }
+    } catch (error) {
+      console.log('Location detection failed:', error);
+      fallbackLocationDetection();
+    }
+  };
+
+  const simulateLocationDetection = async (lat: number, lng: number): Promise<LocationData> => {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simple simulation - in reality you'd use reverse geocoding
+    // Bangkok coordinates are roughly 13.7563, 100.5018
+    if (Math.abs(lat - 13.7563) < 1 && Math.abs(lng - 100.5018) < 1) {
+      return { city: 'Bangkok', country: 'Thailand', isDetected: true };
+    }
+    
+    // Default to Bangkok for demo
+    return { city: 'Bangkok', country: 'Thailand', isDetected: true };
+  };
+
+  const fallbackLocationDetection = async () => {
+    try {
+      // In a real app, you'd call an IP geolocation service
+      // For demo, we'll just set Bangkok as default
+      setCurrentLocation({
+        city: 'Bangkok',
+        country: 'Thailand',
+        isDetected: true
+      });
+    } catch (error) {
+      console.log('Fallback location detection failed:', error);
+    }
+  };
+
+  const handleLocationChange = (newCity: string) => {
+    setCurrentLocation({
+      city: newCity,
+      country: 'Thailand',
+      isDetected: false // User manually selected
+    });
+    setShowLocationPicker(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
-      {/* Header */}
-      <div className="px-4 py-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome to LocalPlus
-        </h1>
-        <p className="text-gray-600 mb-4">
-          Your lifestyle companion for Thailand
-        </p>
-        <div className="flex items-center justify-center text-red-600 mb-8">
-          <MapPin size={20} className="mr-2" />
-          <span className="font-medium">Bangkok</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with Location */}
+      <div className="bg-white px-4 py-6 text-center relative">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome to LocalPlus</h1>
+        <p className="text-gray-600 mb-3">Your lifestyle companion for Thailand</p>
+        
+        {/* Location Selector */}
+        <div className="relative inline-block">
+          <button
+            onClick={() => setShowLocationPicker(!showLocationPicker)}
+            className="flex items-center space-x-1 text-red-600 bg-red-50 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors"
+          >
+            <MapPin size={16} />
+            <span className="font-medium">{currentLocation.city}</span>
+            <ChevronDown size={16} />
+          </button>
+          
+          {showLocationPicker && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+              <div className="p-2">
+                <p className="text-xs text-gray-500 px-2 py-1">Select your location:</p>
+                {availableLocations.map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => handleLocationChange(city)}
+                    className={`w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+                      currentLocation.city === city ? 'bg-red-50 text-red-600' : 'text-gray-700'
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+        
+        {currentLocation.isDetected && (
+          <p className="text-xs text-gray-500 mt-1">📍 Auto-detected your location</p>
+        )}
       </div>
 
       {/* Off Peak Dining Banner */}

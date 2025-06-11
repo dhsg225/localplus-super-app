@@ -56,10 +56,10 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 py-6">
+      <div className="flex items-center justify-center min-h-screen px-2 py-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
 
-        <div className="relative bg-white rounded-lg shadow-xl transform transition-all w-full max-w-md mx-auto max-h-[85vh] overflow-hidden">
+        <div className="relative bg-white rounded-lg shadow-xl transform transition-all w-full max-w-sm mx-auto max-h-[90vh] overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-4 border-b">
             <div className="flex items-center space-x-2">
@@ -72,20 +72,20 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="px-4 py-4 space-y-4 max-h-[55vh] overflow-y-auto">
+          <div className="px-3 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
             {/* Cuisine */}
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Cuisine</h4>
-              <div className="grid grid-cols-2 gap-2">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Cuisine</h4>
+              <div className="grid grid-cols-2 gap-1">
                 {cuisineOptions.map(cuisine => (
-                  <label key={cuisine} className="flex items-center space-x-2">
+                  <label key={cuisine} className="flex items-center space-x-1">
                     <input
                       type="checkbox"
                       checked={filters.cuisine.includes(cuisine)}
                       onChange={() => handleCheckboxChange('cuisine', cuisine)}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4"
                     />
-                    <span className="text-sm text-gray-700">{cuisine}</span>
+                    <span className="text-xs text-gray-700">{cuisine}</span>
                   </label>
                 ))}
               </div>
@@ -93,17 +93,17 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
             {/* Location */}
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Location</h4>
-              <div className="grid grid-cols-2 gap-2">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Location</h4>
+              <div className="grid grid-cols-2 gap-1">
                 {locationOptions.map(location => (
-                  <label key={location} className="flex items-center space-x-2">
+                  <label key={location} className="flex items-center space-x-1">
                     <input
                       type="checkbox"
                       checked={filters.location.includes(location)}
                       onChange={() => handleCheckboxChange('location', location)}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4"
                     />
-                    <span className="text-sm text-gray-700">{location}</span>
+                    <span className="text-xs text-gray-700">{location}</span>
                   </label>
                 ))}
               </div>
@@ -111,17 +111,17 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
             {/* Deal Type */}
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Deal Type</h4>
-              <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Deal Type</h4>
+              <div className="space-y-1">
                 {dealTypeOptions.map(option => (
-                  <label key={option.value} className="flex items-center space-x-2">
+                  <label key={option.value} className="flex items-center space-x-1">
                     <input
                       type="checkbox"
                       checked={filters.dealType.includes(option.value)}
                       onChange={() => handleCheckboxChange('dealType', option.value)}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4"
                     />
-                    <span className="text-sm text-gray-700">{option.label}</span>
+                    <span className="text-xs text-gray-700">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -129,10 +129,10 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
             {/* Price Range */}
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Price Range (per person)</h4>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-600">฿{filters.priceRange.min}</span>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Price Range (per person)</h4>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-600 w-12">฿{filters.priceRange.min}</span>
                   <input
                     type="range"
                     min="0"
@@ -145,7 +145,7 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
                     }))}
                     className="flex-1"
                   />
-                  <span className="text-sm text-gray-600">฿{filters.priceRange.max}</span>
+                  <span className="text-xs text-gray-600 w-12">฿{filters.priceRange.max}</span>
                 </div>
                 <input
                   type="range"
