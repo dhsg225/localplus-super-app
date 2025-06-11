@@ -102,22 +102,34 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         ))}
       </div>
 
-      {/* Discreet Navigation Arrows */}
+      {/* Enhanced Navigation Arrows - Always Visible */}
       {showArrows && images.length > 1 && (
         <>
           <button
             onClick={goToPrev}
-            className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-1.5 opacity-60 hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-all duration-200 backdrop-blur-sm shadow-lg"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={16} />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-1.5 opacity-60 hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-all duration-200 backdrop-blur-sm shadow-lg"
           >
-            <ChevronRight size={14} />
+            <ChevronRight size={16} />
           </button>
         </>
+      )}
+      
+      {/* Swipe Hint for Mobile - Shows briefly on first load */}
+      {images.length > 1 && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black bg-opacity-50 px-2 py-1 rounded animate-pulse">
+            👈 Swipe
+          </div>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black bg-opacity-50 px-2 py-1 rounded animate-pulse">
+            Swipe 👉
+          </div>
+        </div>
       )}
 
       {/* Dots Indicator */}

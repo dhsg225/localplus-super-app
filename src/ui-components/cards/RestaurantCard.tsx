@@ -25,7 +25,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           alt={restaurant.name}
           className="h-full"
           showDots={true}
-          showArrows={false}
+          showArrows={true}
         />
         
         {/* Today's Deal Badge */}

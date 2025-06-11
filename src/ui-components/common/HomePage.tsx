@@ -97,12 +97,50 @@ const HomePage: React.FC = () => {
       const response = await fetch('https://ipapi.co/json/');
       const data = await response.json();
       
-      // Map IP location to our supported Thai cities
-      const supportedCities = ['Bangkok', 'Pattaya', 'Hua Hin', 'Krabi', 'Samui', 'Phuket', 'Chiang Mai'];
-      const detectedCity = data.city || 'Bangkok';
+      console.log('IP geolocation data:', data); // Debug logging
       
-      // Check if detected city is in our supported list or default to Bangkok
-      const finalCity = supportedCities.includes(detectedCity) ? detectedCity : 'Bangkok';
+      // More comprehensive mapping for Hua Hin area
+      const huaHinKeywords = ['hua hin', 'hin lek fai', 'nong khon', 'prachuap'];
+      const pattayaKeywords = ['pattaya', 'chonburi', 'banglamung'];
+      const bangkokKeywords = ['bangkok', 'samut prakan', 'nonthaburi'];
+      
+      const detectedCity = (data.city || '').toLowerCase();
+      const detectedRegion = (data.region || '').toLowerCase();
+      const detectedCountry = (data.country || '').toLowerCase();
+      
+      let finalCity = 'Bangkok'; // Default
+      
+      // Check for Hua Hin and surrounding areas
+      if (huaHinKeywords.some(keyword => 
+        detectedCity.includes(keyword) || 
+        detectedRegion.includes(keyword)
+      )) {
+        finalCity = 'Hua Hin';
+      }
+      // Check for Pattaya area
+      else if (pattayaKeywords.some(keyword => 
+        detectedCity.includes(keyword) || 
+        detectedRegion.includes(keyword)
+      )) {
+        finalCity = 'Pattaya';
+      }
+      // Check for Bangkok area
+      else if (bangkokKeywords.some(keyword => 
+        detectedCity.includes(keyword) || 
+        detectedRegion.includes(keyword)
+      )) {
+        finalCity = 'Bangkok';
+      }
+      // Check for other supported cities
+      else {
+        const supportedCities = ['Krabi', 'Samui', 'Phuket', 'Chiang Mai'];
+        const matchedCity = supportedCities.find(city => 
+          detectedCity.includes(city.toLowerCase())
+        );
+        if (matchedCity) {
+          finalCity = matchedCity;
+        }
+      }
       
       setCurrentLocation({
         city: finalCity,
@@ -279,6 +317,11 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </Link>
+        </div>
+        
+        {/* Discreet Build Number */}
+        <div className="mt-4">
+          <p className="text-xs text-gray-400 text-center">v{Date.now().toString().slice(-8)}</p>
         </div>
       </div>
     </div>

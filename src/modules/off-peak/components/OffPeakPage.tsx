@@ -20,9 +20,11 @@ const OffPeakPage: React.FC = () => {
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [restaurantFilter, setRestaurantFilter] = useState<string | null>(null);
   
+  // Get current time in Thailand timezone (GMT+7)
   const currentTime = new Date();
-  const currentHour = currentTime.getHours();
-  const currentMinutes = currentTime.getMinutes();
+  const thailandTime = new Date(currentTime.toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
+  const currentHour = thailandTime.getHours();
+  const currentMinutes = thailandTime.getMinutes();
 
   // Helper function to check if deal is available in next X hours
   const isAvailableInNextHours = (dealType: string, hours: number) => {
