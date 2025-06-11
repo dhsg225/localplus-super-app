@@ -174,30 +174,30 @@ const TodaysDeals: React.FC = () => {
 
         {/* Time Slot Filters */}
         <div className="px-4 pb-4">
-          <div className="flex space-x-2 overflow-x-auto">
+          <div className="grid grid-cols-4 gap-1">
             <button
               onClick={() => setSelectedTimeSlot('next2h')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'next2h'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              🔥 Next 2 Hours
+              🔥 Next 2H
             </button>
             <button
               onClick={() => setSelectedTimeSlot('next6h')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'next6h'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              ⏰ Next 6 Hours
+              ⏰ Next 6H
             </button>
             <button
               onClick={() => setSelectedTimeSlot('today')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'today'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -207,7 +207,7 @@ const TodaysDeals: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedTimeSlot('all')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'all'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

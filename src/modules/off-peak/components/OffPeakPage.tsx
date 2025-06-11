@@ -174,30 +174,30 @@ const OffPeakPage: React.FC = () => {
 
         {/* Time Slot Filters */}
         <div className="px-4 pb-4">
-          <div className="flex space-x-2 overflow-x-auto mb-4">
+          <div className="grid grid-cols-4 gap-1 mb-4">
             <button
               onClick={() => setSelectedTimeSlot('next2h')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'next2h'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              🔥 Next 2 Hours
+              🔥 Next 2H
             </button>
             <button
               onClick={() => setSelectedTimeSlot('next6h')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'next6h'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              ⏰ Next 6 Hours
+              ⏰ Next 6H
             </button>
             <button
               onClick={() => setSelectedTimeSlot('today')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'today'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -207,7 +207,7 @@ const OffPeakPage: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedTimeSlot('all')}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-2 py-2 rounded-full text-xs font-medium ${
                 selectedTimeSlot === 'all'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -249,7 +249,65 @@ const OffPeakPage: React.FC = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-2">No deals found</h3>
             <p className="text-gray-600">Try adjusting your filters to see more options</p>
           </div>
+        ) : restaurantFilter ? (
+          /* Compact Grid View for Single Restaurant */
+          <div className="grid grid-cols-1 gap-3">
+            {sortedDeals.map((deal) => (
+              <div key={deal.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-3xl font-bold text-red-600">
+                      {deal.discountPercentage}%
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {getDealTypeIcon(deal.dealType)} {getDealTypeLabel(deal.dealType)}
+                      </div>
+                      <div className="text-xs text-gray-600">{deal.description}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {deal.isPopular && (
+                      <span className="bg-red-100 text-red-800 px-2 py-1 text-xs font-medium rounded-full">
+                        🔥 Popular
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Time Slots Grid */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {deal.timeSlots.map((slot) => (
+                    <button
+                      key={slot.id}
+                      disabled={!slot.isAvailable}
+                      className={`p-3 rounded-lg border text-center text-sm transition-colors ${
+                        slot.isAvailable 
+                          ? 'border-green-200 bg-green-50 text-green-800 hover:bg-green-100'
+                          : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="font-medium">{slot.startTime}</div>
+                      <div className="text-xs">
+                        {slot.isAvailable 
+                          ? `${slot.remainingSeats} left`
+                          : 'Full'
+                        }
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Quick Book Button */}
+                <button className="w-full bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                  Book {deal.discountPercentage}% Off
+                </button>
+              </div>
+            ))}
+          </div>
         ) : (
+          /* Full Card View for All Restaurants */
           <div className="space-y-4">
             {sortedDeals.map((deal) => (
               <div key={deal.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">

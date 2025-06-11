@@ -305,32 +305,44 @@ const CuisineExplorer: React.FC = () => {
               {/* Price Range Filter */}
               <div>
                 <h3 className="text-sm font-medium text-gray-900 mb-2">
-                  Price Range: {getPriceLabel(filters.priceRange.min)} - {getPriceLabel(filters.priceRange.max)}
+                  Price Range: {getPriceDisplay(filters.priceRange.min)} - {getPriceDisplay(filters.priceRange.max)}
                 </h3>
-                <div className="flex items-center space-x-4">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-600">Min</label>
-                    <input
-                      type="range"
-                      min="1"
-                      max="4"
-                      step="1"
-                      value={filters.priceRange.min}
-                      onChange={(e) => handlePriceRangeChange('min', Number(e.target.value))}
-                      className="w-full"
-                    />
+                <div className="space-y-3">
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>฿ Budget</span>
+                    <span>฿฿ Moderate</span>
+                    <span>฿฿฿ Upscale</span>
+                    <span>฿฿฿฿ Fine Dining</span>
                   </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-600">Max</label>
-                    <input
-                      type="range"
-                      min="1"
-                      max="4"
-                      step="1"
-                      value={filters.priceRange.max}
-                      onChange={(e) => handlePriceRangeChange('max', Number(e.target.value))}
-                      className="w-full"
-                    />
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-xs text-gray-600 block mb-1">
+                        Min: {getPriceLabel(filters.priceRange.min)} ({getPriceDisplay(filters.priceRange.min)})
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="4"
+                        step="1"
+                        value={filters.priceRange.min}
+                        onChange={(e) => handlePriceRangeChange('min', Number(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600 block mb-1">
+                        Max: {getPriceLabel(filters.priceRange.max)} ({getPriceDisplay(filters.priceRange.max)})
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="4"
+                        step="1"
+                        value={filters.priceRange.max}
+                        onChange={(e) => handlePriceRangeChange('max', Number(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
