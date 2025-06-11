@@ -115,47 +115,39 @@ const BusinessManagementDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Views</p>
-                    <p className="text-2xl font-bold text-gray-900">{analytics.views.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">This week</p>
-                  </div>
-                  <Eye className="h-8 w-8 text-blue-500" />
+              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                <div className="text-center">
+                  <Eye className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-600 mb-1">Views</p>
+                  <p className="text-xl font-bold text-gray-900">{analytics.views.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">This week</p>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Bookings</p>
-                    <p className="text-2xl font-bold text-gray-900">{analytics.bookings}</p>
-                    <p className="text-xs text-gray-500">This week</p>
-                  </div>
-                  <Users className="h-8 w-8 text-green-500" />
+              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                <div className="text-center">
+                  <Users className="h-6 w-6 text-green-500 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-600 mb-1">Bookings</p>
+                  <p className="text-xl font-bold text-gray-900">{analytics.bookings}</p>
+                  <p className="text-xs text-gray-500">This week</p>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Revenue</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
-                    <p className="text-xs text-gray-500">This week</p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-purple-500" />
+              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                <div className="text-center">
+                  <DollarSign className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-600 mb-1">Revenue</p>
+                  <p className="text-xl font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
+                  <p className="text-xs text-gray-500">This week</p>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Rating</p>
-                    <p className="text-2xl font-bold text-gray-900">{analytics.averageRating}</p>
-                    <p className="text-xs text-gray-500">{analytics.reviewCount} reviews</p>
-                  </div>
-                  <Star className="h-8 w-8 text-yellow-500" />
+              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                <div className="text-center">
+                  <Star className="h-6 w-6 text-yellow-500 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-600 mb-1">Rating</p>
+                  <p className="text-xl font-bold text-gray-900">{analytics.averageRating}</p>
+                  <p className="text-xs text-gray-500">{analytics.reviewCount} reviews</p>
                 </div>
               </div>
             </div>
@@ -253,6 +245,11 @@ const BusinessManagementDashboard: React.FC = () => {
             })}
           </div>
         )}
+      </div>
+      
+      {/* Discreet Build Number */}
+      <div className="px-4 pb-2">
+        <p className="text-xs text-gray-400 text-center">v{Date.now().toString().slice(-8)}</p>
       </div>
     </div>
   );

@@ -69,27 +69,54 @@ const HomePage: React.FC = () => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Simple simulation - in reality you'd use reverse geocoding
-    // Bangkok coordinates are roughly 13.7563, 100.5018
-    if (Math.abs(lat - 13.7563) < 1 && Math.abs(lng - 100.5018) < 1) {
-      return { city: 'Bangkok', country: 'Thailand', isDetected: true };
+    // Real-world coordinates for Thailand locations
+    const locations = [
+      { name: 'Bangkok', lat: 13.7563, lng: 100.5018, radius: 0.5 },
+      { name: 'Pattaya', lat: 12.9329, lng: 100.8825, radius: 0.3 },
+      { name: 'Hua Hin', lat: 12.5684, lng: 99.9578, radius: 0.3 },
+      { name: 'Phuket', lat: 7.8804, lng: 98.3923, radius: 0.3 },
+      { name: 'Chiang Mai', lat: 18.7883, lng: 98.9853, radius: 0.3 },
+      { name: 'Krabi', lat: 8.0863, lng: 98.9063, radius: 0.3 },
+      { name: 'Samui', lat: 9.5380, lng: 100.0614, radius: 0.2 }
+    ];
+    
+    // Find closest matching location
+    for (const location of locations) {
+      if (Math.abs(lat - location.lat) < location.radius && Math.abs(lng - location.lng) < location.radius) {
+        return { city: location.name, country: 'Thailand', isDetected: true };
+      }
     }
     
-    // Default to Bangkok for demo
+    // Default to Bangkok if no close match
     return { city: 'Bangkok', country: 'Thailand', isDetected: true };
   };
 
   const fallbackLocationDetection = async () => {
     try {
-      // In a real app, you'd call an IP geolocation service
-      // For demo, we'll just set Bangkok as default
+      // Try IP geolocation as fallback
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      
+      // Map IP location to our supported Thai cities
+      const supportedCities = ['Bangkok', 'Pattaya', 'Hua Hin', 'Krabi', 'Samui', 'Phuket', 'Chiang Mai'];
+      const detectedCity = data.city || 'Bangkok';
+      
+      // Check if detected city is in our supported list or default to Bangkok
+      const finalCity = supportedCities.includes(detectedCity) ? detectedCity : 'Bangkok';
+      
       setCurrentLocation({
-        city: 'Bangkok',
-        country: 'Thailand',
+        city: finalCity,
+        country: data.country_name || 'Thailand',
         isDetected: true
       });
     } catch (error) {
       console.log('Fallback location detection failed:', error);
+      // Final fallback to Bangkok
+      setCurrentLocation({
+        city: 'Bangkok',
+        country: 'Thailand',
+        isDetected: false // Set to false since we couldn't detect
+      });
     }
   };
 

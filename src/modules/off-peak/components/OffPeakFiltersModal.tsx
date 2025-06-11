@@ -15,7 +15,7 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
     cuisine: [],
     location: [],
     dealType: [],
-    priceRange: { min: 0, max: 2000 },
+    priceRange: { min: 0, max: 80 },
     dateRange: { start: '', end: '' },
     pax: 2
   });
@@ -48,7 +48,7 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
       cuisine: [],
       location: [],
       dealType: [],
-      priceRange: { min: 0, max: 2000 },
+      priceRange: { min: 0, max: 80 },
       dateRange: { start: '', end: '' },
       pax: 2
     });
@@ -129,36 +129,52 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
             {/* Price Range */}
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Price Range (per person)</h4>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600 w-12">฿{filters.priceRange.min}</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="2000"
-                    step="50"
-                    value={filters.priceRange.min}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev,
-                      priceRange: { ...prev.priceRange, min: Number(e.target.value) }
-                    }))}
-                    className="flex-1"
-                  />
-                  <span className="text-xs text-gray-600 w-12">฿{filters.priceRange.max}</span>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">
+                Discount Range: {filters.priceRange.min}% - {filters.priceRange.max}%
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs text-gray-600">
+                  <span>0% No Discount</span>
+                  <span>25% Good</span>
+                  <span>50% Great</span>
+                  <span>75%+ Amazing</span>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="2000"
-                  step="50"
-                  value={filters.priceRange.max}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    priceRange: { ...prev.priceRange, max: Number(e.target.value) }
-                  }))}
-                  className="w-full"
-                />
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-xs text-gray-600 block mb-1">
+                      Min Discount: {filters.priceRange.min}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="80"
+                      step="5"
+                      value={filters.priceRange.min}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        priceRange: { ...prev.priceRange, min: Number(e.target.value) }
+                      }))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 block mb-1">
+                      Max Discount: {filters.priceRange.max}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="80"
+                      step="5"
+                      value={filters.priceRange.max}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        priceRange: { ...prev.priceRange, max: Number(e.target.value) }
+                      }))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
