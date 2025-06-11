@@ -260,27 +260,6 @@ const HomePage: React.FC = () => {
           Quick Actions
         </h2>
         
-        {/* Prominent Discount Passport Info Link */}
-        <div className="mb-6">
-          <Link
-            to="/passport/info"
-            className="block bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-lg mb-1 flex items-center">
-                  <Award size={20} className="mr-2" />
-                  Complete Savings Passport Guide
-                </h3>
-                <p className="text-indigo-100 text-sm">Learn everything about rewards, gamification & benefits</p>
-              </div>
-              <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
-                INFO
-              </div>
-            </div>
-          </Link>
-        </div>
-        
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/restaurants"
@@ -330,9 +309,6 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Savings Passport</h3>
             <p className="text-xs text-gray-500 flex-1">Instant savings at 500+ businesses</p>
-            <div className="mt-auto text-xs text-yellow-700 font-medium">
-              ฿199/month • Subscribe now
-            </div>
           </Link>
 
           <Link
@@ -401,7 +377,7 @@ const HomePage: React.FC = () => {
         
         {/* Discreet Build Number */}
         <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v0.20</p>
+          <p className="text-xs text-gray-400 text-center">v0.21</p>
         </div>
       </div>
     </div>

@@ -93,6 +93,8 @@ const PassportPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'badges' | 'challenges' | 'saved' | 'activity'>('overview');
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number, city: string} | null>(null);
   const [nearbyBusinesses, setNearbyBusinesses] = useState(mockBusinesses);
+  const [selectedDistance, setSelectedDistance] = useState<number>(3); // Default 3km
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   
   const user = mockPassportUser;
   const stats = mockPassportStats;
@@ -102,46 +104,107 @@ const PassportPage: React.FC = () => {
     detectLocation();
   }, []);
 
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return Math.round(distance * 10) / 10; // Round to 1 decimal place
+  };
+
   const detectLocation = async () => {
+    setIsLoadingLocation(true);
     try {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            setUserLocation({
+            const detectedLocation = {
               lat: latitude,
               lng: longitude,
               city: 'Hua Hin' // For demo, assume we're in Hua Hin
-            });
+            };
+            setUserLocation(detectedLocation);
+            
+            // Calculate real distances to businesses
+            const businessesWithRealDistances = mockBusinesses.map(business => ({
+              ...business,
+              distance: calculateDistance(latitude, longitude, business.lat, business.lng)
+            }));
+            setNearbyBusinesses(businessesWithRealDistances);
+            setIsLoadingLocation(false);
           },
-          () => {
-            // Fallback to Hua Hin center
-            setUserLocation({
-              lat: 12.5684,
-              lng: 99.9578,
-              city: 'Hua Hin'
-            });
+          async () => {
+            // Fallback to IP geolocation
+            try {
+              const response = await fetch('https://ipapi.co/json/');
+              const data = await response.json();
+              const fallbackLocation = {
+                lat: data.latitude || 12.5684,
+                lng: data.longitude || 99.9578,
+                city: data.city || 'Hua Hin'
+              };
+              setUserLocation(fallbackLocation);
+              
+              // Calculate distances with fallback location
+              const businessesWithDistances = mockBusinesses.map(business => ({
+                ...business,
+                distance: calculateDistance(fallbackLocation.lat, fallbackLocation.lng, business.lat, business.lng)
+              }));
+              setNearbyBusinesses(businessesWithDistances);
+            } catch (error) {
+              console.log('IP geolocation failed:', error);
+              // Final fallback to Hua Hin center
+              setUserLocation({
+                lat: 12.5684,
+                lng: 99.9578,
+                city: 'Hua Hin'
+              });
+            }
+            setIsLoadingLocation(false);
           }
         );
       } else {
-        // Fallback to Hua Hin center
-        setUserLocation({
-          lat: 12.5684,
-          lng: 99.9578,
-          city: 'Hua Hin'
-        });
+        // Geolocation not supported, use IP fallback
+        try {
+          const response = await fetch('https://ipapi.co/json/');
+          const data = await response.json();
+          setUserLocation({
+            lat: data.latitude || 12.5684,
+            lng: data.longitude || 99.9578,
+            city: data.city || 'Hua Hin'
+          });
+        } catch (error) {
+          // Final fallback
+          setUserLocation({
+            lat: 12.5684,
+            lng: 99.9578,
+            city: 'Hua Hin'
+          });
+        }
+        setIsLoadingLocation(false);
       }
     } catch (error) {
       console.log('Location detection failed:', error);
+      setUserLocation({
+        lat: 12.5684,
+        lng: 99.9578,
+        city: 'Hua Hin'
+      });
+      setIsLoadingLocation(false);
     }
   };
 
-  // Filter businesses within 3km
+  // Filter businesses within selected distance
   const getBusinessesNearby = () => {
-    if (!userLocation) return mockBusinesses.slice(0, 4); // Show first 4 if no location
-    
-    return mockBusinesses
-      .filter(business => business.distance <= 3.0)
+    return nearbyBusinesses
+      .filter(business => business.distance <= selectedDistance)
       .sort((a, b) => a.distance - b.distance);
   };
 
@@ -278,48 +341,95 @@ const PassportPage: React.FC = () => {
               <MapPin size={16} className="text-gray-500" />
             </div>
             <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
-              {getBusinessesNearby().length} WITHIN 3KM
+              {isLoadingLocation ? 'LOCATING...' : `${getBusinessesNearby().length} WITHIN ${selectedDistance}KM`}
             </span>
           </div>
+
+          {/* Distance Selector */}
+          <div className="mb-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-sm text-gray-600">Distance from me:</span>
+            </div>
+            <div className="flex space-x-2">
+              {distanceOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setSelectedDistance(option.value)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    selectedDistance === option.value
+                      ? 'bg-red-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Location Status */}
+          {isLoadingLocation && (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+              <span className="ml-2 text-sm text-gray-600">Detecting your location...</span>
+            </div>
+          )}
+
+          {!isLoadingLocation && userLocation && (
+            <div className="mb-4 p-2 bg-blue-50 rounded-lg">
+              <div className="flex items-center text-xs text-blue-800">
+                <MapPin size={14} className="mr-1" />
+                <span>Location: {userLocation.city} ({userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)})</span>
+              </div>
+            </div>
+          )}
           
           <div className="space-y-3">
-            {getBusinessesNearby().slice(0, 4).map((business) => (
-              <div key={business.id} className="border border-gray-200 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-medium text-gray-900">{business.name}</h4>
-                      <span className="text-lg font-bold text-red-600">{business.discount}% OFF</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs text-gray-600">
-                        {business.category} • {business.location} • {business.distance}km away
+            {getBusinessesNearby().length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <MapPin size={32} className="mx-auto mb-2 text-gray-300" />
+                <p className="text-sm">No businesses found within {selectedDistance}km</p>
+                <p className="text-xs mt-1">Try increasing the distance range</p>
+              </div>
+            ) : (
+              getBusinessesNearby().slice(0, 6).map((business) => (
+                <div key={business.id} className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-gray-900">{business.name}</h4>
+                        <span className="text-lg font-bold text-red-600">{business.discount}% OFF</span>
                       </div>
-                      {business.isRedeemed ? (
-                        <div className="flex items-center text-green-600 text-xs">
-                          <CheckCircle size={14} className="mr-1" />
-                          Redeemed 2024
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-600">
+                          {business.category} • {business.location} • {business.distance}km away
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => handleQRScan(business.id, business.redemptionCode)}
-                          className="flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
-                        >
-                          <QrCode size={14} className="mr-1" />
-                          Redeem
-                        </button>
-                      )}
+                        {business.isRedeemed ? (
+                          <div className="flex items-center text-green-600 text-xs">
+                            <CheckCircle size={14} className="mr-1" />
+                            Redeemed 2024
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleQRScan(business.id, business.redemptionCode)}
+                            className="flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
+                          >
+                            <QrCode size={14} className="mr-1" />
+                            Redeem
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
           
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <div className="text-xs text-blue-800">
               <strong>How it works:</strong> Each business offers one discount per calendar year. 
-              Simply scan the QR code at checkout to redeem your savings.
+              Simply scan the QR code at checkout to redeem your savings. Location detected using GPS.
             </div>
           </div>
           
@@ -559,6 +669,13 @@ const PassportPage: React.FC = () => {
       ))}
     </div>
   );
+
+  const distanceOptions = [
+    { value: 1, label: '1km' },
+    { value: 3, label: '3km' },
+    { value: 5, label: '5km' },
+    { value: 10, label: '10km' }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
