@@ -256,57 +256,84 @@ const TodaysDeals: React.FC = () => {
             </div>
 
             {/* Deals List */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {processedDeals.map((deal, index) => (
                 <button
                   key={deal.id}
                   onClick={() => handleDealClick(deal)}
-                  className="w-full bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow text-left"
+                  className="w-full bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow text-left"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-medium text-gray-900">{deal.restaurantName}</h3>
+                  {/* Deal Header with Prominent Percentage */}
+                  <div className="p-4 bg-gradient-to-r from-red-500 to-orange-500 text-white">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-3xl font-bold">
+                          {deal.discountPercentage}%
+                        </div>
+                        <div>
+                          <div className="text-sm opacity-90">OFF</div>
+                          <div className="text-xs opacity-75">
+                            {deal.dealType === 'early-bird' ? '🌅 Early Bird' : 
+                             deal.dealType === 'afternoon' ? '☀️ Afternoon' : 
+                             '🌙 Late Night'}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
                         {index < 3 && (
-                          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 text-xs font-medium rounded-full">
-                            Top Deal
+                          <span className="bg-yellow-400 text-yellow-900 px-2 py-1 text-xs font-medium rounded-full mb-1 block">
+                            🔥 Top Deal
                           </span>
                         )}
+                        {getStatusBadge(deal.timeStatus)}
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{deal.description}</p>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
-                        {deal.discountPercentage}%
-                      </div>
-                      <div className="text-xs text-gray-500">OFF</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <MapPin size={14} />
-                        <span>{deal.location}</span>
+                  {/* Restaurant Info */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{deal.restaurantName}</h3>
+                        <div className="flex items-center space-x-3 text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <MapPin size={14} />
+                            <span>{deal.location}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Star size={14} />
+                            <span>{deal.rating} ({deal.reviewCount})</span>
+                          </div>
+                          <span className="bg-gray-100 text-gray-700 px-2 py-1 text-xs rounded-full">
+                            {deal.cuisine}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock size={14} />
-                        <span>{deal.timeStatus.timeLabel}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Star size={14} />
-                        <span>{deal.rating}</span>
+                      
+                      <div className="text-right">
+                        <img 
+                          src={deal.restaurantImage} 
+                          alt={deal.restaurantName}
+                          className="w-16 h-16 rounded-lg object-cover"
+                        />
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      {getStatusBadge(deal.timeStatus)}
-                      {deal.isPopular && (
-                        <span className="bg-red-100 text-red-800 px-2 py-1 text-xs font-medium rounded-full">
-                          Popular
-                        </span>
-                      )}
+                    <p className="text-sm text-gray-600 mb-4">{deal.description}</p>
+
+                    {/* Time Availability */}
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium text-gray-900">
+                          Available: {deal.timeStatus.timeLabel}
+                        </div>
+                        {deal.isPopular && (
+                          <span className="bg-red-100 text-red-800 px-2 py-1 text-xs font-medium rounded-full">
+                            🔥 Popular
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </button>

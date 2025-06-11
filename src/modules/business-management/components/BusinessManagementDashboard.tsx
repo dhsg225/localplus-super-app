@@ -137,7 +137,7 @@ const BusinessManagementDashboard: React.FC = () => {
                 <div className="text-center">
                   <DollarSign className="h-6 w-6 text-purple-500 mx-auto mb-2" />
                   <p className="text-xs font-medium text-gray-600 mb-1">Revenue</p>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
+                  <p className="text-base font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
                   <p className="text-xs text-gray-500">This week</p>
                 </div>
               </div>
@@ -231,14 +231,14 @@ const BusinessManagementDashboard: React.FC = () => {
                       : 'opacity-50 cursor-not-allowed'
                   }`}
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-gray-100 rounded-lg shrink-0">
-                      <IconComponent size={20} className="text-gray-700" />
+                  <div>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="p-2 bg-gray-100 rounded-lg shrink-0">
+                        <IconComponent size={20} className="text-gray-700" />
+                      </div>
+                      <h3 className="text-sm font-medium text-gray-900">{section.title}</h3>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 break-words">{section.title}</h3>
-                      <p className="text-xs text-gray-600 mt-1 break-words leading-relaxed">{section.description}</p>
-                    </div>
+                    <p className="text-xs text-gray-600 break-words leading-relaxed">{section.description}</p>
                   </div>
                 </button>
               );
