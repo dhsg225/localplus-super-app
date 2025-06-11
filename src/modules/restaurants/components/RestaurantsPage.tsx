@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot } from 'lucide-react';
 import RestaurantCard from '@/ui-components/cards/RestaurantCard';
 import ExploreCard from '@/ui-components/common/ExploreCard';
@@ -129,6 +130,7 @@ const mockRestaurants: Restaurant[] = [
 ];
 
 const RestaurantsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'menu' | 'book' | 'offpeak'>('menu');
   const [menuModal, setMenuModal] = useState<{
     isOpen: boolean;
@@ -157,8 +159,11 @@ const RestaurantsPage: React.FC = () => {
   };
 
   const handleOffPeakClick = (restaurantId: string) => {
-    console.log('View off-peak deals:', restaurantId);
-    // TODO: Navigate to off-peak deals
+    const restaurant = mockRestaurants.find(r => r.id === restaurantId);
+    if (restaurant) {
+      // Navigate to off-peak page with restaurant filter
+      navigate(`/off-peak?restaurant=${encodeURIComponent(restaurant.name)}`);
+    }
   };
 
   const closeMenuModal = () => {
