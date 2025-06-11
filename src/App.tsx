@@ -13,6 +13,10 @@ import ServicesPage from "./modules/services/components/ServicesPage";
 import AIAssistantPage from "./modules/ai-assistant/components/AIAssistantPage";
 import BusinessOnboardingPage from "./modules/business-onboarding/components/BusinessOnboardingPage";
 import OffPeakPage from "./modules/off-peak/components/OffPeakPage";
+import BusinessManagementDashboard from "./modules/business-management/components/BusinessManagementDashboard";
+import BusinessProfileEditor from "./modules/business-management/components/BusinessProfileEditor";
+import MenuManagement from "./modules/business-management/components/MenuManagement";
+import DealsManagement from "./modules/business-management/components/DealsManagement";
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
@@ -32,6 +36,10 @@ function App() {
             <Route path="/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
             <Route path="/off-peak" element={<OffPeakPage />} />
+            <Route path="/business" element={<BusinessManagementDashboard />} />
+            <Route path="/business/profile" element={<BusinessProfileEditor />} />
+            <Route path="/business/menu" element={<MenuManagement />} />
+            <Route path="/business/deals" element={<DealsManagement />} />
           </Routes>
         </main>
         

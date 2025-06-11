@@ -56,12 +56,12 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div className="flex items-center justify-center min-h-screen p-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
 
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div className="relative bg-white rounded-lg shadow-xl transform transition-all w-full max-w-md mx-auto max-h-[90vh] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b">
+          <div className="flex items-center justify-between px-4 py-4 border-b">
             <div className="flex items-center space-x-2">
               <Filter size={20} className="text-gray-600" />
               <h3 className="text-lg font-medium text-gray-900">Filters</h3>
@@ -72,7 +72,7 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-4 space-y-6 max-h-96 overflow-y-auto">
+          <div className="px-4 py-4 space-y-6 max-h-[60vh] overflow-y-auto">
             {/* Cuisine */}
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-3">Cuisine</h4>
@@ -164,7 +164,7 @@ const OffPeakFiltersModal: React.FC<OffPeakFiltersModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 flex items-center justify-between">
+          <div className="px-4 py-4 bg-gray-50 flex items-center justify-between">
             <button
               onClick={resetFilters}
               className="text-sm text-gray-600 hover:text-gray-800"

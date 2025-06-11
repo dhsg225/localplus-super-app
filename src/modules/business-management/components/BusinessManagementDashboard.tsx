@@ -1,0 +1,261 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Building2, 
+  Camera, 
+  Clock, 
+  Menu, 
+  Percent, 
+  Calendar, 
+  TrendingUp, 
+  Bell, 
+  Settings,
+  Star,
+  Eye,
+  Users,
+  DollarSign,
+  ArrowLeft,
+  Plus
+} from 'lucide-react';
+import { businessManagementSections, mockBusinessAnalytics, mockBusinessNotifications, mockRestaurantProfile } from '../data/mockData';
+import { BusinessManagementSection } from '../types';
+
+const iconMap = {
+  Building2,
+  Camera,
+  Clock,
+  Menu,
+  Percent,
+  Calendar,
+  TrendingUp,
+  Bell,
+  Settings
+};
+
+const BusinessManagementDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'overview' | 'sections'>('overview');
+  
+  const business = mockRestaurantProfile;
+  const analytics = mockBusinessAnalytics[0];
+  const notifications = mockBusinessNotifications.filter(n => !n.isRead);
+
+  const handleSectionClick = (section: BusinessManagementSection) => {
+    if (section.isEnabled) {
+      navigate(section.path);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency: 'THB',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <ArrowLeft size={20} className="text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Business Management</h1>
+                <p className="text-sm text-gray-600">{business.name}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Bell size={20} className="text-gray-600" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {notifications.length}
+                  </span>
+                )}
+              </div>
+              <div className={`w-3 h-3 rounded-full ${business.isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4">
+          <div className="flex space-x-6">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`pb-3 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'overview'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('sections')}
+              className={`pb-3 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'sections'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Manage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-6">
+        {activeTab === 'overview' && (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Views</p>
+                    <p className="text-2xl font-bold text-gray-900">{analytics.views.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">This week</p>
+                  </div>
+                  <Eye className="h-8 w-8 text-blue-500" />
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Bookings</p>
+                    <p className="text-2xl font-bold text-gray-900">{analytics.bookings}</p>
+                    <p className="text-xs text-gray-500">This week</p>
+                  </div>
+                  <Users className="h-8 w-8 text-green-500" />
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
+                    <p className="text-xs text-gray-500">This week</p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-purple-500" />
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Rating</p>
+                    <p className="text-2xl font-bold text-gray-900">{analytics.averageRating}</p>
+                    <p className="text-xs text-gray-500">{analytics.reviewCount} reviews</p>
+                  </div>
+                  <Star className="h-8 w-8 text-yellow-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Recent Activity</h3>
+              </div>
+              <div className="divide-y divide-gray-200">
+                {mockBusinessNotifications.slice(0, 3).map((notification) => (
+                  <div key={notification.id} className="p-4 flex items-start space-x-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${!notification.isRead ? 'bg-blue-500' : 'bg-gray-300'}`} />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                      <p className="text-sm text-gray-600">{notification.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
+              </div>
+              <div className="p-4 grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => navigate('/business/menu')}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Plus size={20} className="text-green-600" />
+                  <span className="text-sm font-medium text-gray-900">Add Menu Item</span>
+                </button>
+                <button 
+                  onClick={() => navigate('/business/deals')}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Percent size={20} className="text-red-600" />
+                  <span className="text-sm font-medium text-gray-900">Create Deal</span>
+                </button>
+                <button 
+                  onClick={() => navigate('/business/images')}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Camera size={20} className="text-blue-600" />
+                  <span className="text-sm font-medium text-gray-900">Upload Photos</span>
+                </button>
+                <button 
+                  onClick={() => navigate('/business/hours')}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Clock size={20} className="text-purple-600" />
+                  <span className="text-sm font-medium text-gray-900">Update Hours</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'sections' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {businessManagementSections.map((section) => {
+              const IconComponent = iconMap[section.icon as keyof typeof iconMap];
+              
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => handleSectionClick(section)}
+                  disabled={!section.isEnabled}
+                  className={`p-4 bg-white rounded-lg border border-gray-200 text-left transition-all ${
+                    section.isEnabled 
+                      ? 'hover:shadow-md hover:border-gray-300' 
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <IconComponent size={20} className="text-gray-700" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-gray-900">{section.title}</h3>
+                      <p className="text-xs text-gray-600 mt-1">{section.description}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default BusinessManagementDashboard; 
