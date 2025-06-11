@@ -224,7 +224,7 @@ const BusinessManagementDashboard: React.FC = () => {
         )}
 
         {activeTab === 'sections' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {businessManagementSections.map((section) => {
               const IconComponent = iconMap[section.icon as keyof typeof iconMap];
               
@@ -240,12 +240,12 @@ const BusinessManagementDashboard: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
+                    <div className="p-2 bg-gray-100 rounded-lg shrink-0">
                       <IconComponent size={20} className="text-gray-700" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-medium text-gray-900">{section.title}</h3>
-                      <p className="text-xs text-gray-600 mt-1">{section.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 break-words">{section.title}</h3>
+                      <p className="text-xs text-gray-600 mt-1 break-words leading-relaxed">{section.description}</p>
                     </div>
                   </div>
                 </button>

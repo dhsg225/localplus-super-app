@@ -76,6 +76,9 @@ const DealsManagement: React.FC = () => {
         isActive: true
       });
       setIsAddingDeal(false);
+      
+      // Show success notification
+      alert(`✅ Deal "${newDeal.title}" created successfully!\n\nYour ${newDeal.discountPercentage}% off deal is now live and will appear in the off-peak dining section.`);
     }
   };
 
@@ -238,6 +241,28 @@ const DealsManagement: React.FC = () => {
                           {day.label}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                      <input
+                        type="time"
+                        value={newDeal.startTime}
+                        onChange={(e) => setNewDeal(prev => ({ ...prev, startTime: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                      <input
+                        type="time"
+                        value={newDeal.endTime}
+                        onChange={(e) => setNewDeal(prev => ({ ...prev, endTime: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
                     </div>
                   </div>
 
