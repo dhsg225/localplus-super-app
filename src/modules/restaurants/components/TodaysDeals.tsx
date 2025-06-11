@@ -15,7 +15,7 @@ const TodaysDeals: React.FC = () => {
   const isAvailableInNext2Hours = (dealType: string) => {
     const dealTimeRanges = {
       'early-bird': { start: 11, end: 14 },
-      'afternoon': { start: 14.5, end: 17.5 },
+      'afternoon': { start: 14, end: 17 },
       'late-night': { start: 21, end: 24 }
     };
 
@@ -33,7 +33,7 @@ const TodaysDeals: React.FC = () => {
   const isAvailableToday = (dealType: string) => {
     const dealTimeRanges = {
       'early-bird': { start: 11, end: 14 },
-      'afternoon': { start: 14.5, end: 17.5 },
+      'afternoon': { start: 14, end: 17 },
       'late-night': { start: 21, end: 24 }
     };
 
@@ -48,7 +48,7 @@ const TodaysDeals: React.FC = () => {
   const getTimeStatus = (dealType: string) => {
     const dealTimeRanges = {
       'early-bird': { start: 11, end: 14, label: '11:00 - 14:00' },
-      'afternoon': { start: 14.5, end: 17.5, label: '14:30 - 17:30' },
+      'afternoon': { start: 14, end: 17, label: '14:00 - 17:00' },
       'late-night': { start: 21, end: 24, label: '21:00 - 00:00' }
     };
 

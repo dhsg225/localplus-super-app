@@ -26,25 +26,29 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
   const deals = [];
   let dealCounter = 1;
   
-  // Generate 12+ deals per restaurant with random percentages
+  // Generate 12+ deals per restaurant with percentages rounded to nearest 5%
   for (let i = 0; i < 15; i++) {
     const dealType = dealTypes[i % 3];
-    const discountPercentage = 15 + (i * 3) + Math.floor(Math.random() * 10); // 15-50% range
+    const rawPercentage = 15 + (i * 3) + Math.floor(Math.random() * 10); // 15-50% range
+    const discountPercentage = Math.round(rawPercentage / 5) * 5; // Round to nearest 5%
     const priceVariation = basePrice + Math.floor(Math.random() * 400) - 200; // ±200 variation
     const originalPrice = Math.max(priceVariation, 300); // Minimum 300
     
     const timeSlots = {
       'early-bird': [
-        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '11:00', endTime: '12:30', isAvailable: true, remainingSeats: 8 + Math.floor(Math.random() * 15), maxSeats: 20 + Math.floor(Math.random() * 10) },
-        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '12:30', endTime: '14:00', isAvailable: true, remainingSeats: 12 + Math.floor(Math.random() * 10), maxSeats: 25 + Math.floor(Math.random() * 10) }
+        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '11:00', endTime: '12:00', isAvailable: true, remainingSeats: 8 + Math.floor(Math.random() * 15), maxSeats: 20 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '12:00', endTime: '13:00', isAvailable: true, remainingSeats: 12 + Math.floor(Math.random() * 10), maxSeats: 25 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 2}`, startTime: '13:00', endTime: '14:00', isAvailable: true, remainingSeats: 10 + Math.floor(Math.random() * 10), maxSeats: 20 + Math.floor(Math.random() * 10) }
       ],
       'afternoon': [
-        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '14:30', endTime: '16:00', isAvailable: true, remainingSeats: 15 + Math.floor(Math.random() * 10), maxSeats: 30 + Math.floor(Math.random() * 10) },
-        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '16:00', endTime: '17:30', isAvailable: true, remainingSeats: 18 + Math.floor(Math.random() * 12), maxSeats: 35 + Math.floor(Math.random() * 10) }
+        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '14:00', endTime: '15:00', isAvailable: true, remainingSeats: 15 + Math.floor(Math.random() * 10), maxSeats: 30 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '15:00', endTime: '16:00', isAvailable: true, remainingSeats: 18 + Math.floor(Math.random() * 12), maxSeats: 35 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 2}`, startTime: '16:00', endTime: '17:00', isAvailable: true, remainingSeats: 16 + Math.floor(Math.random() * 10), maxSeats: 30 + Math.floor(Math.random() * 10) }
       ],
       'late-night': [
-        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '21:00', endTime: '22:30', isAvailable: true, remainingSeats: 5 + Math.floor(Math.random() * 10), maxSeats: 20 + Math.floor(Math.random() * 10) },
-        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '22:30', endTime: '00:00', isAvailable: true, remainingSeats: 3 + Math.floor(Math.random() * 8), maxSeats: 15 + Math.floor(Math.random() * 10) }
+        { id: `slot-${restaurantId}-${dealCounter}`, startTime: '21:00', endTime: '22:00', isAvailable: true, remainingSeats: 5 + Math.floor(Math.random() * 10), maxSeats: 20 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 1}`, startTime: '22:00', endTime: '23:00', isAvailable: true, remainingSeats: 3 + Math.floor(Math.random() * 8), maxSeats: 15 + Math.floor(Math.random() * 10) },
+        { id: `slot-${restaurantId}-${dealCounter + 2}`, startTime: '23:00', endTime: '00:00', isAvailable: true, remainingSeats: 2 + Math.floor(Math.random() * 6), maxSeats: 12 + Math.floor(Math.random() * 8) }
       ]
     };
     
@@ -75,7 +79,7 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
       isLimitedTime: Math.random() > 0.6
     });
     
-    dealCounter += 2;
+    dealCounter += 3;
   }
   
   return deals;
