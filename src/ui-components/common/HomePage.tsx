@@ -323,7 +323,7 @@ const HomePage: React.FC = () => {
         
         {/* Discreet Build Number */}
         <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v0.18</p>
+          <p className="text-xs text-gray-400 text-center">v0.19</p>
         </div>
       </div>
     </div>
