@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Clock, MapPin, Star, ArrowLeft, Filter } from 'lucide-react';
 import { OffPeakFilters } from '../types';
 import OffPeakFiltersModal from './OffPeakFiltersModal';
@@ -7,6 +7,8 @@ import { mockOffPeakDeals } from '../data/mockData';
 
 const OffPeakPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<'next2h' | 'next6h' | 'today' | 'all'>('all');
   const [filters, setFilters] = useState<OffPeakFilters>({
     cuisine: [],
     location: [],
@@ -16,16 +18,79 @@ const OffPeakPage: React.FC = () => {
     pax: 2
   });
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [restaurantFilter, setRestaurantFilter] = useState<string | null>(null);
+  
+  const currentTime = new Date();
+  const currentHour = currentTime.getHours();
+  const currentMinutes = currentTime.getMinutes();
+
+  // Helper function to check if deal is available in next X hours
+  const isAvailableInNextHours = (dealType: string, hours: number) => {
+    const dealTimeRanges = {
+      'early-bird': { start: 11, end: 14 },
+      'afternoon': { start: 14, end: 17 },
+      'late-night': { start: 21, end: 24 }
+    };
+
+    const range = dealTimeRanges[dealType as keyof typeof dealTimeRanges];
+    if (!range) return false;
+
+    const currentDecimal = currentHour + currentMinutes / 60;
+    const nextXHours = currentDecimal + hours;
+
+    // Check if next X hours overlaps with deal time
+    return (currentDecimal <= range.end && nextXHours >= range.start);
+  };
+
+  // Helper function to check if deal is available today
+  const isAvailableToday = (dealType: string) => {
+    const dealTimeRanges = {
+      'early-bird': { start: 11, end: 14 },
+      'afternoon': { start: 14, end: 17 },
+      'late-night': { start: 21, end: 24 }
+    };
+
+    const range = dealTimeRanges[dealType as keyof typeof dealTimeRanges];
+    if (!range) return false;
+
+    const currentDecimal = currentHour + currentMinutes / 60;
+    return currentDecimal <= range.end;
+  };
 
 
+
+  useEffect(() => {
+    // Extract restaurant filter from URL parameters
+    const searchParams = new URLSearchParams(location.search);
+    const restaurantParam = searchParams.get('restaurant');
+    if (restaurantParam) {
+      setRestaurantFilter(restaurantParam);
+    }
+  }, [location.search]);
 
   const applyFilters = (newFilters: OffPeakFilters) => {
     setFilters(newFilters);
     setShowFiltersModal(false);
   };
 
-  // Filter deals based on percentage range instead of price
+  // Filter deals based on time slot and other filters
   const filteredDeals = mockOffPeakDeals.filter(deal => {
+    // Restaurant-specific filtering (when coming from restaurant page)
+    if (restaurantFilter) {
+      const restaurantMatch = deal.restaurantName.toLowerCase().includes(restaurantFilter.toLowerCase());
+      if (!restaurantMatch) return false;
+    }
+    
+    // Time-based filtering
+    let timeMatch = true;
+    if (selectedTimeSlot === 'next2h') {
+      timeMatch = isAvailableInNextHours(deal.dealType, 2);
+    } else if (selectedTimeSlot === 'next6h') {
+      timeMatch = isAvailableInNextHours(deal.dealType, 6);
+    } else if (selectedTimeSlot === 'today') {
+      timeMatch = isAvailableToday(deal.dealType);
+    }
+    
     const cuisineMatch = filters.cuisine.length === 0 || filters.cuisine.includes(deal.cuisine);
     const locationMatch = filters.location.length === 0 || filters.location.includes(deal.location);
     const dealTypeMatch = filters.dealType.length === 0 || filters.dealType.includes(deal.dealType);
@@ -34,7 +99,7 @@ const OffPeakPage: React.FC = () => {
     const discountMatch = deal.discountPercentage >= filters.priceRange.min && 
                          deal.discountPercentage <= filters.priceRange.max;
 
-    return cuisineMatch && locationMatch && dealTypeMatch && discountMatch;
+    return timeMatch && cuisineMatch && locationMatch && dealTypeMatch && discountMatch;
   });
 
   // Sort deals by discount percentage (highest first) and popularity
@@ -92,7 +157,9 @@ const OffPeakPage: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Off Peak Dining</h1>
-                <p className="text-sm text-gray-600">Save up to 50% during off-peak hours</p>
+                <p className="text-sm text-gray-600">
+                  {restaurantFilter ? `Deals for ${restaurantFilter}` : 'Save up to 50% during off-peak hours'}
+                </p>
               </div>
             </div>
             <button
@@ -105,8 +172,52 @@ const OffPeakPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* Time Slot Filters */}
         <div className="px-4 pb-4">
+          <div className="flex space-x-2 overflow-x-auto mb-4">
+            <button
+              onClick={() => setSelectedTimeSlot('next2h')}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTimeSlot === 'next2h'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🔥 Next 2 Hours
+            </button>
+            <button
+              onClick={() => setSelectedTimeSlot('next6h')}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTimeSlot === 'next6h'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              ⏰ Next 6 Hours
+            </button>
+            <button
+              onClick={() => setSelectedTimeSlot('today')}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTimeSlot === 'today'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📅 All Day
+            </button>
+            <button
+              onClick={() => setSelectedTimeSlot('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTimeSlot === 'all'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🌟 All Deals
+            </button>
+          </div>
+
+          {/* Quick Stats */}
           <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -114,12 +225,12 @@ const OffPeakPage: React.FC = () => {
                   {sortedDeals.length} deals available
                 </p>
                 <p className="text-xs text-gray-600">
-                  Up to {Math.max(...sortedDeals.map(d => d.discountPercentage))}% off today
+                  Up to {sortedDeals.length > 0 ? Math.max(...sortedDeals.map(d => d.discountPercentage)) : 0}% off today
                 </p>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-red-600">
-                  {Math.round(sortedDeals.reduce((acc, deal) => acc + deal.discountPercentage, 0) / sortedDeals.length)}%
+                  {sortedDeals.length > 0 ? Math.round(sortedDeals.reduce((acc, deal) => acc + deal.discountPercentage, 0) / sortedDeals.length) : 0}%
                 </div>
                 <div className="text-xs text-gray-500">Avg. Discount</div>
               </div>

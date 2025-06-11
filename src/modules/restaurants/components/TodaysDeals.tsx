@@ -5,14 +5,14 @@ import { mockOffPeakDeals } from '../../off-peak/data/mockData';
 
 const TodaysDeals: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<'immediate' | 'today' | 'all'>('immediate');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<'next2h' | 'next6h' | 'today' | 'all'>('next2h');
 
   const currentTime = new Date();
   const currentHour = currentTime.getHours();
   const currentMinutes = currentTime.getMinutes();
 
-  // Helper function to check if deal is available in next 2 hours
-  const isAvailableInNext2Hours = (dealType: string) => {
+  // Helper function to check if deal is available in next X hours
+  const isAvailableInNextHours = (dealType: string, hours: number) => {
     const dealTimeRanges = {
       'early-bird': { start: 11, end: 14 },
       'afternoon': { start: 14, end: 17 },
@@ -23,10 +23,10 @@ const TodaysDeals: React.FC = () => {
     if (!range) return false;
 
     const currentDecimal = currentHour + currentMinutes / 60;
-    const next2Hours = currentDecimal + 2;
+    const nextXHours = currentDecimal + hours;
 
-    // Check if next 2 hours overlaps with deal time
-    return (currentDecimal <= range.end && next2Hours >= range.start);
+    // Check if next X hours overlaps with deal time
+    return (currentDecimal <= range.end && nextXHours >= range.start);
   };
 
   // Helper function to check if deal is available today
@@ -84,8 +84,10 @@ const TodaysDeals: React.FC = () => {
   const processedDeals = useMemo(() => {
     let filtered = mockOffPeakDeals;
 
-    if (selectedTimeSlot === 'immediate') {
-      filtered = mockOffPeakDeals.filter(deal => isAvailableInNext2Hours(deal.dealType));
+    if (selectedTimeSlot === 'next2h') {
+      filtered = mockOffPeakDeals.filter(deal => isAvailableInNextHours(deal.dealType, 2));
+    } else if (selectedTimeSlot === 'next6h') {
+      filtered = mockOffPeakDeals.filter(deal => isAvailableInNextHours(deal.dealType, 6));
     } else if (selectedTimeSlot === 'today') {
       filtered = mockOffPeakDeals.filter(deal => isAvailableToday(deal.dealType));
     }
@@ -174,14 +176,24 @@ const TodaysDeals: React.FC = () => {
         <div className="px-4 pb-4">
           <div className="flex space-x-2 overflow-x-auto">
             <button
-              onClick={() => setSelectedTimeSlot('immediate')}
+              onClick={() => setSelectedTimeSlot('next2h')}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                selectedTimeSlot === 'immediate'
+                selectedTimeSlot === 'next2h'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               🔥 Next 2 Hours
+            </button>
+            <button
+              onClick={() => setSelectedTimeSlot('next6h')}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                selectedTimeSlot === 'next6h'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              ⏰ Next 6 Hours
             </button>
             <button
               onClick={() => setSelectedTimeSlot('today')}
@@ -191,7 +203,7 @@ const TodaysDeals: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              📅 All Today
+              📅 All Day
             </button>
             <button
               onClick={() => setSelectedTimeSlot('all')}
@@ -216,8 +228,10 @@ const TodaysDeals: React.FC = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No deals available</h3>
             <p className="text-gray-600">
-              {selectedTimeSlot === 'immediate' 
-                ? 'No deals available in the next 2 hours. Try checking "All Today" for more options.'
+              {selectedTimeSlot === 'next2h' 
+                ? 'No deals available in the next 2 hours. Try checking "Next 6 Hours" or "All Day" for more options.'
+                : selectedTimeSlot === 'next6h'
+                ? 'No deals available in the next 6 hours. Try checking "All Day" for more options.'
                 : 'Check back later for new deals!'
               }
             </p>
