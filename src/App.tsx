@@ -26,6 +26,9 @@ import PassportPage from "./modules/passport/components/PassportPage";
 import SubscriptionUpgrade from "./modules/passport/components/SubscriptionUpgrade";
 import DiscountPassportInfo from "./modules/passport/components/DiscountPassportInfo";
 
+// Admin components
+import AdminDashboard from "./modules/admin/components/AdminDashboard";
+
 // Auth components
 import LoginPage from "./modules/auth/components/LoginPage";
 import RegisterPage from "./modules/auth/components/RegisterPage";
@@ -62,6 +65,9 @@ function App() {
               <Route path="/passport" element={<PassportPage />} />
               <Route path="/passport/upgrade" element={<SubscriptionUpgrade />} />
               <Route path="/passport/info" element={<DiscountPassportInfo />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminDashboard />} />
               
               {/* Auth Routes */}
               <Route path="/auth/login" element={<LoginPage />} />

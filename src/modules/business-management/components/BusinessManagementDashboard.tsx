@@ -249,7 +249,7 @@ const BusinessManagementDashboard: React.FC = () => {
       
       {/* Discreet Build Number */}
       <div className="mt-4">
-                  <p className="text-xs text-gray-400 text-center">v0.21</p>
+                  <p className="text-xs text-gray-400 text-center">v0.22</p>
       </div>
     </div>
   );
