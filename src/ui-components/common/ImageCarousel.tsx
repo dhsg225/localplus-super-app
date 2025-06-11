@@ -14,7 +14,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   alt,
   className = '',
   showDots = true,
-  showArrows = false
+  showArrows = true
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -102,20 +102,20 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         ))}
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Discreet Navigation Arrows */}
       {showArrows && images.length > 1 && (
         <>
           <button
             onClick={goToPrev}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-opacity"
+            className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-1.5 opacity-60 hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-opacity"
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-1.5 opacity-60 hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         </>
       )}

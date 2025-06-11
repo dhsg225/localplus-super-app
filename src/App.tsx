@@ -12,6 +12,7 @@ import EventsPage from "./modules/events/components/EventsPage";
 import ServicesPage from "./modules/services/components/ServicesPage";
 import AIAssistantPage from "./modules/ai-assistant/components/AIAssistantPage";
 import BusinessOnboardingPage from "./modules/business-onboarding/components/BusinessOnboardingPage";
+import OffPeakPage from "./modules/off-peak/components/OffPeakPage";
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
+            <Route path="/off-peak" element={<OffPeakPage />} />
           </Routes>
         </main>
         
