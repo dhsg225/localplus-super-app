@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Clock, MapPin, Star, Users, Filter, Calendar } from 'lucide-react';
-import { OffPeakDeal, OffPeakFilters } from '../types';
-import OffPeakDealCard from './OffPeakDealCard';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Clock, MapPin, Star, ArrowLeft, Filter } from 'lucide-react';
+import { OffPeakFilters } from '../types';
 import OffPeakFiltersModal from './OffPeakFiltersModal';
 import { mockOffPeakDeals } from '../data/mockData';
 
 const OffPeakPage: React.FC = () => {
-  const location = useLocation();
-  const [deals, setDeals] = useState<OffPeakDeal[]>([]);
-  const [filteredDeals, setFilteredDeals] = useState<OffPeakDeal[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedPax, setSelectedPax] = useState(2);
-  const [activeTab, setActiveTab] = useState<'all' | 'early-bird' | 'afternoon' | 'late-night'>('all');
-  const [restaurantFilter, setRestaurantFilter] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<OffPeakFilters>({
     cuisine: [],
     location: [],
@@ -25,46 +17,7 @@ const OffPeakPage: React.FC = () => {
   });
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
-  useEffect(() => {
-    // Load mock data
-    setDeals(mockOffPeakDeals);
-    setFilteredDeals(mockOffPeakDeals);
 
-    // Extract restaurant filter from URL parameters
-    const searchParams = new URLSearchParams(location.search);
-    const restaurantParam = searchParams.get('restaurant');
-    if (restaurantParam) {
-      setRestaurantFilter(restaurantParam);
-    }
-  }, [location.search]);
-
-  useEffect(() => {
-    // Filter deals based on active tab and other criteria
-    let filtered = deals;
-
-    if (activeTab !== 'all') {
-      filtered = filtered.filter(deal => deal.dealType === activeTab);
-    }
-
-    // Filter by restaurant name if specified
-    if (restaurantFilter) {
-      filtered = filtered.filter(deal => 
-        deal.restaurantName.toLowerCase().includes(restaurantFilter.toLowerCase())
-      );
-    }
-
-    // Filter by selected date availability
-    filtered = filtered.filter(deal => 
-      deal.availableDates.includes(selectedDate)
-    );
-
-    // Filter by pax options
-    filtered = filtered.filter(deal => 
-      deal.paxOptions.includes(selectedPax)
-    );
-
-    setFilteredDeals(filtered);
-  }, [deals, activeTab, selectedDate, selectedPax, restaurantFilter]);
 
   const applyFilters = (newFilters: OffPeakFilters) => {
     setFilters(newFilters);
