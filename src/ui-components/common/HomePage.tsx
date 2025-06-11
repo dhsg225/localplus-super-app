@@ -243,7 +243,7 @@ const HomePage: React.FC = () => {
             <div>
               <h3 className="font-semibold text-base mb-1 flex items-center">
                 <Award size={18} className="mr-2" />
-                Discount Passport
+                Savings Passport
               </h3>
               <p className="text-orange-100 text-xs">Instant savings at 500+ businesses</p>
             </div>
@@ -270,7 +270,7 @@ const HomePage: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-1 flex items-center">
                   <Award size={20} className="mr-2" />
-                  Complete Discount Passport Guide
+                  Complete Savings Passport Guide
                 </h3>
                 <p className="text-indigo-100 text-sm">Learn everything about rewards, gamification & benefits</p>
               </div>
@@ -328,10 +328,10 @@ const HomePage: React.FC = () => {
                 NEW
               </span>
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Discount Passport</h3>
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Savings Passport</h3>
             <p className="text-xs text-gray-500 flex-1">Instant savings at 500+ businesses</p>
             <div className="mt-auto text-xs text-yellow-700 font-medium">
-              ฿199/month • 7-day free trial
+              ฿199/month • Subscribe now
             </div>
           </Link>
 

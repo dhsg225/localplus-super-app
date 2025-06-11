@@ -158,7 +158,7 @@ const SubscriptionUpgrade: React.FC = () => {
             </div>
             <div className="mt-2">
               <span className="bg-orange-500 text-white px-2 py-1 text-xs font-medium rounded-full">
-                7-Day Free Trial
+                Subscribe Monthly
               </span>
             </div>
           </div>

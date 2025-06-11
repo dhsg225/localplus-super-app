@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Trophy, Star, Clock, Bookmark, TrendingUp, Award, Gift, Calendar, Crown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Trophy, Star, Clock, Bookmark, TrendingUp, Award, Gift, Calendar, Crown, MapPin, QrCode, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
   mockPassportUser, 
@@ -12,12 +12,150 @@ import {
 } from '../data/mockPassportData';
 import { PassportBadge } from '../types';
 
+// Mock businesses data with locations in Hua Hin
+const mockBusinesses = [
+  {
+    id: 1,
+    name: "Seaside Bistro",
+    category: "Restaurants",
+    discount: 20,
+    distance: 0.8,
+    location: "Hua Hin Beach",
+    lat: 12.5684,
+    lng: 99.9578,
+    isRedeemed: false,
+    redemptionCode: "HH2024-001"
+  },
+  {
+    id: 2,
+    name: "Blue Wave Spa",
+    category: "Spa & Wellness", 
+    discount: 25,
+    distance: 1.2,
+    location: "Town Center",
+    lat: 12.5704,
+    lng: 99.9598,
+    isRedeemed: false,
+    redemptionCode: "HH2024-002"
+  },
+  {
+    id: 3,
+    name: "Local Craft Market",
+    category: "Shopping",
+    discount: 15,
+    distance: 0.5,
+    location: "Night Market",
+    lat: 12.5694,
+    lng: 99.9588,
+    isRedeemed: true,
+    redemptionCode: "HH2024-003"
+  },
+  {
+    id: 4,
+    name: "Sunset Sailing",
+    category: "Activities",
+    discount: 30,
+    distance: 2.1,
+    location: "Hua Hin Pier",
+    lat: 12.5674,
+    lng: 99.9568,
+    isRedeemed: false,
+    redemptionCode: "HH2024-004"
+  },
+  {
+    id: 5,
+    name: "Golden Palace Thai",
+    category: "Restaurants",
+    discount: 18,
+    distance: 1.8,
+    location: "Royal Golf Area",
+    lat: 12.5654,
+    lng: 99.9548,
+    isRedeemed: false,
+    redemptionCode: "HH2024-005"
+  },
+  {
+    id: 6,
+    name: "Wellness Retreat",
+    category: "Spa & Wellness",
+    discount: 22,
+    distance: 2.8,
+    location: "Khao Takiab",
+    lat: 12.5634,
+    lng: 99.9528,
+    isRedeemed: false,
+    redemptionCode: "HH2024-006"
+  }
+];
+
 const PassportPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'badges' | 'challenges' | 'saved' | 'activity'>('overview');
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number, city: string} | null>(null);
+  const [nearbyBusinesses, setNearbyBusinesses] = useState(mockBusinesses);
   
   const user = mockPassportUser;
   const stats = mockPassportStats;
+
+  // Detect user location
+  useEffect(() => {
+    detectLocation();
+  }, []);
+
+  const detectLocation = async () => {
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({
+              lat: latitude,
+              lng: longitude,
+              city: 'Hua Hin' // For demo, assume we're in Hua Hin
+            });
+          },
+          () => {
+            // Fallback to Hua Hin center
+            setUserLocation({
+              lat: 12.5684,
+              lng: 99.9578,
+              city: 'Hua Hin'
+            });
+          }
+        );
+      } else {
+        // Fallback to Hua Hin center
+        setUserLocation({
+          lat: 12.5684,
+          lng: 99.9578,
+          city: 'Hua Hin'
+        });
+      }
+    } catch (error) {
+      console.log('Location detection failed:', error);
+    }
+  };
+
+  // Filter businesses within 3km
+  const getBusinessesNearby = () => {
+    if (!userLocation) return mockBusinesses.slice(0, 4); // Show first 4 if no location
+    
+    return mockBusinesses
+      .filter(business => business.distance <= 3.0)
+      .sort((a, b) => a.distance - b.distance);
+  };
+
+  const handleQRScan = (businessId: number, redemptionCode: string) => {
+    // In real app, this would call API to redeem
+    setNearbyBusinesses(prev => 
+      prev.map(business => 
+        business.id === businessId 
+          ? { ...business, isRedeemed: true }
+          : business
+      )
+    );
+    alert(`Discount redeemed at ${nearbyBusinesses.find(b => b.id === businessId)?.name}! Enjoy your savings.`);
+  };
   
   const getLevelProgress = () => {
     const levelStamps = {
@@ -104,7 +242,7 @@ const PassportPage: React.FC = () => {
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg p-6">
           <div className="text-center">
             <Crown size={32} className="mx-auto mb-3 text-yellow-400" />
-            <h2 className="text-xl font-bold mb-2">Unlock LocalPlus Passport</h2>
+            <h2 className="text-xl font-bold mb-2">Unlock LocalPlus Savings Passport</h2>
             <p className="text-sm opacity-90 mb-4">
               Get instant discounts at 500+ businesses in Hua Hin
             </p>
@@ -125,40 +263,63 @@ const PassportPage: React.FC = () => {
               onClick={() => navigate('/passport/upgrade')}
               className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
             >
-              Start Free Trial • 7 Days
+              Subscribe Now
             </button>
           </div>
         </div>
       )}
 
-      {/* Quick Access Discounts - Premium Members Only */}
+      {/* Today's Instant Discounts Near Me - Premium Members Only */}
       {user.subscriptionTier === 'premium' && (
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Today's Instant Discounts</h3>
-            <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">12 ACTIVE</span>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-lg font-semibold text-gray-900">Today's Instant Discounts Near Me</h3>
+              <MapPin size={16} className="text-gray-500" />
+            </div>
+            <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+              {getBusinessesNearby().length} WITHIN 3KM
+            </span>
           </div>
           
-          <div className="grid grid-cols-2 gap-3">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-gray-900">Restaurants</div>
-              <div className="text-xl font-bold text-red-600">15-25%</div>
-              <div className="text-xs text-gray-600">8 locations</div>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-gray-900">Spa & Wellness</div>
-              <div className="text-xl font-bold text-red-600">20%</div>
-              <div className="text-xs text-gray-600">3 locations</div>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-gray-900">Shopping</div>
-              <div className="text-xl font-bold text-red-600">10%</div>
-              <div className="text-xs text-gray-600">6 locations</div>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-gray-900">Activities</div>
-              <div className="text-xl font-bold text-red-600">30%</div>
-              <div className="text-xs text-gray-600">2 locations</div>
+          <div className="space-y-3">
+            {getBusinessesNearby().slice(0, 4).map((business) => (
+              <div key={business.id} className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-gray-900">{business.name}</h4>
+                      <span className="text-lg font-bold text-red-600">{business.discount}% OFF</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-600">
+                        {business.category} • {business.location} • {business.distance}km away
+                      </div>
+                      {business.isRedeemed ? (
+                        <div className="flex items-center text-green-600 text-xs">
+                          <CheckCircle size={14} className="mr-1" />
+                          Redeemed 2024
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleQRScan(business.id, business.redemptionCode)}
+                          className="flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
+                        >
+                          <QrCode size={14} className="mr-1" />
+                          Redeem
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <div className="text-xs text-blue-800">
+              <strong>How it works:</strong> Each business offers one discount per calendar year. 
+              Simply scan the QR code at checkout to redeem your savings.
             </div>
           </div>
           

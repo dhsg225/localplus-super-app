@@ -65,7 +65,7 @@ const ProfilePage: React.FC = () => {
       </div>
 
       <div className="p-4 space-y-6">
-        {/* Discount Passport Info Link */}
+        {/* Savings Passport Info Link */}
         <Link 
           to="/passport/info"
           className="block bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
@@ -74,7 +74,7 @@ const ProfilePage: React.FC = () => {
             <div>
               <h3 className="font-semibold text-lg mb-1 flex items-center">
                 <Award size={20} className="mr-2" />
-                Learn About Discount Passport
+                Learn About Savings Passport
               </h3>
               <p className="text-orange-100 text-sm">Everything about gamification, rewards, and exclusive benefits</p>
             </div>

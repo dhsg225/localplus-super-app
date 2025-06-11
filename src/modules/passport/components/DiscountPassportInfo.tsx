@@ -28,14 +28,14 @@ const DiscountPassportInfo: React.FC = () => {
             </Link>
             <div className="flex items-center space-x-2">
               <Award size={28} />
-              <span className="text-lg font-semibold">Discount Passport</span>
+              <span className="text-lg font-semibold">Savings Passport</span>
             </div>
             <div></div>
           </div>
           
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">Everything About</h1>
-            <h2 className="text-2xl font-semibold mb-4">LocalPlus Discount Passport</h2>
+            <h2 className="text-2xl font-semibold mb-4">LocalPlus Savings Passport</h2>
             <p className="text-orange-100 text-lg">Your ultimate lifestyle companion with instant savings, gamification, and exclusive perks</p>
           </div>
         </div>
@@ -46,10 +46,6 @@ const DiscountPassportInfo: React.FC = () => {
         <div className="text-center mb-6">
           <div className="text-4xl font-bold text-gray-900 mb-2">฿199/month</div>
           <div className="text-lg text-gray-600 mb-4">or ฿1,990/year (Save ฿398!)</div>
-          <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            <Gift size={16} className="mr-1" />
-            7-day FREE trial included
-          </div>
         </div>
       </div>
 
@@ -217,13 +213,7 @@ const DiscountPassportInfo: React.FC = () => {
             <p className="text-gray-600 text-sm">VIP access to special events, tastings, and member-only experiences</p>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-            <div className="flex items-center mb-2">
-              <Heart size={20} className="text-purple-600 mr-2" />
-              <h4 className="font-semibold text-gray-900">Priority Support</h4>
-            </div>
-            <p className="text-gray-600 text-sm">Get dedicated customer service and faster response times</p>
-          </div>
+
 
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-200">
             <div className="flex items-center mb-2">
@@ -246,8 +236,8 @@ const DiscountPassportInfo: React.FC = () => {
           <div className="flex items-start space-x-3">
             <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1">Subscribe to Discount Passport</h4>
-              <p className="text-gray-600 text-sm">Start with 7-day free trial, then ฿199/month or ฿1,990/year</p>
+              <h4 className="font-semibold text-gray-900 mb-1">Subscribe to Savings Passport</h4>
+              <p className="text-gray-600 text-sm">Start subscription at ฿199/month or ฿1,990/year</p>
             </div>
           </div>
 
@@ -288,7 +278,7 @@ const DiscountPassportInfo: React.FC = () => {
               to="/passport"
               className="block bg-white text-orange-600 px-6 py-3 rounded-xl font-semibold text-lg hover:bg-orange-50 transition-colors"
             >
-              Start 7-Day Free Trial
+              Subscribe Now
             </Link>
             
             <Link
