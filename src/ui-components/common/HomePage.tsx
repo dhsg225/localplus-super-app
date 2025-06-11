@@ -259,46 +259,68 @@ const HomePage: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Quick Actions
         </h2>
+        
+        {/* Prominent Discount Passport Info Link */}
+        <div className="mb-6">
+          <Link
+            to="/passport/info"
+            className="block bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-lg mb-1 flex items-center">
+                  <Award size={20} className="mr-2" />
+                  Complete Discount Passport Guide
+                </h3>
+                <p className="text-indigo-100 text-sm">Learn everything about rewards, gamification & benefits</p>
+              </div>
+              <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
+                INFO
+              </div>
+            </div>
+          </Link>
+        </div>
+        
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/restaurants"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-red-100 min-h-[120px] flex flex-col"
           >
             <Search size={28} className="text-red-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Restaurants</h3>
-            <p className="text-xs text-gray-500">Find great places to eat</p>
+            <p className="text-xs text-gray-500 flex-1">Find great places to eat</p>
           </Link>
 
           <Link
             to="/events"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-blue-100 min-h-[120px] flex flex-col"
           >
-            <Calendar size={28} className="text-red-500 mb-2" />
+            <Calendar size={28} className="text-blue-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Events</h3>
-            <p className="text-xs text-gray-500">Discover local events</p>
+            <p className="text-xs text-gray-500 flex-1">Discover local events</p>
           </Link>
 
           <Link
             to="/services"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-green-100 min-h-[120px] flex flex-col"
           >
-            <Wrench size={28} className="text-red-500 mb-2" />
+            <Wrench size={28} className="text-green-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Services</h3>
-            <p className="text-xs text-gray-500">Local service providers</p>
+            <p className="text-xs text-gray-500 flex-1">Local service providers</p>
           </Link>
 
           <Link
             to="/ai-assistant"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-purple-100 min-h-[120px] flex flex-col"
           >
-            <MessageCircle size={28} className="text-red-500 mb-2" />
+            <MessageCircle size={28} className="text-purple-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">AI Assistant</h3>
-            <p className="text-xs text-gray-500">Ask about anything local</p>
+            <p className="text-xs text-gray-500 flex-1">Ask about anything local</p>
           </Link>
 
           <Link
             to="/passport"
-            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-yellow-300"
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border-2 border-yellow-300 min-h-[120px] flex flex-col"
           >
             <div className="flex items-center justify-between mb-2">
               <Award size={28} className="text-yellow-600" />
@@ -307,28 +329,28 @@ const HomePage: React.FC = () => {
               </span>
             </div>
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Discount Passport</h3>
-            <p className="text-xs text-gray-500">Instant savings at 500+ businesses</p>
-            <div className="mt-1 text-xs text-yellow-700 font-medium">
+            <p className="text-xs text-gray-500 flex-1">Instant savings at 500+ businesses</p>
+            <div className="mt-auto text-xs text-yellow-700 font-medium">
               ฿199/month • 7-day free trial
             </div>
           </Link>
 
           <Link
             to="/explore-cuisines"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-pink-100 min-h-[120px] flex flex-col"
           >
-            <Search size={28} className="text-purple-500 mb-2" />
+            <Search size={28} className="text-pink-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Explore Cuisines</h3>
-            <p className="text-xs text-gray-500">Discover new flavors</p>
+            <p className="text-xs text-gray-500 flex-1">Discover new flavors</p>
           </Link>
 
           <Link
             to="/todays-deals"
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-teal-100 min-h-[120px] flex flex-col"
           >
-            <Clock size={28} className="text-green-500 mb-2" />
+            <Clock size={28} className="text-teal-500 mb-2" />
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Today's Deals</h3>
-            <p className="text-xs text-gray-500">Limited time offers</p>
+            <p className="text-xs text-gray-500 flex-1">Limited time offers</p>
           </Link>
         </div>
       </div>
@@ -379,7 +401,7 @@ const HomePage: React.FC = () => {
         
         {/* Discreet Build Number */}
         <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v0.19</p>
+          <p className="text-xs text-gray-400 text-center">v0.20</p>
         </div>
       </div>
     </div>
