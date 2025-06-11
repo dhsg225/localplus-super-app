@@ -15,6 +15,15 @@ const OffPeakPage: React.FC = () => {
   const [selectedPax, setSelectedPax] = useState(2);
   const [activeTab, setActiveTab] = useState<'all' | 'early-bird' | 'afternoon' | 'late-night'>('all');
   const [restaurantFilter, setRestaurantFilter] = useState<string | null>(null);
+  const [filters, setFilters] = useState<OffPeakFilters>({
+    cuisine: [],
+    location: [],
+    dealType: [],
+    priceRange: { min: 0, max: 100 },
+    dateRange: { start: '', end: '' },
+    pax: 2
+  });
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   useEffect(() => {
     // Load mock data
@@ -57,12 +66,52 @@ const OffPeakPage: React.FC = () => {
     setFilteredDeals(filtered);
   }, [deals, activeTab, selectedDate, selectedPax, restaurantFilter]);
 
-  const getDealTypeLabel = (type: string) => {
-    switch (type) {
+  const applyFilters = (newFilters: OffPeakFilters) => {
+    setFilters(newFilters);
+    setShowFiltersModal(false);
+  };
+
+  // Filter deals based on percentage range instead of price
+  const filteredDeals = mockOffPeakDeals.filter(deal => {
+    const cuisineMatch = filters.cuisine.length === 0 || filters.cuisine.includes(deal.cuisine);
+    const locationMatch = filters.location.length === 0 || filters.location.includes(deal.location);
+    const dealTypeMatch = filters.dealType.length === 0 || filters.dealType.includes(deal.dealType);
+    
+    // Filter by discount percentage instead of price
+    const discountMatch = deal.discountPercentage >= filters.priceRange.min && 
+                         deal.discountPercentage <= filters.priceRange.max;
+
+    return cuisineMatch && locationMatch && dealTypeMatch && discountMatch;
+  });
+
+  // Sort deals by discount percentage (highest first) and popularity
+  const sortedDeals = filteredDeals.sort((a, b) => {
+    // Prioritize higher discounts
+    if (a.discountPercentage !== b.discountPercentage) {
+      return b.discountPercentage - a.discountPercentage;
+    }
+    // Then by popularity
+    if (a.isPopular && !b.isPopular) return -1;
+    if (b.isPopular && !a.isPopular) return 1;
+    // Then by rating
+    return b.rating - a.rating;
+  });
+
+  const getDealTypeIcon = (dealType: string) => {
+    switch (dealType) {
+      case 'early-bird': return '🌅';
+      case 'afternoon': return '☀️';
+      case 'late-night': return '🌙';
+      default: return '⭐';
+    }
+  };
+
+  const getDealTypeLabel = (dealType: string) => {
+    switch (dealType) {
       case 'early-bird': return 'Early Bird';
       case 'afternoon': return 'Afternoon';
       case 'late-night': return 'Late Night';
-      default: return 'All Deals';
+      default: return 'Special';
     }
   };
 
@@ -78,130 +127,167 @@ const OffPeakPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="px-4 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Off Peak Dining</h1>
-              <p className="text-gray-600 text-sm mt-1">Save up to 50% during off-peak hours</p>
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <ArrowLeft size={20} className="text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Off Peak Dining</h1>
+                <p className="text-sm text-gray-600">Save up to 50% during off-peak hours</p>
+              </div>
             </div>
             <button
-              onClick={() => setShowFilters(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg"
+              onClick={() => setShowFiltersModal(true)}
+              className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
             >
               <Filter size={16} />
               <span>Filter</span>
             </button>
           </div>
+        </div>
 
-          {/* Date and Pax Selection */}
-          <div className="flex space-x-3 mb-4">
-            <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Date</label>
-              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2">
-                <Calendar size={16} className="text-gray-500" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-transparent text-sm font-medium flex-1 outline-none"
-                  min={new Date().toISOString().split('T')[0]}
-                />
+        {/* Quick Stats */}
+        <div className="px-4 pb-4">
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {sortedDeals.length} deals available
+                </p>
+                <p className="text-xs text-gray-600">
+                  Up to {Math.max(...sortedDeals.map(d => d.discountPercentage))}% off today
+                </p>
               </div>
-            </div>
-            <div className="w-24">
-              <label className="block text-xs text-gray-500 mb-1">Guests</label>
-              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2">
-                <Users size={16} className="text-gray-500" />
-                <select
-                  value={selectedPax}
-                  onChange={(e) => setSelectedPax(Number(e.target.value))}
-                  className="bg-transparent text-sm font-medium outline-none w-full"
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                    <option key={num} value={num}>{num}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Deal Type Tabs */}
-          <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-            {(['all', 'early-bird', 'afternoon', 'late-night'] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => setActiveTab(type)}
-                className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === type
-                    ? 'bg-white text-red-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <div className="text-center">
-                  <div>{getDealTypeLabel(type)}</div>
-                  {type !== 'all' && (
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {getDealTypeTime(type)}
-                    </div>
-                  )}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-red-600">
+                  {Math.round(sortedDeals.reduce((acc, deal) => acc + deal.discountPercentage, 0) / sortedDeals.length)}%
                 </div>
-              </button>
-            ))}
+                <div className="text-xs text-gray-500">Avg. Discount</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="px-4 py-3 bg-white border-b">
-        <p className="text-sm text-gray-600">
-          {filteredDeals.length} deal{filteredDeals.length !== 1 ? 's' : ''} available
-          {restaurantFilter && ` for ${restaurantFilter}`}
-          {activeTab !== 'all' && ` for ${getDealTypeLabel(activeTab).toLowerCase()}`}
-        </p>
-        {restaurantFilter && (
-          <button
-            onClick={() => {
-              setRestaurantFilter(null);
-              window.history.replaceState({}, '', '/off-peak');
-            }}
-            className="text-xs text-red-600 mt-1 hover:text-red-800"
-          >
-            Clear restaurant filter
-          </button>
-        )}
-      </div>
-
       {/* Deals List */}
-      <div className="px-4 py-4 space-y-4">
-        {filteredDeals.length > 0 ? (
-          filteredDeals.map((deal) => (
-            <OffPeakDealCard
-              key={deal.id}
-              deal={deal}
-              selectedDate={selectedDate}
-              selectedPax={selectedPax}
-            />
-          ))
-        ) : (
+      <div className="p-4">
+        {sortedDeals.length === 0 ? (
           <div className="text-center py-12">
-            <Clock size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No deals available</h3>
-            <p className="text-gray-500 text-sm">
-              Try adjusting your date, number of guests, or filters to see more options.
-            </p>
+            <div className="text-gray-400 mb-4">
+              <Clock size={48} className="mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No deals found</h3>
+            <p className="text-gray-600">Try adjusting your filters to see more options</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sortedDeals.map((deal) => (
+              <div key={deal.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                {/* Deal Header with Prominent Percentage */}
+                <div className="p-4 bg-gradient-to-r from-red-500 to-orange-500 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-3xl font-bold">
+                        {deal.discountPercentage}%
+                      </div>
+                      <div>
+                        <div className="text-sm opacity-90">OFF</div>
+                        <div className="text-xs opacity-75">
+                          {getDealTypeIcon(deal.dealType)} {getDealTypeLabel(deal.dealType)}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      {deal.isPopular && (
+                        <span className="bg-yellow-400 text-yellow-900 px-2 py-1 text-xs font-medium rounded-full mb-1 block">
+                          🔥 Popular
+                        </span>
+                      )}
+                      {deal.isLimitedTime && (
+                        <span className="bg-red-200 text-red-800 px-2 py-1 text-xs font-medium rounded-full">
+                          ⏰ Limited
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Restaurant Info */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{deal.restaurantName}</h3>
+                      <div className="flex items-center space-x-3 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <MapPin size={14} />
+                          <span>{deal.location}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star size={14} />
+                          <span>{deal.rating} ({deal.reviewCount})</span>
+                        </div>
+                        <span className="bg-gray-100 text-gray-700 px-2 py-1 text-xs rounded-full">
+                          {deal.cuisine}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <img 
+                        src={deal.restaurantImage} 
+                        alt={deal.restaurantName}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{deal.description}</p>
+
+                  {/* Time Slots */}
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">Available Times</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {deal.timeSlots.slice(0, 2).map((slot) => (
+                        <div key={slot.id} className={`p-2 rounded border text-center text-sm ${
+                          slot.isAvailable 
+                            ? 'border-green-200 bg-green-50 text-green-800'
+                            : 'border-gray-200 bg-gray-50 text-gray-500'
+                        }`}>
+                          <div className="font-medium">{slot.startTime} - {slot.endTime}</div>
+                          <div className="text-xs">
+                            {slot.isAvailable 
+                              ? `${slot.remainingSeats} seats left`
+                              : 'Fully booked'
+                            }
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                    Book {deal.discountPercentage}% Off Deal
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
       {/* Filters Modal */}
-      {showFilters && (
+      {showFiltersModal && (
         <OffPeakFiltersModal
-          onClose={() => setShowFilters(false)}
-          onApplyFilters={(filters) => {
-            // Apply filters logic here
-            setShowFilters(false);
-          }}
+          onClose={() => setShowFiltersModal(false)}
+          onApplyFilters={applyFilters}
         />
       )}
     </div>

@@ -17,6 +17,8 @@ import BusinessManagementDashboard from "./modules/business-management/component
 import BusinessProfileEditor from "./modules/business-management/components/BusinessProfileEditor";
 import MenuManagement from "./modules/business-management/components/MenuManagement";
 import DealsManagement from "./modules/business-management/components/DealsManagement";
+import CuisineExplorer from "./modules/restaurants/components/CuisineExplorer";
+import TodaysDeals from "./modules/restaurants/components/TodaysDeals";
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
@@ -37,9 +39,11 @@ function App() {
             <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
             <Route path="/off-peak" element={<OffPeakPage />} />
             <Route path="/business" element={<BusinessManagementDashboard />} />
-            <Route path="/business/profile" element={<BusinessProfileEditor />} />
-            <Route path="/business/menu" element={<MenuManagement />} />
-            <Route path="/business/deals" element={<DealsManagement />} />
+                      <Route path="/business/profile" element={<BusinessProfileEditor />} />
+          <Route path="/business/menu" element={<MenuManagement />} />
+          <Route path="/business/deals" element={<DealsManagement />} />
+          <Route path="/explore-cuisines" element={<CuisineExplorer />} />
+          <Route path="/todays-deals" element={<TodaysDeals />} />
           </Routes>
         </main>
         

@@ -177,16 +177,16 @@ const RestaurantsPage: React.FC = () => {
   const handleExploreClick = (type: string) => {
     switch (type) {
       case 'explore-cuisines':
-        // Navigate to restaurants page with cuisine filter
-        navigate('/off-peak');
+        // Navigate to dedicated cuisine explorer page
+        navigate('/explore-cuisines');
         break;
       case 'discount-book':
         // Navigate to discount/deals page
         navigate('/off-peak');
         break;
       case 'todays-deals':
-        // Navigate to today's special deals
-        navigate('/off-peak?deals=today');
+        // Navigate to dedicated today's deals page
+        navigate('/todays-deals');
         break;
       case 'ai-assistant':
         // Navigate to AI assistant
