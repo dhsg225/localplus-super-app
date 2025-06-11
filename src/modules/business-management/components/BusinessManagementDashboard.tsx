@@ -137,7 +137,7 @@ const BusinessManagementDashboard: React.FC = () => {
                 <div className="text-center">
                   <DollarSign className="h-6 w-6 text-purple-500 mx-auto mb-2" />
                   <p className="text-xs font-medium text-gray-600 mb-1">Revenue</p>
-                  <p className="text-xl font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(analytics.revenue)}</p>
                   <p className="text-xs text-gray-500">This week</p>
                 </div>
               </div>
@@ -249,7 +249,7 @@ const BusinessManagementDashboard: React.FC = () => {
       
       {/* Discreet Build Number */}
       <div className="px-4 pb-2">
-        <p className="text-xs text-gray-400 text-center">v{Date.now().toString().slice(-8)}</p>
+        <p className="text-xs text-gray-400 text-center">v0.18</p>
       </div>
     </div>
   );

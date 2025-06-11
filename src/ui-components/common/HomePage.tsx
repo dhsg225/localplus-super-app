@@ -6,6 +6,7 @@ import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, Chevr
 interface LocationData {
   city: string;
   country: string;
+  suburb?: string;
   isDetected: boolean;
 }
 
@@ -145,6 +146,7 @@ const HomePage: React.FC = () => {
       setCurrentLocation({
         city: finalCity,
         country: data.country_name || 'Thailand',
+        suburb: data.region || data.city || '',
         isDetected: true
       });
     } catch (error) {
@@ -206,7 +208,7 @@ const HomePage: React.FC = () => {
         </div>
         
         {currentLocation.isDetected && (
-          <p className="text-xs text-gray-500 mt-1">📍 Auto-detected your location</p>
+          <p className="text-xs text-gray-500 mt-1">📍 Auto-detected: {currentLocation.city}{currentLocation.suburb ? `, ${currentLocation.suburb}` : ''}</p>
         )}
       </div>
 
@@ -321,7 +323,7 @@ const HomePage: React.FC = () => {
         
         {/* Discreet Build Number */}
         <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v{Date.now().toString().slice(-8)}</p>
+          <p className="text-xs text-gray-400 text-center">v0.18</p>
         </div>
       </div>
     </div>

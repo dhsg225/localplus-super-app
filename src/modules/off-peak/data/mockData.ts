@@ -26,10 +26,10 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
   const deals = [];
   let dealCounter = 1;
   
-  // Generate 12+ deals per restaurant with percentages rounded to nearest 5%
-  for (let i = 0; i < 15; i++) {
-    const dealType = dealTypes[i % 3];
-    const rawPercentage = 15 + (i * 3) + Math.floor(Math.random() * 10); // 15-50% range
+  // Generate 3 unique deals per restaurant (one per type) with unique percentages
+  dealTypes.forEach((dealType, typeIndex) => {
+    const basePercentage = 20 + (typeIndex * 15); // 20%, 35%, 50% base
+    const rawPercentage = basePercentage + Math.floor(Math.random() * 10); // Add variation
     const discountPercentage = Math.round(rawPercentage / 5) * 5; // Round to nearest 5%
     const priceVariation = basePrice + Math.floor(Math.random() * 400) - 200; // ±200 variation
     const originalPrice = Math.max(priceVariation, 300); // Minimum 300
@@ -80,7 +80,7 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
     });
     
     dealCounter += 3;
-  }
+  });
   
   return deals;
 };
