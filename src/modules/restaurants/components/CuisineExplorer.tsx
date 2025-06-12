@@ -130,6 +130,49 @@ const mockRestaurants: Restaurant[] = [
     specialties: ['Tasting Menu', 'Green Curry', 'Thai Herbs Salad'],
     isOpen: false,
     estimatedDeliveryTime: 'Closed'
+  },
+  // Pattaya restaurants
+  {
+    id: '9',
+    name: 'Rimpa Lapin',
+    cuisine: 'Modern Thai',
+    location: 'Central Pattaya',
+    priceRange: 3,
+    rating: 4.5,
+    reviewCount: 340,
+    image: 'https://images.unsplash.com/photo-1571104508999-893933ded431?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Contemporary Thai dishes in a stylish beachside setting',
+    specialties: ['Tom Yum Goong', 'Massaman Curry', 'Mango Tango'],
+    isOpen: true,
+    estimatedDeliveryTime: '35-50 min'
+  },
+  {
+    id: '10',
+    name: 'The Sky Gallery Pattaya',
+    cuisine: 'Fine Dining Thai',
+    location: 'North Pattaya',
+    priceRange: 4,
+    rating: 4.7,
+    reviewCount: 890,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Rooftop fine dining with panoramic views of Pattaya Bay',
+    specialties: ['Royal Thai Set', 'Lobster Thermidor', 'Chocolate Soufflé'],
+    isOpen: true,
+    estimatedDeliveryTime: '60-75 min'
+  },
+  {
+    id: '11',
+    name: 'Walking Street Seafood',
+    cuisine: 'Thai Street Food',
+    location: 'Walking Street',
+    priceRange: 2,
+    rating: 4.2,
+    reviewCount: 650,
+    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Fresh seafood and street food in the heart of Pattaya nightlife',
+    specialties: ['Grilled Fish', 'Som Tam', 'Beer Towers'],
+    isOpen: true,
+    estimatedDeliveryTime: '20-30 min'
   }
 ];
 
@@ -176,10 +219,58 @@ const LOCATION_DATA = {
       'Old City', 'Nimman', 'Night Bazaar', 'Chang Puak', 'Santitham',
       'Mae Rim', 'Hang Dong', 'San Kamphaeng'
     ]
+  },
+  'Phuket Town': {
+    displayName: 'Phuket Town',
+    areas: ['Old Town', 'Talad Yai', 'Talad Nuea', 'Rassada', 'Koh Kaew']
+  },
+  'Krabi': {
+    displayName: 'Krabi',
+    areas: ['Krabi Town', 'Ao Nang', 'Railay', 'Klong Muang', 'Tup Kaek']
+  },
+  'Samui': {
+    displayName: 'Koh Samui',
+    areas: ['Chaweng', 'Lamai', 'Bophut', 'Maenam', 'Nathon', 'Choeng Mon']
   }
 } as const;
 
 type SupportedCity = keyof typeof LOCATION_DATA;
+
+// Function to get location from localStorage (set by main app)
+const getStoredLocation = (): string | null => {
+  try {
+    const stored = localStorage.getItem('localplus-current-location');
+    return stored ? JSON.parse(stored).city : null;
+  } catch {
+    return null;
+  }
+};
+
+// Function to handle unknown cities gracefully
+const getCityWithFallback = (cityName: string): { city: SupportedCity; areas: string[]; isSupported: boolean } => {
+  // Check if city is directly supported
+  if (cityName in LOCATION_DATA) {
+    return {
+      city: cityName as SupportedCity,
+      areas: LOCATION_DATA[cityName as SupportedCity].areas,
+      isSupported: true
+    };
+  }
+
+  // For unknown cities, provide generic areas
+  const genericAreas = [
+    'City Center', 'Downtown', 'Old Town', 'New Town',
+    'Beach Area', 'Shopping District', 'Business District',
+    'Residential Area', 'Tourist Area', 'Market Area'
+  ];
+
+  // Use Bangkok as fallback but with generic areas for unknown cities
+  return {
+    city: 'Bangkok' as SupportedCity,
+    areas: genericAreas,
+    isSupported: false
+  };
+};
 
 const CuisineExplorer: React.FC = () => {
   const navigate = useNavigate();
@@ -201,34 +292,61 @@ const CuisineExplorer: React.FC = () => {
   const detectUserLocation = async () => {
     setIsLoadingLocation(true);
     try {
-      // Try geolocation first
+      // PRIORITY 1: Check if user manually selected location in main app
+      const storedLocation = getStoredLocation();
+      if (storedLocation) {
+        console.log('Using stored location from main app:', storedLocation);
+        const cityWithFallback = getCityWithFallback(storedLocation);
+        setCurrentCity(cityWithFallback.city);
+        setIsLoadingLocation(false);
+        return;
+      }
+
+      // PRIORITY 2: Try GPS detection
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords;
             const detectedCity = await getLocationFromCoordinates(latitude, longitude);
-            setCurrentCity(detectedCity);
+            const cityWithFallback = getCityWithFallback(detectedCity);
+            setCurrentCity(cityWithFallback.city);
             setIsLoadingLocation(false);
           },
           async () => {
-            // Fallback to IP geolocation
+            // PRIORITY 3: IP geolocation fallback
             const detectedCity = await getLocationFromIP();
-            setCurrentCity(detectedCity);
+            const cityWithFallback = getCityWithFallback(detectedCity);
+            setCurrentCity(cityWithFallback.city);
             setIsLoadingLocation(false);
           }
         );
       } else {
-        // Geolocation not supported, use IP fallback
+        // PRIORITY 4: Final fallback
         const detectedCity = await getLocationFromIP();
-        setCurrentCity(detectedCity);
+        const cityWithFallback = getCityWithFallback(detectedCity);
+        setCurrentCity(cityWithFallback.city);
         setIsLoadingLocation(false);
       }
     } catch (error) {
       console.error('Location detection failed:', error);
-      setCurrentCity('Bangkok'); // Final fallback
+      setCurrentCity('Bangkok'); // Ultimate fallback
       setIsLoadingLocation(false);
     }
   };
+
+  // Listen for location changes from main app
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedLocation = getStoredLocation();
+      if (storedLocation) {
+        const cityWithFallback = getCityWithFallback(storedLocation);
+        setCurrentCity(cityWithFallback.city);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const getLocationFromCoordinates = async (lat: number, lng: number): Promise<SupportedCity> => {
     // Real-world coordinates for Thailand locations
@@ -289,9 +407,9 @@ const CuisineExplorer: React.FC = () => {
     }
   };
 
-  // Get areas for current city
-  const currentLocationData = LOCATION_DATA[currentCity];
-  const availableAreas = currentLocationData?.areas || [];
+  // Get areas for current city (with fallback handling)
+  const cityData = getCityWithFallback(currentCity);
+  const availableAreas = cityData.areas;
 
   // Extract unique cuisines and locations
   const availableCuisines = useMemo(() => 

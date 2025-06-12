@@ -46,10 +46,19 @@ const HomePage: React.FC = () => {
             // For demo purposes, we'll simulate detection
             const detectedLocation = await simulateLocationDetection(latitude, longitude);
             
-            setCurrentLocation({
+            const newLocation = {
               ...detectedLocation,
               isDetected: true
-            });
+            };
+            
+            setCurrentLocation(newLocation);
+            
+            // Save to localStorage for other modules
+            try {
+              localStorage.setItem('localplus-current-location', JSON.stringify(newLocation));
+            } catch (error) {
+              console.log('Failed to save detected location to localStorage:', error);
+            }
           },
           (error) => {
             console.log('Geolocation error:', error);
@@ -143,12 +152,21 @@ const HomePage: React.FC = () => {
         }
       }
       
-      setCurrentLocation({
+      const newLocation = {
         city: finalCity,
         country: data.country_name || 'Thailand',
         suburb: data.region || data.city || '',
         isDetected: true
-      });
+      };
+      
+      setCurrentLocation(newLocation);
+      
+      // Save to localStorage for other modules
+      try {
+        localStorage.setItem('localplus-current-location', JSON.stringify(newLocation));
+      } catch (error) {
+        console.log('Failed to save detected location to localStorage:', error);
+      }
     } catch (error) {
       console.log('Fallback location detection failed:', error);
       // Final fallback to Bangkok
@@ -161,11 +179,21 @@ const HomePage: React.FC = () => {
   };
 
   const handleLocationChange = (newCity: string) => {
-    setCurrentLocation({
+    const newLocation = {
       city: newCity,
       country: 'Thailand',
       isDetected: false // User manually selected
-    });
+    };
+    
+    setCurrentLocation(newLocation);
+    
+    // Save to localStorage for other modules to access
+    try {
+      localStorage.setItem('localplus-current-location', JSON.stringify(newLocation));
+    } catch (error) {
+      console.log('Failed to save location to localStorage:', error);
+    }
+    
     setShowLocationPicker(false);
   };
 
