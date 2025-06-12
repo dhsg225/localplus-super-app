@@ -356,6 +356,20 @@ const HomePage: React.FC = () => {
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Today's Deals</h3>
             <p className="text-xs text-gray-500 flex-1">Limited time offers</p>
           </Link>
+
+          <Link
+            to="/news"
+            className="bg-gradient-to-br from-indigo-50 to-blue-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-indigo-100 min-h-[120px] flex flex-col"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-2xl">📰</div>
+              <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                NEW
+              </span>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Local News</h3>
+            <p className="text-xs text-gray-500 flex-1">Stay updated with local happenings</p>
+          </Link>
         </div>
       </div>
 
@@ -405,7 +419,7 @@ const HomePage: React.FC = () => {
         
         {/* Discreet Build Number */}
         <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v0.22</p>
+          <p className="text-xs text-gray-400 text-center">v0.25</p>
         </div>
       </div>
     </div>

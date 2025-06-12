@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Plus News Module Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-8 text-gray-900">📰 Local Plus News Module Demo</h1>
+    
+    <!-- News Module Container -->
+    <div id="newsModule" class="bg-white rounded-lg shadow-lg">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Local News</h2>
+                <div class="flex items-center space-x-2 text-blue-100">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    <span id="currentCity">Hua Hin</span>
+                </div>
+            </div>
+
+            <!-- City Selector -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="switchCity('hua-hin')" id="btn-hua-hin" class="px-3 py-1 rounded-full text-sm transition-colors bg-white text-blue-600 font-medium">
+                    Hua Hin
+                </button>
+                <button onclick="switchCity('pattaya')" id="btn-pattaya" class="px-3 py-1 rounded-full text-sm transition-colors bg-blue-500 hover:bg-blue-400 text-white">
+                    Pattaya
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search news..."
+                    class="w-full pl-10 pr-4 py-2 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    onkeyup="searchNews()"
+                />
+            </div>
+
+            <!-- Filter Toggle -->
+            <button onclick="toggleFilters()" class="mt-3 flex items-center space-x-2 text-blue-100 hover:text-white transition-colors">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+                <span id="filterToggleText">Show Filters</span>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div id="filtersSection" class="bg-gray-50 p-4 border-b hidden">
+            <div id="categoriesContainer" class="flex flex-wrap gap-2">
+                <button onclick="selectCategory('all')" id="cat-all" class="px-3 py-1 rounded-full text-sm transition-colors bg-blue-600 text-white">
+                    All Categories
+                </button>
+                <!-- Categories will be populated here -->
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6">
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden">
+                <div class="animate-pulse">
+                    <div class="h-8 bg-gray-200 rounded mb-4"></div>
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded mb-2 w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded mb-2 w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="text-center py-8 hidden">
+                <div class="text-red-600 mb-2">⚠️ <span id="errorMessage">Failed to load news.</span></div>
+                <button onclick="fetchNews()" class="text-blue-600 hover:text-blue-800 font-medium">
+                    Try again
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-8 text-gray-500 hidden">
+                No news articles found for your current search.
+            </div>
+
+            <!-- News Articles -->
+            <div id="newsContainer" class="space-y-6">
+                <!-- Articles will be populated here -->
+            </div>
+
+            <!-- Status -->
+            <div id="statusText" class="mt-6 text-center text-sm text-gray-500">
+                <!-- Status will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Info -->
+    <div class="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i data-lucide="info" class="h-5 w-5 text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-blue-700">
+                    <strong>News Module Demo:</strong> This demonstrates live WordPress API integration with 
+                    Hua Hin and Pattaya locality.guide sites. Search, filter by categories, and switch between cities 
+                    to see location-aware news content. The module syncs with your main app's location selection.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global state
+let currentCity = 'hua-hin';
+let currentCategory = 'all';
+let searchTerm = '';
+let showFilters = false;
+let posts = [];
+let categories = [];
+
+const cityNames = {
+    'hua-hin': 'Hua Hin',
+    'pattaya': 'Pattaya'
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+    loadFromLocalStorage();
+    fetchNews();
+    fetchCategories();
+});
+
+// Load location from localStorage (sync with main app)
+function loadFromLocalStorage() {
+    try {
+        const savedLocation = localStorage.getItem('ldp_user_location');
+        if (savedLocation) {
+            const locationData = JSON.parse(savedLocation);
+            const cityMapping = {
+                'Bangkok': 'bangkok',
+                'Hua Hin': 'hua-hin',
+                'Pattaya': 'pattaya',
+                'Phuket': 'phuket',
+                'Chiang Mai': 'chiang-mai'
+            };
+            
+            const detectedCity = cityMapping[locationData.city] || 'hua-hin';
+            if (cityNames[detectedCity]) {
+                currentCity = detectedCity;
+                updateCityUI();
+            }
+        }
+    } catch (error) {
+        console.error('Error loading location from localStorage:', error);
+    }
+}
+
+// Switch city
+function switchCity(city) {
+    currentCity = city;
+    updateCityUI();
+    fetchNews();
+    fetchCategories();
+}
+
+function updateCityUI() {
+    document.getElementById('currentCity').textContent = cityNames[currentCity];
+    
+    // Update button states
+    Object.keys(cityNames).forEach(city => {
+        const btn = document.getElementById(`btn-${city}`);
+        if (city === currentCity) {
+            btn.className = 'px-3 py-1 rounded-full text-sm transition-colors bg-white text-blue-600 font-medium';
+        } else {
+            btn.className = 'px-3 py-1 rounded-full text-sm transition-colors bg-blue-500 hover:bg-blue-400 text-white';
+        }
+    });
+}
+
+// Toggle filters
+function toggleFilters() {
+    showFilters = !showFilters;
+    const filtersSection = document.getElementById('filtersSection');
+    const toggleText = document.getElementById('filterToggleText');
+    
+    if (showFilters) {
+        filtersSection.classList.remove('hidden');
+        toggleText.textContent = 'Hide Filters';
+    } else {
+        filtersSection.classList.add('hidden');
+        toggleText.textContent = 'Show Filters';
+    }
+}
+
+// Search news (debounced)
+let searchTimeout;
+function searchNews() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        searchTerm = document.getElementById('searchInput').value;
+        fetchNews();
+    }, 500);
+}
+
+// Select category
+function selectCategory(categoryId) {
+    currentCategory = categoryId;
+    
+    // Update button states
+    document.querySelectorAll('[id^="cat-"]').forEach(btn => {
+        btn.className = 'px-3 py-1 rounded-full text-sm transition-colors bg-white text-gray-700 hover:bg-gray-100';
+    });
+    
+    document.getElementById(`cat-${categoryId}`).className = 'px-3 py-1 rounded-full text-sm transition-colors bg-blue-600 text-white';
+    
+    fetchNews();
+}
+
+// Fetch news posts
+async function fetchNews() {
+    try {
+        showLoading(true);
+        hideError();
+        
+        let url = `http://localhost:3003/api/news/${currentCity}?per_page=10`;
+        if (currentCategory !== 'all') {
+            url += `&categories=${currentCategory}`;
+        }
+        if (searchTerm.trim()) {
+            url += `&search=${encodeURIComponent(searchTerm.trim())}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        posts = await response.json();
+        renderPosts();
+        
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        showError('Failed to load news. Please check that the proxy server is running on localhost:3003.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Fetch categories
+async function fetchCategories() {
+    try {
+        const response = await fetch(`http://localhost:3003/api/news/${currentCity}/categories`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const allCategories = await response.json();
+        categories = allCategories.filter(cat => cat.count > 0).slice(0, 8);
+        renderCategories();
+        
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+    }
+}
+
+// Render posts
+function renderPosts() {
+    const container = document.getElementById('newsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const statusText = document.getElementById('statusText');
+    
+    if (posts.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        statusText.textContent = '';
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    statusText.textContent = `Showing ${posts.length} articles from ${cityNames[currentCity]} • Powered by WordPress API`;
+    
+    container.innerHTML = posts.map(post => {
+        const title = stripHtml(post.title.rendered);
+        const excerpt = getExcerpt(post);
+        const featuredImage = getFeaturedImage(post);
+        const formattedDate = formatDate(post.date);
+        
+        return `
+            <article class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex flex-col md:flex-row gap-4">
+                    ${featuredImage ? `
+                        <div class="md:w-48 flex-shrink-0">
+                            <img
+                                src="${featuredImage}"
+                                alt="${title}"
+                                class="w-full h-32 md:h-24 object-cover rounded-lg"
+                                onerror="this.style.display='none'"
+                            />
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+                            ${title}
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-3 line-clamp-3">
+                            ${excerpt}
+                        </p>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center space-x-1">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span>${formattedDate}</span>
+                                </div>
+                                ${post.categories.length > 0 ? `
+                                    <div class="flex items-center space-x-1">
+                                        <i data-lucide="tag" class="w-4 h-4"></i>
+                                        <span>${post.categories.length} categories</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <a
+                                href="${post.link}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                                <span>Read More</span>
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+    
+    // Re-create Lucide icons for dynamically added content
+    lucide.createIcons();
+}
+
+// Render categories
+function renderCategories() {
+    const container = document.getElementById('categoriesContainer');
+    
+    // Keep "All Categories" button and add others
+    const allButton = container.querySelector('#cat-all');
+    container.innerHTML = '';
+    container.appendChild(allButton);
+    
+    categories.forEach(category => {
+        const button = document.createElement('button');
+        button.id = `cat-${category.id}`;
+        button.className = 'px-3 py-1 rounded-full text-sm transition-colors bg-white text-gray-700 hover:bg-gray-100';
+        button.textContent = `${category.name} (${category.count})`;
+        button.onclick = () => selectCategory(category.id.toString());
+        container.appendChild(button);
+    });
+}
+
+// Utility functions
+function showLoading(show) {
+    const loadingState = document.getElementById('loadingState');
+    if (show) {
+        loadingState.classList.remove('hidden');
+    } else {
+        loadingState.classList.add('hidden');
+    }
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorState').classList.remove('hidden');
+}
+
+function hideError() {
+    document.getElementById('errorState').classList.add('hidden');
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+function getExcerpt(post) {
+    const excerpt = stripHtml(post.excerpt.rendered);
+    return excerpt.length > 150 ? excerpt.substring(0, 150) + '...' : excerpt;
+}
+
+function getFeaturedImage(post) {
+    return post.yoast_head_json?.og_image?.[0]?.url || null;
+}
+</script>
+
+</body>
+</html> 

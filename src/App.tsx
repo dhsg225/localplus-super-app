@@ -28,6 +28,7 @@ import DiscountPassportInfo from "./modules/passport/components/DiscountPassport
 
 // Admin components
 import AdminDashboard from "./modules/admin/components/AdminDashboard";
+import NewsAdminSettings from "./modules/admin/components/NewsAdminSettings";
 
 // Auth components
 import LoginPage from "./modules/auth/components/LoginPage";
@@ -36,6 +37,12 @@ import RegisterPage from "./modules/auth/components/RegisterPage";
 // User Profile components
 import ProfilePage from "./modules/user-profile/components/ProfilePage";
 import ProfileEditPage from "./modules/user-profile/components/ProfileEditPage";
+
+// News components
+import NewsPage from "./modules/news/components/NewsPage";
+
+// User Settings components  
+import UserSettingsPage from "./modules/user-settings/components/UserSettingsPage";
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
@@ -66,8 +73,15 @@ function App() {
               <Route path="/passport/upgrade" element={<SubscriptionUpgrade />} />
               <Route path="/passport/info" element={<DiscountPassportInfo />} />
               
+              {/* News Routes */}
+              <Route path="/news" element={<NewsPage />} />
+              
+              {/* User Settings Routes */}
+              <Route path="/usersettings" element={<UserSettingsPage />} />
+              
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/news-settings" element={<NewsAdminSettings />} />
               
               {/* Auth Routes */}
               <Route path="/auth/login" element={<LoginPage />} />
