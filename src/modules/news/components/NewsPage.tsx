@@ -11,6 +11,7 @@ interface NewsArticle {
   featured_media: number;
   categories: number[];
   date: string;
+  featured_image_url?: string;
 }
 
 interface CategoryHierarchy {

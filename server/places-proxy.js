@@ -76,8 +76,24 @@ app.get('/api/news/:city', async (req, res) => {
     const response = await fetch(wpUrl);
     const posts = await response.json();
 
-    console.log(`✅ Found ${posts.length} posts for ${city}`);
-    res.json(posts);
+    // Fetch featured images for posts that have them
+    const postsWithImages = await Promise.all(posts.map(async (post) => {
+      if (post.featured_media && post.featured_media > 0) {
+        try {
+          const mediaResponse = await fetch(`${baseUrl}/wp-json/wp/v2/media/${post.featured_media}`);
+          if (mediaResponse.ok) {
+            const media = await mediaResponse.json();
+            post.featured_image_url = media.source_url;
+          }
+        } catch (error) {
+          console.warn(`⚠️ Failed to fetch featured image for post ${post.id}:`, error.message);
+        }
+      }
+      return post;
+    }));
+
+    console.log(`✅ Found ${postsWithImages.length} posts for ${city}`);
+    res.json(postsWithImages);
 
   } catch (error) {
     console.error('❌ WordPress API error:', error);

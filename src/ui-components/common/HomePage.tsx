@@ -283,23 +283,7 @@ const HomePage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Discount Banner */}
-      <div className="mb-6">
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-4 shadow-lg">
-          <div className="flex items-center">
-            <div className="bg-white/20 rounded-lg p-2 mr-3">
-              <span className="text-2xl">🎯</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg">LocalPlus Rewards</h3>
-              <p className="text-white/90 text-sm">Instant savings at 500+ businesses</p>
-            </div>
-            <button className="bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-orange-50 transition-colors">
-              Discover
-            </button>
-          </div>
-        </div>
-      </div>
+
 
       {/* Rotating Headlines */}
       <div className="mb-6">
