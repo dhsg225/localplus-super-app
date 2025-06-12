@@ -37,22 +37,30 @@ const NewsPage: React.FC = () => {
 
   // Get user's current location
   useEffect(() => {
-    const location = localStorage.getItem('ldp_user_location');
-    if (location) {
-      const cityMap: { [key: string]: { api: string, display: string } } = {
-        'bangkok': { api: 'bangkok', display: 'Bangkok' },
-        'hua-hin': { api: 'hua-hin', display: 'Hua Hin' },
-        'pattaya': { api: 'pattaya', display: 'Pattaya' },
-        'phuket': { api: 'phuket', display: 'Phuket' },
-        'chiang-mai': { api: 'chiang-mai', display: 'Chiang Mai' },
-        'koh-samui': { api: 'koh-samui', display: 'Koh Samui' }
-      };
-      
-      const cityKey = location.toLowerCase().replace(/\s+/g, '-');
-      const cityInfo = cityMap[cityKey] || { api: 'hua-hin', display: 'Hua Hin' };
-      
-      setCurrentCity(cityInfo.api);
-      setUserLocation(cityInfo.display);
+    const locationData = localStorage.getItem('localplus-current-location');
+    if (locationData) {
+      try {
+        const location = JSON.parse(locationData);
+        const cityMap: { [key: string]: { api: string, display: string } } = {
+          'bangkok': { api: 'bangkok', display: 'Bangkok' },
+          'hua hin': { api: 'hua-hin', display: 'Hua Hin' },
+          'pattaya': { api: 'pattaya', display: 'Pattaya' },
+          'phuket': { api: 'phuket', display: 'Phuket' },
+          'chiang mai': { api: 'chiang-mai', display: 'Chiang Mai' },
+          'koh samui': { api: 'koh-samui', display: 'Koh Samui' }
+        };
+        
+        const cityKey = location.city.toLowerCase();
+        const cityInfo = cityMap[cityKey] || { api: 'hua-hin', display: 'Hua Hin' };
+        
+        setCurrentCity(cityInfo.api);
+        setUserLocation(cityInfo.display);
+      } catch (error) {
+        console.error('Error parsing location data:', error);
+        // Use defaults if parsing fails
+        setCurrentCity('hua-hin');
+        setUserLocation('Hua Hin');
+      }
     }
   }, []);
 
@@ -298,6 +306,18 @@ const NewsPage: React.FC = () => {
   const stripHtml = (html: string) => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
+  };
+
+  // Get category name from category ID
+  const getCategoryName = (categoryId: number): string => {
+    const categoryNames: { [key: number]: string } = {
+      62: 'Local',
+      297: 'National', 
+      796: 'Featured',
+      60: 'Business',
+      1: 'General'
+    };
+    return categoryNames[categoryId] || 'News';
   };
 
   return (
