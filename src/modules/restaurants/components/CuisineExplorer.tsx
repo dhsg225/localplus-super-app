@@ -142,7 +142,7 @@ interface CuisineFilters {
 
 const CuisineExplorer: React.FC = () => {
   const navigate = useNavigate();
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<CuisineFilters>({
     selectedCuisines: [],
     selectedLocations: [],
@@ -253,7 +253,7 @@ const CuisineExplorer: React.FC = () => {
               className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
             >
               <Filter size={16} />
-              <span>Filter</span>
+              <span>{showFilters ? 'Hide Filter' : 'Show Filter'}</span>
             </button>
           </div>
         </div>
@@ -391,36 +391,40 @@ const CuisineExplorer: React.FC = () => {
                 onClick={() => handleRestaurantClick(restaurant)}
                 className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow text-left"
               >
-                <div className="flex">
+                <div className="flex p-4 space-x-4">
+                  {/* Restaurant Image - Larger and more prominent */}
                   <img 
                     src={restaurant.image} 
                     alt={restaurant.name}
-                    className="w-24 h-24 object-cover"
+                    className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
                   />
                   
-                  <div className="flex-1 p-4">
+                  {/* Content Area - Better organized */}
+                  <div className="flex-1 min-w-0">
+                    {/* Header with Name and Rating */}
                     <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{restaurant.name}</h3>
-                        <p className="text-sm text-gray-600">{restaurant.cuisine}</p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-lg text-gray-900 truncate">{restaurant.name}</h3>
+                        <p className="text-sm text-gray-600 mb-1">{restaurant.cuisine}</p>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
-                        <div className="flex items-center space-x-1">
-                          <Star size={14} className="text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium">{restaurant.rating}</span>
-                        </div>
-                        <span className="text-sm text-gray-500">({restaurant.reviewCount})</span>
+                      {/* Rating Badge - More prominent */}
+                      <div className="flex items-center space-x-1 bg-yellow-50 px-2 py-1 rounded-full ml-3 flex-shrink-0">
+                        <Star size={14} className="text-yellow-400 fill-current" />
+                        <span className="text-sm font-semibold text-gray-900">{restaurant.rating}</span>
+                        <span className="text-xs text-gray-500">({restaurant.reviewCount})</span>
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-1">{restaurant.description}</p>
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{restaurant.description}</p>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    {/* Location, Price, and Status Row */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3 text-sm text-gray-600">
                         <div className="flex items-center space-x-1">
                           <MapPin size={14} />
-                          <span>{restaurant.location}</span>
+                          <span className="truncate">{restaurant.location}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <DollarSign size={14} />
@@ -428,26 +432,36 @@ const CuisineExplorer: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
-                        {restaurant.isOpen ? (
-                          <span className="text-xs text-green-600 font-medium">
-                            Open • {restaurant.estimatedDeliveryTime}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-red-600 font-medium">Closed</span>
-                        )}
-                      </div>
+                      {/* Open/Closed Status */}
+                      {restaurant.isOpen ? (
+                        <div className="flex items-center space-x-1 text-xs">
+                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                          <span className="text-green-600 font-medium">Open</span>
+                          <span className="text-gray-500">• {restaurant.estimatedDeliveryTime}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1 text-xs">
+                          <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                          <span className="text-red-600 font-medium">Closed</span>
+                        </div>
+                      )}
                     </div>
                     
-                    <div className="flex flex-wrap gap-1 mt-2">
+                    {/* Specialties Tags */}
+                    <div className="flex flex-wrap gap-1">
                       {restaurant.specialties.slice(0, 3).map(specialty => (
                         <span
                           key={specialty}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
+                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
                         >
                           {specialty}
                         </span>
                       ))}
+                      {restaurant.specialties.length > 3 && (
+                        <span className="px-2 py-1 text-xs text-gray-500">
+                          +{restaurant.specialties.length - 3} more
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
