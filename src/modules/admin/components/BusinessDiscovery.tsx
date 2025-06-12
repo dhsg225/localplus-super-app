@@ -6,9 +6,10 @@ import { businessAPI } from '../../../lib/supabase';
 interface BusinessDiscoveryProps {
   userLocation: { lat: number; lng: number } | null;
   onBusinessAdded?: (business: any) => void;
+  onLocationUpdate?: (location: { lat: number; lng: number }) => void;
 }
 
-const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onBusinessAdded }) => {
+const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onBusinessAdded, onLocationUpdate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [discoveredBusinesses, setDiscoveredBusinesses] = useState<GooglePlaceResult[]>([]);
@@ -152,6 +153,40 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Discover Real Businesses</h3>
         
+        {/* Location Input */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <MapPin size={16} className="text-blue-600" />
+              <span className="text-sm font-medium text-blue-900">Search Location:</span>
+              {userLocation && (
+                <span className="text-xs text-blue-700">
+                  {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      const newLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                      };
+                      onLocationUpdate?.(newLocation);
+                    },
+                    (error) => console.error('Geolocation error:', error)
+                  );
+                }
+              }}
+              className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Use My Location
+            </button>
+          </div>
+        </div>
+
         {/* Search Bar */}
         <div className="flex space-x-2 mb-4">
           <div className="flex-1 relative">
@@ -255,10 +290,7 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
                       )}
                       
                       <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                        {googlePlacesService.categorizeGooglePlace ? 
-                          business.types.find(type => ['restaurant', 'spa', 'store', 'establishment'].includes(type)) || 'Business'
-                          : 'Business'
-                        }
+                        {business.types.find(type => ['restaurant', 'spa', 'store', 'establishment'].includes(type)) || 'Business'}
                       </span>
                     </div>
                   </div>
