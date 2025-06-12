@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Globe, Settings, User, Shield, Newspaper } from 'lucide-react';
+import { ArrowLeft, Bell, Globe, Settings, User, Shield, Newspaper, Eye, Database, Wifi } from 'lucide-react';
+import { newsCacheService } from '../../news/services/newsCacheService';
 
 interface NewsSettings {
   includeNational: boolean;
   includeLocal: boolean;
   selectedCategories: string[];
   notificationsEnabled: boolean;
+  cacheInterval: number; // in minutes
+  enableCaching: boolean;
+  headlineTransition: 'slide' | 'fade' | 'crossdissolve';
 }
 
 interface UserSettings {
@@ -41,6 +45,9 @@ const UserSettingsPage: React.FC = () => {
       includeLocal: true,
       selectedCategories: [],
       notificationsEnabled: true,
+      cacheInterval: 5, // 5 minutes default
+      enableCaching: true, // Enable by default
+      headlineTransition: 'slide',
     }
   });
 
@@ -251,6 +258,44 @@ const UserSettingsPage: React.FC = () => {
                 />
               </label>
             </div>
+
+            {/* Headline Transition Style */}
+            <div>
+              <label className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">Headline Transitions</div>
+                  <div className="text-xs text-gray-500">How headlines change on the home screen</div>
+                </div>
+                <select
+                  value={settings.news.headlineTransition}
+                  onChange={(e) => handleNewsSettingChange('headlineTransition', e.target.value as 'slide' | 'fade' | 'crossdissolve')}
+                  className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                >
+                  <option value="fade">Fade</option>
+                  <option value="slide">Slide</option>
+                  <option value="crossdissolve">Cross Dissolve</option>
+                </select>
+              </label>
+            </div>
+
+            {/* Headline Transition Style */}
+            <div>
+              <label className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">Headline Transitions</div>
+                  <div className="text-xs text-gray-500">How headlines change on the home screen</div>
+                </div>
+                <select
+                  value={settings.news.headlineTransition}
+                  onChange={(e) => handleNewsSettingChange('headlineTransition', e.target.value as 'slide' | 'fade' | 'crossdissolve')}
+                  className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                >
+                  <option value="fade">Fade</option>
+                  <option value="slide">Slide</option>
+                  <option value="crossdissolve">Cross Dissolve</option>
+                </select>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -350,6 +395,75 @@ const UserSettingsPage: React.FC = () => {
                 className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
               />
             </label>
+          </div>
+        </div>
+
+        {/* News Cache Settings */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Database size={20} className="text-yellow-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">News Cache Settings</h2>
+                <p className="text-sm text-gray-600">Manage your news cache preferences</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 space-y-4">
+            <label className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-gray-900">Enable News Caching</div>
+                <div className="text-xs text-gray-500">Cache news for faster loading</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.news.enableCaching}
+                onChange={(e) => {
+                  const enabled = e.target.checked;
+                  handleNewsSettingChange('enableCaching', enabled);
+                  newsCacheService.setConfig({ enabled });
+                }}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+              />
+            </label>
+
+            {settings.news.enableCaching && (
+              <div>
+                <label className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">Auto-refresh interval</div>
+                    <div className="text-xs text-gray-500">How often to update news in background</div>
+                  </div>
+                  <select
+                    value={settings.news.cacheInterval}
+                    onChange={(e) => {
+                      const minutes = parseInt(e.target.value);
+                      handleNewsSettingChange('cacheInterval', minutes);
+                      newsCacheService.setConfig({ 
+                        refreshInterval: minutes * 60 * 1000 // Convert to milliseconds
+                      });
+                    }}
+                    className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                  >
+                    <option value={1}>1 minute</option>
+                    <option value={5}>5 minutes</option>
+                    <option value={10}>10 minutes</option>
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                    <option value={60}>1 hour</option>
+                  </select>
+                </label>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="text-xs text-blue-800">
+                    <strong>📱 Mobile-friendly:</strong> Caching reduces data usage and provides instant news loading, perfect for Thailand's mobile networks!
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

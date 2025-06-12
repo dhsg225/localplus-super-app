@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award } from 'lucide-react';
+import RotatingHeadlines from '../../modules/news/components/RotatingHeadlines';
 
 // Location interface
 interface LocationData {
@@ -282,6 +283,34 @@ const HomePage: React.FC = () => {
         </Link>
       </div>
 
+      {/* Discount Banner */}
+      <div className="mb-6">
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-4 shadow-lg">
+          <div className="flex items-center">
+            <div className="bg-white/20 rounded-lg p-2 mr-3">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg">LocalPlus Rewards</h3>
+              <p className="text-white/90 text-sm">Instant savings at 500+ businesses</p>
+            </div>
+            <button className="bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-orange-50 transition-colors">
+              Discover
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Rotating Headlines */}
+      <div className="mb-6">
+        <RotatingHeadlines
+          currentCity={currentLocation.city.toLowerCase().replace(' ', '-')}
+          transitionStyle="crossdissolve"
+          intervalMs={6000}
+          maxHeadlines={4}
+        />
+      </div>
+
       {/* Quick Actions */}
       <div className="px-4 pb-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -418,8 +447,13 @@ const HomePage: React.FC = () => {
         </div>
         
         {/* Discreet Build Number */}
-        <div className="mt-4">
-          <p className="text-xs text-gray-400 text-center">v0.25</p>
+        <div className="mt-4 text-center">
+          <button 
+            onClick={() => window.location.href = '/admin'}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          >
+            v0.27
+          </button>
         </div>
       </div>
     </div>

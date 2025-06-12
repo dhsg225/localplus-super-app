@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3, Building, Tag } from 'lucide-react';
+import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3, Building, Tag, Newspaper } from 'lucide-react';
 import { businessAPI, Business, DiscountOffer } from '../../../lib/supabase';
 import { curationAPI, SuggestedBusiness, DiscoveryCampaign, CurationStats } from '../../../services/curationAPI';
 import { discoveryService } from '../../../services/discoveryService';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import NewsAdminSettings from './NewsAdminSettings';
 
 interface BusinessFormData {
   name: string;
@@ -28,7 +29,7 @@ interface DiscountFormData {
 }
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics'>('pipeline');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics' | 'news'>('pipeline');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showAddBusiness, setShowAddBusiness] = useState(false);
   const [showAddDiscount, setShowAddDiscount] = useState(false);
@@ -395,7 +396,8 @@ const AdminDashboard: React.FC = () => {
               { id: 'businesses', label: 'Business Directory', icon: Building },
               { id: 'pipeline', label: 'Business Pipeline', icon: CheckCircle },
               { id: 'discounts', label: 'Discounts', icon: Tag },
-              { id: 'analytics', label: 'Analytics', icon: BarChart3 }
+              { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+              { id: 'news', label: 'News', icon: Newspaper }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -415,6 +417,9 @@ const AdminDashboard: React.FC = () => {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
+
+        {/* News Tab */}
+        {activeTab === 'news' && <NewsAdminSettings />}
 
         {/* Business Pipeline Tab */}
         {activeTab === 'pipeline' && (

@@ -123,7 +123,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-const PORT = 3003;
+const PORT = 3004;
 app.listen(PORT, () => {
   console.log(`🚀 Places & News proxy server running on http://localhost:${PORT}`);
   console.log(`🏖️ Ready to serve Hua Hin business data!`);

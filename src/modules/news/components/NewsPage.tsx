@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Search, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Settings, Search, ChevronDown, ChevronRight, MapPin, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { newsCacheService } from '../services/newsCacheService';
 
 interface NewsArticle {
   id: number;
@@ -10,7 +11,6 @@ interface NewsArticle {
   featured_media: number;
   categories: number[];
   date: string;
-  featured_image_url?: string;
 }
 
 interface CategoryHierarchy {
@@ -105,14 +105,36 @@ const NewsPage: React.FC = () => {
     loadCategoryHierarchy();
   }, [currentCity]);
 
-  // Fetch articles
+  // Fetch articles with caching
   useEffect(() => {
     const fetchArticles = async () => {
-      setLoading(true);
-      setError(null);
+      // First, try to load from cache for instant display
+      const cached = newsCacheService.get(currentCity);
+      if (cached && !searchTerm && selectedCategories.length === 0) {
+        console.log('📰 Loading from cache');
+        setArticles(cached.articles);
+        setLoading(false);
+        
+        // Still check if we need to refresh in background
+        if (newsCacheService.needsRefresh(currentCity)) {
+          console.log('🔄 Cache needs refresh, fetching in background...');
+          fetchFromAPI(true); // Background fetch
+        }
+        return;
+      }
+      
+      // If no cache or search/filter active, fetch from API
+      await fetchFromAPI(false);
+    };
+
+    const fetchFromAPI = async (isBackground = false) => {
+      if (!isBackground) {
+        setLoading(true);
+        setError(null);
+      }
       
       try {
-        let url = `http://localhost:3003/api/news/${currentCity}?`;
+        let url = `http://localhost:3004/api/news/${currentCity}?`;
         const params = new URLSearchParams();
         
         if (searchTerm) {
@@ -136,11 +158,29 @@ const NewsPage: React.FC = () => {
         
         const data = await response.json();
         setArticles(data);
+        
+        // Cache the results (only if no search/filter)
+        if (!searchTerm && selectedCategories.length === 0) {
+          // Get categories for caching
+          try {
+            const categoriesResponse = await fetch(`http://localhost:3004/api/news/${currentCity}/categories`);
+            const categories = categoriesResponse.ok ? await categoriesResponse.json() : [];
+            newsCacheService.store(currentCity, data, categories);
+          } catch (error) {
+            console.warn('Failed to cache categories:', error);
+            newsCacheService.store(currentCity, data, []);
+          }
+        }
+        
       } catch (error) {
         console.error('Error fetching articles:', error);
-        setError('Failed to load news articles. Please try again.');
+        if (!isBackground) {
+          setError('Failed to load news articles. Please try again.');
+        }
       } finally {
-        setLoading(false);
+        if (!isBackground) {
+          setLoading(false);
+        }
       }
     };
 
@@ -224,6 +264,36 @@ const NewsPage: React.FC = () => {
     ));
   };
 
+  // Manual refresh handler
+  const handleManualRefresh = async () => {
+    setLoading(true);
+    const result = await newsCacheService.manualRefresh(currentCity);
+    if (result) {
+      setArticles(result.articles);
+    }
+    setLoading(false);
+  };
+
+  // Get cache status for display
+  const [cacheStatus, setCacheStatus] = useState<string>('');
+  
+  useEffect(() => {
+    const updateCacheStatus = () => {
+      const stats = newsCacheService.getCacheStats();
+      if (stats && stats.city === currentCity) {
+        const minutes = Math.floor(stats.age / 60);
+        setCacheStatus(minutes < 1 ? 'Just updated' : `${minutes}m ago`);
+      } else {
+        setCacheStatus('');
+      }
+    };
+    
+    updateCacheStatus();
+    const interval = setInterval(updateCacheStatus, 30000); // Update every 30s
+    
+    return () => clearInterval(interval);
+  }, [currentCity, articles]);
+
   const stripHtml = (html: string) => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
@@ -250,16 +320,29 @@ const NewsPage: React.FC = () => {
                 <div className="flex items-center text-sm text-gray-600">
                   <MapPin className="w-3 h-3 mr-1" />
                   {userLocation}
+                  {cacheStatus && (
+                    <span className="ml-2 text-xs text-blue-600">• {cacheStatus}</span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => navigate('/usersettings')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleManualRefresh}
+              disabled={loading}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+              title="Refresh news"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={() => navigate('/usersettings')}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -330,36 +413,32 @@ const NewsPage: React.FC = () => {
           <div className="space-y-4">
             {articles.map(article => (
               <div key={article.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                {article.featured_image_url && (
-                  <img
-                    src={article.featured_image_url}
-                    alt={stripHtml(article.title.rendered)}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                )}
                 <div className="p-4">
-                  <h2 className="font-semibold text-lg mb-2 line-clamp-2">
-                    {stripHtml(article.title.rendered)}
-                  </h2>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-                    {stripHtml(article.excerpt.rendered)}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      {new Date(article.date).toLocaleDateString()}
-                    </span>
-                    <a
-                      href={article.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 text-sm font-medium hover:underline"
-                    >
-                      Read more →
-                    </a>
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">
+                        {stripHtml(article.title.rendered)}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-sm line-clamp-3 mb-3">
+                        {stripHtml(article.excerpt.rendered)}
+                      </p>
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>
+                          {new Date(article.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                        {article.categories && article.categories.length > 0 && (
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {getCategoryName(article.categories[0])}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
