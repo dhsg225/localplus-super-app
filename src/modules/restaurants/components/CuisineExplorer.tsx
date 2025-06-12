@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Filter, MapPin, Star, DollarSign, Utensils } from 'lucide-react';
 
@@ -23,11 +23,11 @@ const mockRestaurants: Restaurant[] = [
     id: '1',
     name: 'Som Tam Paradise',
     cuisine: 'Thai Street Food',
-    location: 'Silom, Bangkok',
+    location: 'Hua Hin Center',
     priceRange: 1,
     rating: 4.6,
     reviewCount: 1250,
-    image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
     description: 'Authentic Isaan-style som tam and northeastern Thai specialties',
     specialties: ['Som Tam', 'Larb', 'Sticky Rice'],
     isOpen: true,
@@ -37,7 +37,7 @@ const mockRestaurants: Restaurant[] = [
     id: '2',
     name: 'Blue Elephant',
     cuisine: 'Fine Dining Thai',
-    location: 'Sathorn, Bangkok',
+    location: 'Hua Hin Center',
     priceRange: 4,
     rating: 4.8,
     reviewCount: 890,
@@ -51,77 +51,77 @@ const mockRestaurants: Restaurant[] = [
     id: '3',
     name: 'Sushi Masato',
     cuisine: 'Japanese',
-    location: 'Thonglor, Bangkok',
+    location: 'Night Market Area',
     priceRange: 3,
     rating: 4.7,
     reviewCount: 650,
-    image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Premium omakase experience with fresh daily imports',
+    image: 'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Premium omakase experience with fresh daily catches',
     specialties: ['Omakase Set', 'Otoro Sashimi', 'Chirashi Bowl'],
     isOpen: false,
     estimatedDeliveryTime: 'Closed'
   },
   {
     id: '4',
-    name: 'Gaga Milano',
-    cuisine: 'Italian',
-    location: 'Asok, Bangkok',
-    priceRange: 3,
+    name: 'Chez Laurent',
+    cuisine: 'French',
+    location: 'Khao Takiab',
+    priceRange: 4,
     rating: 4.5,
     reviewCount: 420,
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Authentic Italian pasta and wood-fired pizzas',
-    specialties: ['Truffle Pasta', 'Margherita Pizza', 'Tiramisu'],
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Classic French bistro with ocean views and wine selection',
+    specialties: ['Bouillabaisse', 'Duck Confit', 'Crème Brûlée'],
     isOpen: true,
-    estimatedDeliveryTime: '30-40 min'
+    estimatedDeliveryTime: '50-70 min'
   },
   {
     id: '5',
-    name: 'Krua Ban Kluay',
-    cuisine: 'Southern Thai',
-    location: 'Chinatown, Bangkok',
+    name: 'Nonna Sofia',
+    cuisine: 'Italian',
+    location: 'Cicada Market',
     priceRange: 2,
     rating: 4.4,
-    reviewCount: 780,
+    reviewCount: 380,
     image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Spicy southern Thai curries and fresh seafood',
-    specialties: ['Gaeng Som', 'Satay', 'Massaman Curry'],
+    description: 'Homemade pasta and wood-fired pizzas in a cozy trattoria',
+    specialties: ['Carbonara', 'Margherita Pizza', 'Tiramisu'],
     isOpen: true,
-    estimatedDeliveryTime: '20-30 min'
+    estimatedDeliveryTime: '30-45 min'
   },
   {
     id: '6',
-    name: 'Bistro M',
-    cuisine: 'French',
-    location: 'Sukhumvit, Bangkok',
-    priceRange: 4,
-    rating: 4.6,
-    reviewCount: 340,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Classic French bistro with modern presentation',
-    specialties: ['Coq au Vin', 'Bouillabaisse', 'Crème Brûlée'],
+    name: 'Baan Khao Tom',
+    cuisine: 'Modern Thai',
+    location: 'Suan Son Beach',
+    priceRange: 2,
+    rating: 4.3,
+    reviewCount: 290,
+    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    description: 'Contemporary Thai dishes with creative presentations',
+    specialties: ['Khao Tom Pla', 'Green Curry Risotto', 'Coconut Ice Cream'],
     isOpen: true,
-    estimatedDeliveryTime: '40-50 min'
+    estimatedDeliveryTime: '25-40 min'
   },
   {
     id: '7',
     name: 'Pad Thai Thip Samai',
     cuisine: 'Thai Street Food',
-    location: 'Phra Nakhon, Bangkok',
+    location: 'Railway Station Area',
     priceRange: 1,
     rating: 4.3,
     reviewCount: 2100,
     image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Famous for the best Pad Thai in Bangkok since 1966',
+    description: 'Famous for the best Pad Thai in Hua Hin since 1966',
     specialties: ['Pad Thai Superb', 'Pad Thai with Crab', 'Thai Tea'],
     isOpen: true,
     estimatedDeliveryTime: '15-25 min'
   },
   {
     id: '8',
-    name: 'Nahm',
+    name: 'Nahm Bangkok',
     cuisine: 'Modern Thai',
-    location: 'Sathorn, Bangkok',
+    location: 'Sathorn',
     priceRange: 4,
     rating: 4.9,
     reviewCount: 560,
@@ -140,15 +140,158 @@ interface CuisineFilters {
   openOnly: boolean;
 }
 
+// Location data structure for different cities
+const LOCATION_DATA = {
+  'Bangkok': {
+    displayName: 'Bangkok',
+    areas: [
+      'Thonglor', 'Phrom Phong', 'Ekkamai', 'Asok', 'Nana',
+      'Silom', 'Sathorn', 'Sukhumvit', 'Phra Nakhon', 'Chinatown'
+    ]
+  },
+  'Hua Hin': {
+    displayName: 'Hua Hin',
+    areas: [
+      'Hua Hin Center', 'Khao Takiab', 'Khao Tao', 'Soi 88', 'Night Market Area',
+      'Cicada Market', 'Hin Lek Fai', 'Suan Son Beach', 'Railway Station Area'
+    ]
+  },
+  'Pattaya': {
+    displayName: 'Pattaya',
+    areas: [
+      'Central Pattaya', 'North Pattaya', 'South Pattaya', 'Jomtien', 'Naklua',
+      'Walking Street', 'Second Road', 'Third Road', 'Soi Buakhao'
+    ]
+  },
+  'Phuket': {
+    displayName: 'Phuket',
+    areas: [
+      'Patong', 'Kata', 'Karon', 'Kamala', 'Surin', 'Bang Tao',
+      'Phuket Town', 'Chalong', 'Rawai', 'Nai Harn'
+    ]
+  },
+  'Chiang Mai': {
+    displayName: 'Chiang Mai',
+    areas: [
+      'Old City', 'Nimman', 'Night Bazaar', 'Chang Puak', 'Santitham',
+      'Mae Rim', 'Hang Dong', 'San Kamphaeng'
+    ]
+  }
+} as const;
+
+type SupportedCity = keyof typeof LOCATION_DATA;
+
 const CuisineExplorer: React.FC = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(true);
+  const [currentCity, setCurrentCity] = useState<SupportedCity>('Bangkok'); // Default to Bangkok
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [filters, setFilters] = useState<CuisineFilters>({
     selectedCuisines: [],
     selectedLocations: [],
     priceRange: { min: 1, max: 4 },
     openOnly: false
   });
+
+  // Location detection
+  useEffect(() => {
+    detectUserLocation();
+  }, []);
+
+  const detectUserLocation = async () => {
+    setIsLoadingLocation(true);
+    try {
+      // Try geolocation first
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const detectedCity = await getLocationFromCoordinates(latitude, longitude);
+            setCurrentCity(detectedCity);
+            setIsLoadingLocation(false);
+          },
+          async () => {
+            // Fallback to IP geolocation
+            const detectedCity = await getLocationFromIP();
+            setCurrentCity(detectedCity);
+            setIsLoadingLocation(false);
+          }
+        );
+      } else {
+        // Geolocation not supported, use IP fallback
+        const detectedCity = await getLocationFromIP();
+        setCurrentCity(detectedCity);
+        setIsLoadingLocation(false);
+      }
+    } catch (error) {
+      console.error('Location detection failed:', error);
+      setCurrentCity('Bangkok'); // Final fallback
+      setIsLoadingLocation(false);
+    }
+  };
+
+  const getLocationFromCoordinates = async (lat: number, lng: number): Promise<SupportedCity> => {
+    // Real-world coordinates for Thailand locations
+    const locations = [
+      { name: 'Bangkok' as SupportedCity, lat: 13.7563, lng: 100.5018, radius: 0.5 },
+      { name: 'Pattaya' as SupportedCity, lat: 12.9329, lng: 100.8825, radius: 0.3 },
+      { name: 'Hua Hin' as SupportedCity, lat: 12.5684, lng: 99.9578, radius: 0.3 },
+      { name: 'Phuket' as SupportedCity, lat: 7.8804, lng: 98.3923, radius: 0.3 },
+      { name: 'Chiang Mai' as SupportedCity, lat: 18.7883, lng: 98.9853, radius: 0.3 }
+    ];
+    
+    // Find closest matching location
+    for (const location of locations) {
+      if (Math.abs(lat - location.lat) < location.radius && Math.abs(lng - location.lng) < location.radius) {
+        return location.name;
+      }
+    }
+    
+    return 'Bangkok'; // Default if no close match
+  };
+
+  const getLocationFromIP = async (): Promise<SupportedCity> => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      
+      const detectedCity = (data.city || '').toLowerCase();
+      const detectedRegion = (data.region || '').toLowerCase();
+      
+      // Check for Hua Hin and surrounding areas
+      const huaHinKeywords = ['hua hin', 'hin lek fai', 'nong khon', 'prachuap'];
+      if (huaHinKeywords.some(keyword => 
+        detectedCity.includes(keyword) || detectedRegion.includes(keyword)
+      )) {
+        return 'Hua Hin';
+      }
+      
+      // Check for Pattaya area
+      const pattayaKeywords = ['pattaya', 'chonburi', 'banglamung'];
+      if (pattayaKeywords.some(keyword => 
+        detectedCity.includes(keyword) || detectedRegion.includes(keyword)
+      )) {
+        return 'Pattaya';
+      }
+      
+      // Check for other supported cities
+      const supportedCities: SupportedCity[] = ['Phuket', 'Chiang Mai'];
+      for (const city of supportedCities) {
+        if (detectedCity.includes(city.toLowerCase())) {
+          return city;
+        }
+      }
+      
+      return 'Bangkok'; // Default fallback
+    } catch (error) {
+      console.error('IP geolocation failed:', error);
+      return 'Bangkok';
+    }
+  };
+
+  // Get areas for current city
+  const currentLocationData = LOCATION_DATA[currentCity];
+  const availableAreas = currentLocationData?.areas || [];
 
   // Extract unique cuisines and locations
   const availableCuisines = useMemo(() => 
@@ -159,9 +302,13 @@ const CuisineExplorer: React.FC = () => {
     Array.from(new Set(mockRestaurants.map(restaurant => restaurant.location))).sort()
   , []);
 
-  // Filter restaurants based on current filters
+  // Filter restaurants based on current filters AND current city
   const filteredRestaurants = useMemo(() => {
     return mockRestaurants.filter(restaurant => {
+      // First filter by current city - only show restaurants from detected city areas
+      const isFromCurrentCity = availableAreas.includes(restaurant.location);
+      if (!isFromCurrentCity) return false;
+      
       const cuisineMatch = filters.selectedCuisines.length === 0 || 
         filters.selectedCuisines.includes(restaurant.cuisine);
       
@@ -175,7 +322,7 @@ const CuisineExplorer: React.FC = () => {
       
       return cuisineMatch && locationMatch && priceMatch && openMatch;
     });
-  }, [filters]);
+  }, [filters, availableAreas]);
 
   const handleCuisineToggle = (cuisine: string) => {
     setFilters(prev => ({
@@ -245,7 +392,24 @@ const CuisineExplorer: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Explore Cuisines</h1>
-                <p className="text-sm text-gray-600">{filteredRestaurants.length} restaurants found</p>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <span>{filteredRestaurants.length} restaurants found</span>
+                  {!isLoadingLocation && (
+                    <>
+                      <span>•</span>
+                      <div className="flex items-center space-x-1">
+                        <MapPin size={12} className="text-gray-400" />
+                        <span>{currentCity}</span>
+                      </div>
+                    </>
+                  )}
+                  {isLoadingLocation && (
+                    <>
+                      <span>•</span>
+                      <span className="text-gray-400">Detecting location...</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <button
@@ -284,9 +448,9 @@ const CuisineExplorer: React.FC = () => {
 
               {/* Location Filter */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Locations in Bangkok</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Locations in {currentCity}</h3>
                 <div className="flex flex-wrap gap-2">
-                  {availableLocations.map(location => (
+                  {availableAreas.map(location => (
                     <button
                       key={location}
                       onClick={() => handleLocationToggle(location)}
