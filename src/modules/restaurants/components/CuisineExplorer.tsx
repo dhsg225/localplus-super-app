@@ -389,80 +389,89 @@ const CuisineExplorer: React.FC = () => {
               <button
                 key={restaurant.id}
                 onClick={() => handleRestaurantClick(restaurant)}
-                className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow text-left"
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 text-left"
               >
-                <div className="flex p-4 space-x-4">
-                  {/* Restaurant Image - Larger and more prominent */}
-                  <img 
-                    src={restaurant.image} 
-                    alt={restaurant.name}
-                    className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
-                  />
-                  
-                  {/* Content Area - Better organized */}
-                  <div className="flex-1 min-w-0">
-                    {/* Header with Name and Rating */}
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg text-gray-900 truncate">{restaurant.name}</h3>
-                        <p className="text-sm text-gray-600 mb-1">{restaurant.cuisine}</p>
+                <div className="p-4">
+                  {/* Top Row: Name, Cuisine, Rating */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0 pr-3">
+                      <h3 className="font-semibold text-lg text-gray-900 leading-tight">
+                        {restaurant.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-0.5">{restaurant.cuisine}</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 flex-shrink-0">
+                      <Star size={14} className="text-amber-500 fill-current" />
+                      <span className="text-sm font-semibold text-gray-900">{restaurant.rating}</span>
+                      <span className="text-xs text-gray-500">({restaurant.reviewCount})</span>
+                    </div>
+                  </div>
+
+                  {/* Image and Description Row */}
+                  <div className="flex space-x-4 mb-3">
+                    <img 
+                      src={restaurant.image} 
+                      alt={restaurant.name}
+                      className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                    />
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+                        {restaurant.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row: Location, Price, Status */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <MapPin size={14} className="text-gray-400" />
+                        <span>{restaurant.location.split(',')[0]}</span>
                       </div>
-                      
-                      {/* Rating Badge - More prominent */}
-                      <div className="flex items-center space-x-1 bg-yellow-50 px-2 py-1 rounded-full ml-3 flex-shrink-0">
-                        <Star size={14} className="text-yellow-400 fill-current" />
-                        <span className="text-sm font-semibold text-gray-900">{restaurant.rating}</span>
-                        <span className="text-xs text-gray-500">({restaurant.reviewCount})</span>
+                      <div className="flex items-center space-x-1">
+                        <DollarSign size={14} className="text-gray-400" />
+                        <span className="font-medium">
+                          {restaurant.priceRange === 1 && 'Budget'}
+                          {restaurant.priceRange === 2 && 'Moderate'}
+                          {restaurant.priceRange === 3 && 'Upscale'}
+                          {restaurant.priceRange === 4 && 'Fine Dining'}
+                        </span>
                       </div>
                     </div>
                     
-                    {/* Description */}
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{restaurant.description}</p>
-                    
-                    {/* Location, Price, and Status Row */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3 text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <MapPin size={14} />
-                          <span className="truncate">{restaurant.location}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <DollarSign size={14} />
-                          <span>{getPriceDisplay(restaurant.priceRange)}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Open/Closed Status */}
+                    <div className="flex items-center space-x-2">
                       {restaurant.isOpen ? (
-                        <div className="flex items-center space-x-1 text-xs">
-                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                          <span className="text-green-600 font-medium">Open</span>
-                          <span className="text-gray-500">• {restaurant.estimatedDeliveryTime}</span>
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm text-green-600 font-medium">Open</span>
+                          <span className="text-sm text-gray-500">• {restaurant.estimatedDeliveryTime}</span>
                         </div>
                       ) : (
-                        <div className="flex items-center space-x-1 text-xs">
-                          <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                          <span className="text-red-600 font-medium">Closed</span>
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <span className="text-sm text-red-600 font-medium">Closed</span>
                         </div>
                       )}
                     </div>
-                    
-                    {/* Specialties Tags */}
-                    <div className="flex flex-wrap gap-1">
-                      {restaurant.specialties.slice(0, 3).map(specialty => (
-                        <span
-                          key={specialty}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                      {restaurant.specialties.length > 3 && (
-                        <span className="px-2 py-1 text-xs text-gray-500">
-                          +{restaurant.specialties.length - 3} more
-                        </span>
-                      )}
-                    </div>
+                  </div>
+
+                  {/* Specialties Row */}
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-100">
+                    {restaurant.specialties.slice(0, 4).map(specialty => (
+                      <span
+                        key={specialty}
+                        className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-md"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                    {restaurant.specialties.length > 4 && (
+                      <span className="px-2 py-1 text-xs text-gray-500">
+                        +{restaurant.specialties.length - 4}
+                      </span>
+                    )}
                   </div>
                 </div>
               </button>
