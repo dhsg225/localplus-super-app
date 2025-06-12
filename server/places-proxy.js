@@ -68,29 +68,21 @@ app.get('/api/news/:city', async (req, res) => {
 
     const fetch = (await import('node-fetch')).default;
 
-    // Build WordPress API URL
-    let wpUrl = `${baseUrl}/wp-json/wp/v2/posts?per_page=${per_page}`;
+    // Build WordPress API URL with _embed to get featured images
+    let wpUrl = `${baseUrl}/wp-json/wp/v2/posts?per_page=${per_page}&_embed`;
     if (categories) wpUrl += `&categories=${categories}`;
     if (search) wpUrl += `&search=${encodeURIComponent(search)}`;
 
     const response = await fetch(wpUrl);
     const posts = await response.json();
 
-    // Fetch featured images for posts that have them
-    const postsWithImages = await Promise.all(posts.map(async (post) => {
-      if (post.featured_media && post.featured_media > 0) {
-        try {
-          const mediaResponse = await fetch(`${baseUrl}/wp-json/wp/v2/media/${post.featured_media}`);
-          if (mediaResponse.ok) {
-            const media = await mediaResponse.json();
-            post.featured_image_url = media.source_url;
-          }
-        } catch (error) {
-          console.warn(`⚠️ Failed to fetch featured image for post ${post.id}:`, error.message);
-        }
+    // Extract featured images from embedded data
+    const postsWithImages = posts.map((post) => {
+      if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]) {
+        post.featured_image_url = post._embedded['wp:featuredmedia'][0].source_url;
       }
       return post;
-    }));
+    });
 
     console.log(`✅ Found ${postsWithImages.length} posts for ${city}`);
     res.json(postsWithImages);

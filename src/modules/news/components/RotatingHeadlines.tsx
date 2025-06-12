@@ -133,19 +133,37 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
 
         {/* Headline Content */}
         <div className="flex-1 min-w-0 relative">
-          <div className={`${getTransitionClasses()}`}>
-            <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
-              {stripHtml(currentArticle.title.rendered)}
-            </h3>
-            {headlines.length > 1 && (
-              <div className="flex items-center mt-1 text-xs text-gray-500">
-                <span>{categoryInfo.name}</span>
-                <span className="mx-1">•</span>
-                <span>
-                  {currentIndex + 1} of {headlines.length}
-                </span>
+          <div className={`${getTransitionClasses()} flex items-start space-x-3`}>
+            {/* Featured Image */}
+            {currentArticle.featured_image_url && (
+              <div className="w-16 h-12 rounded overflow-hidden flex-shrink-0">
+                <img
+                  src={currentArticle.featured_image_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
               </div>
             )}
+            
+            {/* Text Content */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+                {stripHtml(currentArticle.title.rendered)}
+              </h3>
+              {headlines.length > 1 && (
+                <div className="flex items-center mt-1 text-xs text-gray-500">
+                  <span>{categoryInfo.name}</span>
+                  <span className="mx-1">•</span>
+                  <span>
+                    {currentIndex + 1} of {headlines.length}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

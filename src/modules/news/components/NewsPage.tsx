@@ -415,8 +415,24 @@ const NewsPage: React.FC = () => {
             {articles.map(article => (
               <div key={article.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4">
-                  <div className="space-y-3">
-                    <div>
+                  <div className="flex items-start space-x-3">
+                    {/* Featured Image */}
+                    {article.featured_image_url && (
+                      <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={article.featured_image_url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Text Content */}
+                    <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">
                         {stripHtml(article.title.rendered)}
                       </h3>
