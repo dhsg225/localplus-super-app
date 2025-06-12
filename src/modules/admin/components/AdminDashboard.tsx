@@ -3,7 +3,6 @@ import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Se
 import { businessAPI, Business, DiscountOffer } from '../../../lib/supabase';
 import { curationAPI, SuggestedBusiness, DiscoveryCampaign, CurationStats } from '../../../services/curationAPI';
 import { discoveryService } from '../../../services/discoveryService';
-import BusinessDiscovery from './BusinessDiscovery';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface BusinessFormData {
@@ -29,7 +28,7 @@ interface DiscountFormData {
 }
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'businesses' | 'discovery' | 'discounts' | 'curation' | 'analytics'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics'>('pipeline');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showAddBusiness, setShowAddBusiness] = useState(false);
   const [showAddDiscount, setShowAddDiscount] = useState(false);
@@ -393,9 +392,8 @@ const AdminDashboard: React.FC = () => {
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex overflow-x-auto space-x-2 md:space-x-8 scrollbar-hide">
             {[
-              { id: 'businesses', label: 'Businesses', icon: Building },
-              { id: 'discovery', label: 'Business Discovery', icon: Search },
-              { id: 'curation', label: 'Business Curation', icon: CheckCircle },
+              { id: 'businesses', label: 'Business Directory', icon: Building },
+              { id: 'pipeline', label: 'Business Pipeline', icon: CheckCircle },
               { id: 'discounts', label: 'Discounts', icon: Tag },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 }
             ].map(tab => (
@@ -410,25 +408,16 @@ const AdminDashboard: React.FC = () => {
               >
                 <tab.icon className="h-4 w-4 flex-shrink-0" />
                 <span className="hidden sm:inline md:inline">{tab.label}</span>
-                <span className="sm:hidden md:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </nav>
         </div>
 
-        {/* Business Discovery Tab */}
-        {activeTab === 'discovery' && userLocation && (
-          <BusinessDiscovery 
-            userLocation={userLocation}
-            onBusinessAdded={handleBusinessAdded}
-          />
-        )}
-
         {/* Analytics Tab */}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
 
-        {/* Curation Tab */}
-        {activeTab === 'curation' && (
+        {/* Business Pipeline Tab */}
+        {activeTab === 'pipeline' && (
           <div className="space-y-6">
             {/* Stats Overview - Bottom-aligned numbers */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
