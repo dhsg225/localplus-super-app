@@ -142,8 +142,8 @@ const LoyaltyCardDetail: React.FC = () => {
   const [redeemMessage, setRedeemMessage] = useState('');
 
   const handleScanQR = () => {
-    // TODO: Implement QR scanning functionality
-    alert('QR Scanner will be implemented here');
+    // TODO: Implement QR scanning functionality with a React 18 compatible library
+    alert('QR Scanner feature coming soon! For now, stamps are added automatically when you visit the business.');
   };
 
   const handleRedeemPrize = () => {

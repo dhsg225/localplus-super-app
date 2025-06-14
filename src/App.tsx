@@ -51,7 +51,6 @@ import LoadingSpinner from "./ui-components/common/LoadingSpinner";
 import LoyaltyProgramManagement from "./modules/business-management/components/LoyaltyProgramManagement";
 import LoyaltyCardsList from "./modules/loyalty-cards/components/LoyaltyCardsList";
 import LoyaltyCardDetail from "./modules/loyalty-cards/components/LoyaltyCardDetail";
-import QRCodeScanner from "./modules/loyalty-cards/components/QRCodeScanner";
 
 function App() {
   return (
@@ -99,7 +98,6 @@ function App() {
 
               <Route path="/loyalty-cards" element={<LoyaltyCardsList />} />
               <Route path="/loyalty-cards/:id" element={<LoyaltyCardDetail />} />
-              <Route path="/loyalty-cards/scan" element={<QRCodeScanner />} />
             </Routes>
           </main>
           
