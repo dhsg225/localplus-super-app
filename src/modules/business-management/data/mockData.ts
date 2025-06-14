@@ -198,15 +198,15 @@ export const businessManagementSections: BusinessManagementSection[] = [
   {
     id: 'menu',
     title: 'Menu Management',
-    description: 'Add, edit, and organize your menu items and categories',
+    description: 'Add, edit, and organize your menu items',
     icon: 'Menu',
     path: '/business/menu',
     isEnabled: true
   },
   {
     id: 'deals',
-    title: 'Deals & Promotions',
-    description: 'Create and manage special offers and promotional campaigns',
+    title: 'Deals & Offers',
+    description: 'Create special offers and promotional deals',
     icon: 'Percent',
     path: '/business/deals',
     isEnabled: true
@@ -214,23 +214,23 @@ export const businessManagementSections: BusinessManagementSection[] = [
   {
     id: 'loyalty',
     title: 'Loyalty Program',
-    description: 'Design and manage your customer loyalty rewards program',
+    description: 'Set up and manage customer loyalty rewards',
     icon: 'Star',
     path: '/business/loyalty',
     isEnabled: true
   },
   {
-    id: 'reservations',
-    title: 'Reservations',
-    description: 'Manage table bookings and reservation settings',
-    icon: 'Calendar',
-    path: '/business/reservations',
-    isEnabled: false
+    id: 'advertising',
+    title: 'Advertisement Management',
+    description: 'Create and manage your business advertisements',
+    icon: 'Megaphone',
+    path: '/admin/advertising',
+    isEnabled: true
   },
   {
     id: 'analytics',
     title: 'Analytics & Reports',
-    description: 'View performance metrics and business insights',
+    description: 'View performance metrics and customer insights',
     icon: 'TrendingUp',
     path: '/business/analytics',
     isEnabled: false
@@ -238,7 +238,7 @@ export const businessManagementSections: BusinessManagementSection[] = [
   {
     id: 'notifications',
     title: 'Notifications',
-    description: 'Configure alerts and notification preferences',
+    description: 'Manage alerts and communication preferences',
     icon: 'Bell',
     path: '/business/notifications',
     isEnabled: false
@@ -246,7 +246,7 @@ export const businessManagementSections: BusinessManagementSection[] = [
   {
     id: 'settings',
     title: 'Settings',
-    description: 'Account settings, billing, and advanced configuration',
+    description: 'Configure account settings and preferences',
     icon: 'Settings',
     path: '/business/settings',
     isEnabled: false

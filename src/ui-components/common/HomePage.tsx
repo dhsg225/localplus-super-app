@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award, Star } from 'lucide-react';
 import RotatingHeadlines from '../../modules/news/components/RotatingHeadlines';
+import AdContainer from '../../modules/advertising/components/AdContainer';
 
 // Location interface
 interface LocationData {
@@ -104,61 +105,60 @@ const HomePage: React.FC = () => {
 
   const fallbackLocationDetection = async () => {
     try {
-      // Try IP geolocation as fallback
-      const response = await fetch('https://ipapi.co/json/');
+      // [2024-12-19 19:35 UTC] - Implement IP-based city detection instead of defaulting to Bangkok
+      console.log('Attempting IP-based location detection...');
+      
+      const response = await fetch('https://ipinfo.io/json');
       const data = await response.json();
       
-      console.log('IP geolocation data:', data); // Debug logging
+      console.log('IP detection result:', data);
       
-      // More comprehensive mapping for Hua Hin area
-      const huaHinKeywords = ['hua hin', 'hin lek fai', 'nong khon', 'prachuap'];
-      const pattayaKeywords = ['pattaya', 'chonburi', 'banglamung'];
-      const bangkokKeywords = ['bangkok', 'samut prakan', 'nonthaburi'];
-      
+      // Map detected location to supported cities
       const detectedCity = (data.city || '').toLowerCase();
       const detectedRegion = (data.region || '').toLowerCase();
-      const detectedCountry = (data.country || '').toLowerCase();
       
-      let finalCity = 'Bangkok'; // Default
+      let mappedCity = 'Bangkok'; // Default fallback
       
-      // Check for Hua Hin and surrounding areas
+      // Check for Hua Hin and surrounding areas (Prachuap Khiri Khan province)
+      const huaHinKeywords = ['hua hin', 'hin lek fai', 'nong khon', 'prachuap', 'khiri khan'];
       if (huaHinKeywords.some(keyword => 
-        detectedCity.includes(keyword) || 
-        detectedRegion.includes(keyword)
+        detectedCity.includes(keyword) || detectedRegion.includes(keyword)
       )) {
-        finalCity = 'Hua Hin';
+        mappedCity = 'Hua Hin';
       }
-      // Check for Pattaya area
-      else if (pattayaKeywords.some(keyword => 
-        detectedCity.includes(keyword) || 
-        detectedRegion.includes(keyword)
+      // Check for Pattaya area (Chonburi province)
+      else if (['pattaya', 'chonburi', 'banglamung', 'si racha'].some(keyword => 
+        detectedCity.includes(keyword) || detectedRegion.includes(keyword)
       )) {
-        finalCity = 'Pattaya';
-      }
-      // Check for Bangkok area
-      else if (bangkokKeywords.some(keyword => 
-        detectedCity.includes(keyword) || 
-        detectedRegion.includes(keyword)
-      )) {
-        finalCity = 'Bangkok';
+        mappedCity = 'Pattaya';
       }
       // Check for other supported cities
-      else {
-        const supportedCities = ['Krabi', 'Samui', 'Phuket', 'Chiang Mai'];
-        const matchedCity = supportedCities.find(city => 
-          detectedCity.includes(city.toLowerCase())
-        );
-        if (matchedCity) {
-          finalCity = matchedCity;
-        }
+      else if (detectedCity.includes('phuket')) {
+        mappedCity = 'Phuket';
+      }
+      else if (detectedCity.includes('chiang mai')) {
+        mappedCity = 'Chiang Mai';
+      }
+      else if (detectedCity.includes('krabi')) {
+        mappedCity = 'Krabi';
+      }
+      else if (detectedCity.includes('samui') || detectedCity.includes('koh samui')) {
+        mappedCity = 'Samui';
+      }
+      // For Bangkok and surrounding areas
+      else if (['bangkok', 'samut sakhon', 'samut prakan', 'nonthaburi', 'pathum thani', 'ban phaeo'].some(keyword => 
+        detectedCity.includes(keyword) || detectedRegion.includes(keyword)
+      )) {
+        mappedCity = 'Bangkok';
       }
       
       const newLocation = {
-        city: finalCity,
-        country: data.country_name || 'Thailand',
-        suburb: data.region || data.city || '',
-        isDetected: true
+        city: mappedCity,
+        country: 'Thailand',
+        isDetected: true // Successfully detected via IP
       };
+      
+      console.log(`IP-based detection: ${data.city}, ${data.region} -> ${mappedCity}`);
       
       setCurrentLocation(newLocation);
       
@@ -169,13 +169,21 @@ const HomePage: React.FC = () => {
         console.log('Failed to save detected location to localStorage:', error);
       }
     } catch (error) {
-      console.log('Fallback location detection failed:', error);
+      console.log('IP-based location detection failed:', error);
       // Final fallback to Bangkok
-      setCurrentLocation({
+      const fallbackLocation = {
         city: 'Bangkok',
         country: 'Thailand',
-        isDetected: false // Set to false since we couldn't detect
-      });
+        isDetected: false
+      };
+      
+      setCurrentLocation(fallbackLocation);
+      
+      try {
+        localStorage.setItem('localplus-current-location', JSON.stringify(fallbackLocation));
+      } catch (error) {
+        console.log('Failed to save fallback location to localStorage:', error);
+      }
     }
   };
 
@@ -241,46 +249,37 @@ const HomePage: React.FC = () => {
         )}
       </div>
 
-      {/* Off Peak Dining Banner */}
-      <div className="px-4 mb-4">
-        <Link
-          to="/off-peak"
-          className="block bg-gradient-to-r from-purple-600 to-blue-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-        >
+      {/* [2024-12-19 19:50 UTC] - Updated to match screenshot 2 styling exactly */}
+      <div className="px-4 mb-6 space-y-4">
+        <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white p-4 rounded-lg">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-base mb-1 flex items-center">
-                <Clock size={18} className="mr-2" />
-                Off Peak Dining
-              </h3>
-              <p className="text-purple-100 text-xs">Save up to 50% during off-peak hours</p>
+            <div className="flex items-center space-x-3">
+              <Clock size={20} className="text-white" />
+              <div>
+                <h3 className="font-bold text-lg">Off Peak Dining</h3>
+                <p className="text-purple-100">Save up to 50% during off-peak hours</p>
+              </div>
             </div>
-            <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
+            <button className="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-lg font-semibold">
               UP TO 50% OFF
-            </div>
+            </button>
           </div>
-        </Link>
-      </div>
-
-      {/* Discount Passport Promotion Banner */}
-      <div className="px-4 mb-6">
-        <Link
-          to="/passport"
-          className="block bg-gradient-to-r from-orange-500 to-red-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-        >
+        </div>
+        
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-lg">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-base mb-1 flex items-center">
-                <Award size={18} className="mr-2" />
-                Savings Passport
-              </h3>
-              <p className="text-orange-100 text-xs">Instant savings at 500+ businesses</p>
+            <div className="flex items-center space-x-3">
+              <Award size={20} className="text-white" />
+              <div>
+                <h3 className="font-bold text-lg">Savings Passport</h3>
+                <p className="text-orange-100">Instant savings at 500+ businesses</p>
+              </div>
             </div>
-            <div className="text-white bg-yellow-500 px-2 py-1 rounded-full text-xs font-bold">
+            <button className="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-lg font-semibold">
               ฿199/MONTH
-            </div>
+            </button>
           </div>
-        </Link>
+        </div>
       </div>
 
       {/* Rotating Headlines */}
@@ -443,7 +442,7 @@ const HomePage: React.FC = () => {
             onClick={() => window.location.href = '/admin'}
             className="text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
-            v0.28
+            v0.29
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ const GOOGLE_PLACES_API_KEY = 'AIzaSyCEMtUfl8yJzVZIcTaaEajKRtqEJZZ_G2Y';
 const WORDPRESS_SITES = {
   'hua-hin': 'https://huahin.locality.guide',
   'pattaya': 'https://pattaya.locality.guide',
+  'bangkok': 'https://huahin.locality.guide', // Use Hua Hin as fallback for Bangkok
   // Add more as needed
 };
 

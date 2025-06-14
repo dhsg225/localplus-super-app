@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot } from 'lucide-react';
+import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish } from 'lucide-react';
 import RestaurantCard from '@/ui-components/cards/RestaurantCard';
 import ExploreCard from '@/ui-components/common/ExploreCard';
 import Button from '@/ui-components/common/Button';
 import MenuModal from './MenuModal';
 import { Restaurant } from '../types';
+
+// Import advertising system
+import AdContainer from "../../advertising/components/AdContainer";
 
 // Mock data - in real app this would come from API
 const mockRestaurants: Restaurant[] = [
@@ -141,6 +144,22 @@ const RestaurantsPage: React.FC = () => {
     restaurantId: '',
     restaurantName: ''
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  const cuisineTypes = [
+    { id: "all", name: "All", icon: Utensils },
+    { id: "thai", name: "Thai", icon: Coffee },
+    { id: "italian", name: "Italian", icon: Pizza },
+    { id: "seafood", name: "Seafood", icon: Fish },
+  ];
+
+  const filteredRestaurants = mockRestaurants.filter(restaurant => {
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         restaurant.cuisine.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesFilter = selectedFilter === "all" || restaurant.cuisine.some(c => c.toLowerCase() === selectedFilter);
+    return matchesSearch && matchesFilter;
+  });
 
   const handleBookClick = (restaurantId: string) => {
     console.log('Book restaurant:', restaurantId);
@@ -200,90 +219,184 @@ const RestaurantsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white px-4 py-4 flex items-center justify-between border-b border-gray-100">
-        <button className="p-2">
-          <ArrowLeft size={24} className="text-gray-700" />
-        </button>
-        <h1 className="text-xl font-semibold text-gray-900">Restaurants</h1>
-        <button className="p-2">
-          <Search size={24} className="text-gray-700" />
-        </button>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="px-4 py-4 bg-white border-b border-gray-100">
-        <div className="flex gap-3">
-          <Button
-            variant={activeTab === 'menu' ? 'primary' : 'outline'}
-            size="md"
-            onClick={() => setActiveTab('menu')}
-            className="flex-1"
-          >
-            Menu
-          </Button>
-          <Button
-            variant={activeTab === 'book' ? 'primary' : 'outline'}
-            size="md"
-            onClick={() => setActiveTab('book')}
-            className="flex-1"
-          >
-            Book a Table
-          </Button>
-          <Button
-            variant={activeTab === 'offpeak' ? 'primary' : 'outline'}
-            size="md"
-            onClick={() => setActiveTab('offpeak')}
-            className="flex-1"
-          >
-            Off Peak Dining
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="px-4 py-6">
-        {/* Explore Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Explore</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <ExploreCard
-              title="Explore Cuisines"
-              icon={<ChefHat size={24} className="text-gray-600" />}
-              onClick={() => handleExploreClick('explore-cuisines')}
-            />
-            <ExploreCard
-              title="Discount Book"
-              icon={<QrCode size={24} className="text-gray-600" />}
-              onClick={() => handleExploreClick('discount-book')}
-            />
-            <ExploreCard
-              title="Today's Deals"
-              icon={<Calendar size={24} className="text-gray-600" />}
-              onClick={() => handleExploreClick('todays-deals')}
-            />
-            <ExploreCard
-              title="AI Assistant"
-              icon={<Bot size={24} className="text-gray-600" />}
-              onClick={() => handleExploreClick('ai-assistant')}
-            />
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="px-4 py-4">
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <ArrowLeft size={20} className="text-gray-600" />
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Restaurants</h1>
+              <p className="text-sm text-gray-600">Discover amazing local dining</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Featured Restaurants */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Restaurants</h2>
-          <div className="grid grid-cols-1 gap-6">
-            {mockRestaurants.map((restaurant) => (
-              <RestaurantCard
-                key={restaurant.id}
-                restaurant={restaurant}
-                onBookClick={handleBookClick}
-                onMenuClick={handleMenuClick}
-                onOffPeakClick={handleOffPeakClick}
-              />
+      <div className="p-4 space-y-6">
+        {/* [2024-05-10 17:30 UTC] - Top Advertising Section */}
+        <section>
+          <AdContainer 
+            placement="restaurants-top"
+            maxAds={1}
+            categoryFilter={['dining', 'internal-promotion']}
+            size="large"
+          />
+        </section>
+
+        {/* Search and Filter */}
+        <section className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search restaurants or cuisine..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+            />
+          </div>
+
+          {/* Cuisine Filter */}
+          <div className="flex space-x-2 overflow-x-auto pb-2">
+            {cuisineTypes.map((cuisine) => (
+              <button
+                key={cuisine.id}
+                onClick={() => setSelectedFilter(cuisine.id)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+                  selectedFilter === cuisine.id
+                    ? "bg-red-500 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <cuisine.icon size={16} />
+                <span className="text-sm font-medium">{cuisine.name}</span>
+              </button>
             ))}
           </div>
-        </div>
+        </section>
+
+        {/* Quick Actions */}
+        <section className="grid grid-cols-2 gap-4">
+          <button
+            onClick={() => handleExploreClick('explore-cuisines')}
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all"
+          >
+            <div className="text-center">
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Utensils size={24} className="text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 text-sm">Explore Cuisines</h3>
+              <p className="text-xs text-gray-600 mt-1">Browse by food type</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleExploreClick('todays-deals')}
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all"
+          >
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Star size={24} className="text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 text-sm">Today's Deals</h3>
+              <p className="text-xs text-gray-600 mt-1">Special offers</p>
+            </div>
+          </button>
+        </section>
+
+        {/* External Ads Section */}
+        <section>
+          <AdContainer 
+            placement="restaurants-top"
+            maxAds={2}
+            showOnlyExternal={true}
+            displayType="banner"
+            categoryFilter={['dining', 'technology']}
+            className="space-y-3"
+          />
+        </section>
+
+        {/* Restaurant List */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              {filteredRestaurants.length} restaurants found
+            </h2>
+            <button className="flex items-center space-x-1 text-red-500 text-sm font-medium">
+              <Filter size={16} />
+              <span>Filter</span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {filteredRestaurants.map((restaurant) => (
+              <div key={restaurant.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="flex">
+                  <div className="w-24 h-24 flex-shrink-0">
+                    <img
+                      src={restaurant.imageUrl}
+                      alt={restaurant.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 text-base">{restaurant.name}</h3>
+                        <p className="text-sm text-gray-600">{restaurant.cuisine.join(' • ')} • {restaurant.priceRange}</p>
+                        
+                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Star size={12} className="text-yellow-400 fill-current" />
+                            <span>{restaurant.todaysDeal?.discount}%</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin size={12} />
+                            <span>{restaurant.location.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock size={12} />
+                            <span>{restaurant.todaysDeal?.description}</span>
+                          </div>
+                        </div>
+
+                        {restaurant.todaysDeal && (
+                          <div className="mt-2">
+                            <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                              {restaurant.todaysDeal.title}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col items-end space-y-2">
+                        <div className={`w-2 h-2 rounded-full ${restaurant.hasReservation ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <span className={`text-xs ${restaurant.hasReservation ? 'text-green-600' : 'text-red-600'}`}>
+                          {restaurant.hasReservation ? 'Open' : 'Closed'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* [2024-05-10 17:30 UTC] - Bottom Advertising Section */}
+        <section>
+          <AdContainer 
+            placement="restaurants-bottom"
+            maxAds={1}
+            categoryFilter={['technology', 'services']}
+            size="medium"
+          />
+        </section>
       </div>
       
       {/* Menu Modal */}

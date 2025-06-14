@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { newsCacheService } from '../services/newsCacheService';
 
+// Fallback mock news data
+const mockHeadlines = [
+  {
+    id: 1,
+    title: { rendered: 'Bangkok Traffic Updates: New BTS Extension Opens' },
+    categories: [62], // local-news
+    featured_image_url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=400&h=300&fit=crop'
+  },
+  {
+    id: 2,
+    title: { rendered: 'Local Restaurant Week Returns with 50+ Participating Venues' },
+    categories: [62], // local-news
+    featured_image_url: 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=400&h=300&fit=crop'
+  },
+  {
+    id: 3,
+    title: { rendered: 'Weekend Weather: Sunny Skies Expected Across Thailand' },
+    categories: [62], // local-news
+    featured_image_url: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&h=300&fit=crop'
+  },
+  {
+    id: 4,
+    title: { rendered: 'New Shopping Mall Opens in Central Bangkok District' },
+    categories: [60], // business
+    featured_image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop'
+  }
+];
+
 interface CategoryInfo {
   id: string;
   name: string;
@@ -57,19 +85,35 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
       setIsLoading(true);
       const cached = newsCacheService.get(currentCity);
       
-      if (cached && cached.articles) {
+      if (cached && cached.articles && cached.articles.length > 0) {
         const topHeadlines = cached.articles.slice(0, maxHeadlines);
         setHeadlines(topHeadlines);
       } else {
-        // Fallback to direct API call
-        const response = await fetch(`http://localhost:3004/api/news/${currentCity}?per_page=${maxHeadlines}`);
-        if (response.ok) {
-          const articles = await response.json();
-          setHeadlines(articles);
+        // Try direct API call
+        try {
+          const response = await fetch(`http://localhost:3004/api/news/${currentCity}?per_page=${maxHeadlines}`);
+          if (response.ok) {
+            const articles = await response.json();
+            if (articles && articles.length > 0) {
+              setHeadlines(articles);
+            } else {
+              // Use fallback mock data
+              setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+            }
+          } else {
+            // Use fallback mock data
+            setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+          }
+        } catch (apiError) {
+          console.log('API call failed, using fallback data');
+          // Use fallback mock data
+          setHeadlines(mockHeadlines.slice(0, maxHeadlines));
         }
       }
     } catch (error) {
       console.error('Failed to fetch headlines:', error);
+      // Always show fallback data instead of empty state
+      setHeadlines(mockHeadlines.slice(0, maxHeadlines));
     } finally {
       setIsLoading(false);
     }
@@ -187,21 +231,14 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
       {headlines.length > 1 && (
         <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-100">
           <div 
-            className="h-full bg-blue-500 transition-all duration-75 linear"
+            className="h-full bg-blue-500 transition-all ease-linear"
             style={{ 
               width: `${((currentIndex + 1) / headlines.length) * 100}%`,
-              animation: `progress-fill ${intervalMs}ms linear infinite`
+              transitionDuration: `${intervalMs}ms`
             }}
           />
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes progress-fill {
-          from { width: ${(currentIndex / headlines.length) * 100}%; }
-          to { width: ${((currentIndex + 1) / headlines.length) * 100}%; }
-        }
-      `}</style>
     </div>
   );
 };

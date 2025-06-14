@@ -30,6 +30,10 @@ import DiscountPassportInfo from "./modules/passport/components/DiscountPassport
 import AdminDashboard from "./modules/admin/components/AdminDashboard";
 import NewsAdminSettings from "./modules/admin/components/NewsAdminSettings";
 
+// [2024-05-10 17:30 UTC] - Advertising Management
+import AdManagementDashboard from "./modules/advertising/components/AdManagementDashboard";
+import AdShowcase from "./modules/advertising/components/AdShowcase";
+
 // Auth components
 import LoginPage from "./modules/auth/components/LoginPage";
 import RegisterPage from "./modules/auth/components/RegisterPage";
@@ -87,6 +91,12 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/news-settings" element={<NewsAdminSettings />} />
+              
+              {/* [2024-05-10 17:30 UTC] - Advertising Management Route */}
+              <Route path="/admin/advertising" element={<AdManagementDashboard />} />
+              
+              {/* [2024-05-10 17:30 UTC] - Advertising Showcase Route */}
+              <Route path="/ad-showcase" element={<AdShowcase />} />
               
               {/* Auth Routes */}
               <Route path="/auth/login" element={<LoginPage />} />

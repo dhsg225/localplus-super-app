@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3, Building, Tag, Newspaper } from 'lucide-react';
+import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3, Building, Tag, Newspaper, Megaphone } from 'lucide-react';
 import { businessAPI, Business, DiscountOffer } from '../../../lib/supabase';
 import { curationAPI, SuggestedBusiness, DiscoveryCampaign, CurationStats } from '../../../services/curationAPI';
 import { discoveryService } from '../../../services/discoveryService';
@@ -371,10 +371,23 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">LocalPlus Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage businesses, discounts, and platform analytics</p>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">LocalPlus Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage businesses, discounts, and platform analytics</p>
+          </div>
+          
+          {/* [2024-12-19 19:15 UTC] - Direct advertising access */}
+          <div className="flex space-x-3">
+            <button
+              onClick={() => window.location.href = '/admin/advertising'}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <Megaphone size={20} />
+              <span>Advertising</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -394,8 +407,8 @@ const AdminDashboard: React.FC = () => {
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex overflow-x-auto space-x-2 md:space-x-8 scrollbar-hide">
             {[
-              { id: 'businesses', label: 'Business Directory', icon: Building },
-              { id: 'pipeline', label: 'Business Pipeline', icon: CheckCircle },
+              { id: 'pipeline', label: 'Pipeline', icon: Building },
+              { id: 'businesses', label: 'Businesses', icon: Building },
               { id: 'discounts', label: 'Discounts', icon: Tag },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 },
               { id: 'news', label: 'News', icon: Newspaper }

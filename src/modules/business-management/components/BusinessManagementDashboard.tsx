@@ -15,7 +15,8 @@ import {
   Users,
   DollarSign,
   ArrowLeft,
-  Plus
+  Plus,
+  Megaphone
 } from 'lucide-react';
 import { businessManagementSections, mockBusinessAnalytics, mockBusinessNotifications, mockRestaurantProfile } from '../data/mockData';
 import { BusinessManagementSection } from '../types';
@@ -197,6 +198,15 @@ const BusinessManagementDashboard: React.FC = () => {
                   <Percent size={20} className="text-red-600" />
                   <span className="text-sm font-medium text-gray-900">Create Deal</span>
                 </button>
+                
+                <button 
+                  onClick={() => navigate('/admin/advertising')}
+                  className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <Megaphone size={20} className="text-blue-600" />
+                  <span className="text-sm font-medium text-gray-900">Create Advertisement</span>
+                </button>
+                
                 <button 
                   onClick={() => navigate('/business/images')}
                   className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -257,7 +267,7 @@ const BusinessManagementDashboard: React.FC = () => {
       
       {/* Discreet Build Number */}
       <div className="mt-4">
-                  <p className="text-xs text-gray-400 text-center">v0.28</p>
+                  <p className="text-xs text-gray-400 text-center">v0.29</p>
       </div>
     </div>
   );
