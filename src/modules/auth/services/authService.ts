@@ -1,9 +1,10 @@
 import { User, LoginCredentials, RegisterCredentials, AuthResponse } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock user data for development
 const mockUsers: User[] = [
   {
-    id: 'user-1',
+    id: 'b3e1c2d4-1234-5678-9abc-def012345678',
     email: 'siriporn@localplus.co.th',
     firstName: 'Siriporn',
     lastName: 'Tanaka',
@@ -113,7 +114,7 @@ class AuthService {
 
     // Create new user
     const newUser: User = {
-      id: `user-${Date.now()}`,
+      id: uuidv4(),
       email: credentials.email,
       firstName: credentials.firstName,
       lastName: credentials.lastName,

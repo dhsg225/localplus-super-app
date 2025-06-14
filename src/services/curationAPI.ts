@@ -315,5 +315,30 @@ export const curationAPI = {
       console.error('Error in rejectBusiness:', error);
       return false;
     }
+  },
+
+  // Approve a suggested business and create a default loyalty program
+  async approveBusinessAndCreateLoyalty(suggestedBusinessId: string, curatorId: string): Promise<string> {
+    // 1. Approve and move to businesses table
+    const { data: newBusinessId, error } = await supabase
+      .rpc('approve_suggested_business', {
+        suggested_business_uuid: suggestedBusinessId,
+        curator_uuid: curatorId
+      });
+    if (error) throw error;
+
+    // 2. Create a default loyalty program
+    const { error: loyaltyError } = await supabase
+      .from('loyalty_programs')
+      .insert([{
+        business_id: newBusinessId,
+        title: 'Default Loyalty Program',
+        stamps_required: 10,
+        prize_description: 'Free reward after 10 stamps',
+        terms_conditions: 'One stamp per visit. Not valid with other offers.'
+      }]);
+    if (loyaltyError) throw loyaltyError;
+
+    return newBusinessId;
   }
 }; 

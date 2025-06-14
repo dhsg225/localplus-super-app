@@ -198,50 +198,58 @@ export const businessManagementSections: BusinessManagementSection[] = [
   {
     id: 'menu',
     title: 'Menu Management',
-    description: 'Add, edit, and organize your menu items',
+    description: 'Add, edit, and organize your menu items and categories',
     icon: 'Menu',
     path: '/business/menu',
     isEnabled: true
   },
   {
     id: 'deals',
-    title: 'Off-Peak Deals',
-    description: 'Create and manage special pricing and promotions',
+    title: 'Deals & Promotions',
+    description: 'Create and manage special offers and promotional campaigns',
     icon: 'Percent',
     path: '/business/deals',
     isEnabled: true
   },
   {
-    id: 'reservations',
-    title: 'Reservations',
-    description: 'View and manage customer bookings',
-    icon: 'Calendar',
-    path: '/business/reservations',
+    id: 'loyalty',
+    title: 'Loyalty Program',
+    description: 'Design and manage your customer loyalty rewards program',
+    icon: 'Star',
+    path: '/business/loyalty',
     isEnabled: true
   },
   {
+    id: 'reservations',
+    title: 'Reservations',
+    description: 'Manage table bookings and reservation settings',
+    icon: 'Calendar',
+    path: '/business/reservations',
+    isEnabled: false
+  },
+  {
     id: 'analytics',
-    title: 'Analytics',
-    description: 'View performance metrics and insights',
+    title: 'Analytics & Reports',
+    description: 'View performance metrics and business insights',
     icon: 'TrendingUp',
     path: '/business/analytics',
-    isEnabled: true
+    isEnabled: false
   },
   {
     id: 'notifications',
     title: 'Notifications',
-    description: 'Manage alerts and communication settings',
+    description: 'Configure alerts and notification preferences',
     icon: 'Bell',
     path: '/business/notifications',
-    isEnabled: true
+    isEnabled: false
   },
   {
     id: 'settings',
     title: 'Settings',
-    description: 'Account settings and business preferences',
+    description: 'Account settings, billing, and advanced configuration',
     icon: 'Settings',
     path: '/business/settings',
-    isEnabled: true
+    isEnabled: false
   }
 ];
 

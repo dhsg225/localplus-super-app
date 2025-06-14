@@ -5,6 +5,7 @@ import { curationAPI, SuggestedBusiness, DiscoveryCampaign, CurationStats } from
 import { discoveryService } from '../../../services/discoveryService';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import NewsAdminSettings from './NewsAdminSettings';
+import { useAuth } from '../../auth/context/AuthContext';
 
 interface BusinessFormData {
   name: string;
@@ -29,6 +30,7 @@ interface DiscountFormData {
 }
 
 const AdminDashboard: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics' | 'news'>('pipeline');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showAddBusiness, setShowAddBusiness] = useState(false);
@@ -180,21 +182,20 @@ const AdminDashboard: React.FC = () => {
   const handleApproveBusiness = async (businessId: string) => {
     setLoading(true);
     try {
-      console.log('🔄 Approving business:', businessId);
-      const success = await curationAPI.approveBusiness(businessId);
-      if (success) {
-        setMessage({ type: 'success', text: `Business approved successfully!` });
-        console.log('✅ Business approved, refreshing data...');
-        await loadCurationData(); // Wait for refresh to complete
-        console.log('📊 Data refreshed');
-      } else {
-        setMessage({ type: 'error', text: `Failed to approve business - may not exist in database` });
-      }
+      // [2024-05-10 15:12 UTC] - Debug: Log user and businessId before approve call
+      console.log('Approving business:', businessId, 'Curator:', user?.id);
+      const curatorId = user?.id || '';
+      const newBusinessId = await curationAPI.approveBusinessAndCreateLoyalty(businessId, curatorId);
+      // [2024-05-10 15:12 UTC] - Debug: Log new business ID returned from approve call
+      console.log('New business ID returned:', newBusinessId);
+      setMessage({ type: 'success', text: `Business approved and loyalty program created!` });
+      await loadCurationData();
     } catch (error) {
-      console.error('Approval error:', error);
-      setMessage({ type: 'error', text: `Error approving business: ${error}` });
+      // [2024-05-10 15:12 UTC] - Debug: Log error if approve call fails
+      console.error('Approve business error:', error);
+      setMessage({ type: 'error', text: `Error: ${error}` });
     } finally {
-      setLoading(false); // Only set loading false after everything completes
+      setLoading(false);
     }
     setTimeout(() => setMessage(null), 3000);
   };

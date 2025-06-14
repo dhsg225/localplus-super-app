@@ -1,15 +1,15 @@
+/// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
 
-// Direct configuration - in production these would be environment variables
-const supabaseUrl = 'https://joknprahhqdhvdhzmuwl.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impva25wcmFoaHFkaHZkaHptdXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NTI3MTAsImV4cCI6MjA2NTIyODcxMH0.YYkEkYFWgd_4-OtgG47xj6b5MX_fu7zNQxrW9ymR8Xk';
+// Use Vite env variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log('🔧 Supabase Config:', { 
-  url: supabaseUrl, 
-  keyLength: supabaseAnonKey?.length 
-});
+console.log('🔧 Supabase URL:', supabaseUrl);
+console.log('🔧 Supabase Anon Key:', supabaseAnonKey);
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export { supabase };
 
 // Database Types
 export interface Business {

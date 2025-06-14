@@ -11,7 +11,7 @@ import {
 
 // Mock Current User
 export const mockPassportUser: PassportUser = {
-  id: 'user-1',
+  id: 'b3e1c2d4-1234-5678-9abc-def012345678',
   email: 'foodie@localplus.co.th',
   firstName: 'Siriporn',
   lastName: 'Tanaka',

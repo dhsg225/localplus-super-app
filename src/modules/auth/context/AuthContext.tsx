@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthState, AuthContextType, LoginCredentials, RegisterCredentials } from '../types';
-import { authService } from '../services/authService';
+import { supabaseAuthService } from '../services/supabaseAuthService';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 // Action types
 type AuthAction =
@@ -73,33 +74,71 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+function mapSupabaseUserToAppUser(supabaseUser: any): User {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email ?? '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    avatar: '',
+    dateOfBirth: undefined,
+    gender: 'prefer_not_to_say',
+    location: undefined,
+    preferences: {
+      language: 'en',
+      currency: 'THB',
+      notifications: {
+        email: true,
+        push: true,
+        sms: false,
+        deals: true,
+        events: true,
+        reminders: true,
+      },
+      dietary: {
+        vegetarian: false,
+        vegan: false,
+        halal: false,
+        glutenFree: false,
+        allergies: [],
+      },
+      cuisinePreferences: [],
+      priceRange: { min: 100, max: 1000 },
+      favoriteDistricts: [],
+    },
+    accountSettings: {
+      privacy: {
+        profileVisibility: 'public',
+        showActivityStatus: true,
+        allowLocationTracking: false,
+      },
+      security: {
+        twoFactorEnabled: false,
+        loginAlerts: true,
+      },
+    },
+    isEmailVerified: !!supabaseUser.email_confirmed_at,
+    isPhoneVerified: false,
+    createdAt: new Date(),
+    lastLoginAt: new Date(),
+    loginProvider: 'email',
+  };
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // Initialize auth state on app load
   useEffect(() => {
     const initAuth = async () => {
-      const token = authService.getStoredToken();
-      const storedUser = authService.getStoredUser();
-
-      if (token && storedUser) {
-        try {
-          const isValid = await authService.validateToken(token);
-          if (isValid) {
-            dispatch({ type: 'INIT_AUTH', payload: { user: storedUser, isLoading: false } });
-          } else {
-            authService.logout();
-            dispatch({ type: 'INIT_AUTH', payload: { user: null, isLoading: false } });
-          }
-        } catch (error) {
-          authService.logout();
-          dispatch({ type: 'INIT_AUTH', payload: { user: null, isLoading: false } });
-        }
-      } else {
+      try {
+        const user = await supabaseAuthService.getCurrentUser();
+        dispatch({ type: 'INIT_AUTH', payload: { user: user ? mapSupabaseUserToAppUser(user) : null, isLoading: false } });
+      } catch (error) {
         dispatch({ type: 'INIT_AUTH', payload: { user: null, isLoading: false } });
       }
     };
-
     initAuth();
   }, []);
 
@@ -107,9 +146,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
-      
-      const response = await authService.login(credentials);
-      dispatch({ type: 'SET_USER', payload: response.user });
+      const user = await supabaseAuthService.signIn(credentials.email, credentials.password);
+      dispatch({ type: 'SET_USER', payload: mapSupabaseUserToAppUser(user) });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Login failed' });
       throw error;
@@ -120,9 +158,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
-      
-      const response = await authService.register(credentials);
-      dispatch({ type: 'SET_USER', payload: response.user });
+      const user = await supabaseAuthService.signUp(credentials.email, credentials.password);
+      dispatch({ type: 'SET_USER', payload: mapSupabaseUserToAppUser(user) });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Registration failed' });
       throw error;
@@ -130,56 +167,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = (): void => {
-    authService.logout();
+    supabaseAuthService.signOut();
     dispatch({ type: 'LOGOUT' });
-  };
-
-  const resetPassword = async (email: string): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      dispatch({ type: 'CLEAR_ERROR' });
-      
-      await authService.resetPassword(email);
-      dispatch({ type: 'SET_LOADING', payload: false });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Password reset failed' });
-      throw error;
-    }
-  };
-
-  const updateProfile = async (updates: Partial<User>): Promise<void> => {
-    if (!state.user) {
-      throw new Error('User not authenticated');
-    }
-
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      dispatch({ type: 'CLEAR_ERROR' });
-      
-      const updatedUser = await authService.updateProfile(state.user.id, updates);
-      dispatch({ type: 'SET_USER', payload: updatedUser });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Profile update failed' });
-      throw error;
-    }
-  };
-
-  const deleteAccount = async (): Promise<void> => {
-    if (!state.user) {
-      throw new Error('User not authenticated');
-    }
-
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      // In real implementation, call API to delete account
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      authService.logout();
-      dispatch({ type: 'LOGOUT' });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Account deletion failed' });
-      throw error;
-    }
   };
 
   const clearError = (): void => {
@@ -194,9 +183,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    resetPassword,
-    updateProfile,
-    deleteAccount,
+    resetPassword: async () => { throw new Error('Not implemented'); },
+    updateProfile: async () => { throw new Error('Not implemented'); },
+    deleteAccount: async () => { throw new Error('Not implemented'); },
     clearError
   };
 
@@ -210,7 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 // Custom hook to use auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

@@ -48,6 +48,11 @@ import UserSettingsPage from "./modules/user-settings/components/UserSettingsPag
 import HomePage from "./ui-components/common/HomePage";
 import LoadingSpinner from "./ui-components/common/LoadingSpinner";
 
+import LoyaltyProgramManagement from "./modules/business-management/components/LoyaltyProgramManagement";
+import LoyaltyCardsList from "./modules/loyalty-cards/components/LoyaltyCardsList";
+import LoyaltyCardDetail from "./modules/loyalty-cards/components/LoyaltyCardDetail";
+import QRCodeScanner from "./modules/loyalty-cards/components/QRCodeScanner";
+
 function App() {
   return (
     <AuthProvider>
@@ -67,6 +72,7 @@ function App() {
               <Route path="/business/profile" element={<BusinessProfileEditor />} />
               <Route path="/business/menu" element={<MenuManagement />} />
               <Route path="/business/deals" element={<DealsManagement />} />
+              <Route path="/business/loyalty" element={<LoyaltyProgramManagement />} />
               <Route path="/explore-cuisines" element={<CuisineExplorer />} />
               <Route path="/todays-deals" element={<TodaysDeals />} />
               <Route path="/passport" element={<PassportPage />} />
@@ -90,6 +96,10 @@ function App() {
               {/* Profile Routes */}
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/edit" element={<ProfileEditPage />} />
+
+              <Route path="/loyalty-cards" element={<LoyaltyCardsList />} />
+              <Route path="/loyalty-cards/:id" element={<LoyaltyCardDetail />} />
+              <Route path="/loyalty-cards/scan" element={<QRCodeScanner />} />
             </Routes>
           </main>
           

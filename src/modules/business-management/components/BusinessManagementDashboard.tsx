@@ -29,7 +29,8 @@ const iconMap = {
   Calendar,
   TrendingUp,
   Bell,
-  Settings
+  Settings,
+  Star
 };
 
 const BusinessManagementDashboard: React.FC = () => {
@@ -210,6 +211,13 @@ const BusinessManagementDashboard: React.FC = () => {
                   <Clock size={20} className="text-purple-600" />
                   <span className="text-sm font-medium text-gray-900">Update Hours</span>
                 </button>
+                <button 
+                  onClick={() => navigate('/business/loyalty')}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Star size={20} className="text-yellow-600" />
+                  <span className="text-sm font-medium text-gray-900">Loyalty Program</span>
+                </button>
               </div>
             </div>
           </>
@@ -249,7 +257,7 @@ const BusinessManagementDashboard: React.FC = () => {
       
       {/* Discreet Build Number */}
       <div className="mt-4">
-                  <p className="text-xs text-gray-400 text-center">v0.24</p>
+                  <p className="text-xs text-gray-400 text-center">v0.28</p>
       </div>
     </div>
   );

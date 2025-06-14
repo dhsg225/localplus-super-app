@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award } from 'lucide-react';
+import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award, Star } from 'lucide-react';
 import RotatingHeadlines from '../../modules/news/components/RotatingHeadlines';
 
 // Location interface
@@ -283,8 +283,6 @@ const HomePage: React.FC = () => {
         </Link>
       </div>
 
-
-
       {/* Rotating Headlines */}
       <div className="mb-6">
         <RotatingHeadlines
@@ -382,6 +380,15 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1 text-sm">Local News</h3>
             <p className="text-xs text-gray-500 flex-1">Stay updated with local happenings</p>
+          </Link>
+
+          <Link
+            to="/loyalty-cards"
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-yellow-100 min-h-[120px] flex flex-col"
+          >
+            <Star size={28} className="text-yellow-500 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm">My Loyalty Cards</h3>
+            <p className="text-xs text-gray-500 flex-1">Track your rewards & progress</p>
           </Link>
         </div>
       </div>
