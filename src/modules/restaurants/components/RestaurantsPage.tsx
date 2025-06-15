@@ -261,40 +261,89 @@ const RestaurantsPage: React.FC = () => {
             />
           </div>
 
-          {/* Cuisine Filter */}
-          <div className="flex space-x-2 overflow-x-auto pb-2">
-            {cuisineTypes.map((cuisine) => (
-              <button
-                key={cuisine.id}
-                onClick={() => setSelectedFilter(cuisine.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                  selectedFilter === cuisine.id
-                    ? "bg-red-500 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                <cuisine.icon size={16} />
-                <span className="text-sm font-medium">{cuisine.name}</span>
-              </button>
-            ))}
+          {/* Enhanced Tier-Based Cuisine Filter */}
+          <div className="space-y-3">
+            {/* Tier 1 - Most Popular */}
+            <div>
+              <h3 className="text-xs font-medium text-green-700 mb-2">🏆 Most Popular in Coastal Areas</h3>
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
+                  <span>🍛</span>
+                  <span className="text-sm">Thai Traditional</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
+                  <span>🦐</span>
+                  <span className="text-sm">Fresh Seafood</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
+                  <span>🍜</span>
+                  <span className="text-sm">Street Food</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
+                  <span>🥢</span>
+                  <span className="text-sm">Chinese-Thai</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
+                  <span>🌍</span>
+                  <span className="text-sm">International</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Tier 2 - Popular */}
+            <div>
+              <h3 className="text-xs font-medium text-blue-700 mb-2">🥈 Popular Choices</h3>
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
+                  <span>🍛</span>
+                  <span className="text-sm">Indian</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
+                  <span>🍱</span>
+                  <span className="text-sm">Japanese</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
+                  <span>🍝</span>
+                  <span className="text-sm">Italian</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
+                  <span>🍽️</span>
+                  <span className="text-sm">Fusion</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
+                  <span>🔥</span>
+                  <span className="text-sm">BBQ & Grill</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Filters */}
+            <div>
+              <h3 className="text-xs font-medium text-gray-700 mb-2">⚡ Quick Filters</h3>
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                <button className="flex items-center space-x-2 px-3 py-2 bg-orange-50 text-orange-800 rounded-full whitespace-nowrap border border-orange-200 hover:bg-orange-100 transition-colors">
+                  <span>🟢</span>
+                  <span className="text-sm">Open Now</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-red-50 text-red-800 rounded-full whitespace-nowrap border border-red-200 hover:bg-red-100 transition-colors">
+                  <span>💰</span>
+                  <span className="text-sm">Current Promotions</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-purple-50 text-purple-800 rounded-full whitespace-nowrap border border-purple-200 hover:bg-purple-100 transition-colors">
+                  <span>🏖️</span>
+                  <span className="text-sm">Beachfront</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 bg-gray-50 text-gray-800 rounded-full whitespace-nowrap border border-gray-200 hover:bg-gray-100 transition-colors">
+                  <span>🌶️</span>
+                  <span className="text-sm">Spicy Food</span>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Quick Actions */}
-        <section className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => handleExploreClick('explore-cuisines')}
-            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all"
-          >
-            <div className="text-center">
-              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <Utensils size={24} className="text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 text-sm">Explore Cuisines</h3>
-              <p className="text-xs text-gray-600 mt-1">Browse by food type</p>
-            </div>
-          </button>
-          
+        <section className="grid grid-cols-1 gap-4">
           <button
             onClick={() => handleExploreClick('todays-deals')}
             className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all"
@@ -334,54 +383,123 @@ const RestaurantsPage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
+            {/* Som Tam Paradise Style Cards */}
             {filteredRestaurants.map((restaurant) => (
-              <div key={restaurant.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="flex">
-                  <div className="w-24 h-24 flex-shrink-0">
-                    <img
-                      src={restaurant.imageUrl}
-                      alt={restaurant.name}
-                      className="w-full h-full object-cover"
-                    />
+              <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
+                {/* Hero Image */}
+                <div className="relative h-48">
+                  <img
+                    src={restaurant.imageUrl}
+                    alt={restaurant.name}
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Status overlay */}
+                  <div className="absolute top-3 left-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      restaurant.hasReservation 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {restaurant.hasReservation ? 'Open' : 'Closed'}
+                    </span>
                   </div>
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 text-base">{restaurant.name}</h3>
-                        <p className="text-sm text-gray-600">{restaurant.cuisine.join(' • ')} • {restaurant.priceRange}</p>
-                        
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <Star size={12} className="text-yellow-400 fill-current" />
-                            <span>{restaurant.todaysDeal?.discount}%</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <MapPin size={12} />
-                            <span>{restaurant.location.name}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock size={12} />
-                            <span>{restaurant.todaysDeal?.description}</span>
-                          </div>
-                        </div>
 
-                        {restaurant.todaysDeal && (
-                          <div className="mt-2">
-                            <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                              {restaurant.todaysDeal.title}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex flex-col items-end space-y-2">
-                        <div className={`w-2 h-2 rounded-full ${restaurant.hasReservation ? 'bg-green-500' : 'bg-red-500'}`} />
-                        <span className={`text-xs ${restaurant.hasReservation ? 'text-green-600' : 'text-red-600'}`}>
-                          {restaurant.hasReservation ? 'Open' : 'Closed'}
+                  {/* Promotions badge */}
+                  {restaurant.todaysDeal && (
+                    <div className="absolute top-3 right-3">
+                      <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        {restaurant.todaysDeal.discount}% OFF
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Heart/Favorite button */}
+                  <button className="absolute bottom-3 right-3 p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100">
+                    <Star size={16} className="text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+                  {/* Header: Name, Cuisine, Rating */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-lg text-gray-900 leading-tight">
+                        {restaurant.name}
+                      </h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-sm text-gray-600">
+                          {restaurant.cuisine.join(', ')}
                         </span>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-600">{restaurant.priceRange}</span>
                       </div>
                     </div>
+                    
+                    <div className="flex items-center space-x-1 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+                      <Star size={14} className="text-amber-500 fill-current" />
+                      <span className="text-sm font-semibold text-gray-900">4.{Math.floor(Math.random() * 9) + 1}</span>
+                      <span className="text-xs text-gray-500">({Math.floor(Math.random() * 1000) + 100})</span>
+                    </div>
                   </div>
+
+                  {/* Signature Dishes Tags */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                      Pad Thai
+                    </span>
+                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                      Tom Yum
+                    </span>
+                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                      Mango Sticky Rice
+                    </span>
+                  </div>
+
+                  {/* Location & Timing */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-1 text-sm text-gray-600">
+                      <MapPin size={14} className="text-gray-400" />
+                      <span>{restaurant.location.name}</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-sm text-gray-600">
+                      <Clock size={14} className="text-gray-400" />
+                      <span>11:00 AM - 10:00 PM</span>
+                    </div>
+                  </div>
+
+                  {/* Features row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-1.5 bg-gray-100 rounded-lg">
+                        <Utensils size={14} className="text-gray-600" />
+                      </div>
+                      <div className="p-1.5 bg-gray-100 rounded-lg">
+                        <MapPin size={14} className="text-gray-600" />
+                      </div>
+                      <div className="p-1.5 bg-gray-100 rounded-lg">
+                        <Clock size={14} className="text-gray-600" />
+                      </div>
+                    </div>
+
+                    {/* Loyalty Program Indicator */}
+                    <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                      <Star size={12} className="text-purple-600" />
+                      <span className="text-xs font-medium text-purple-700">
+                        2x Points
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Current Promotions */}
+                  {restaurant.todaysDeal && (
+                    <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-200">
+                      <p className="text-sm font-medium text-red-800">
+                        🎉 {restaurant.todaysDeal.title} - {restaurant.todaysDeal.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

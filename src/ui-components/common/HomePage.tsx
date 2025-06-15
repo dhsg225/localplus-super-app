@@ -299,6 +299,7 @@ const HomePage: React.FC = () => {
         </h2>
         
         <div className="grid grid-cols-2 gap-3">
+          {/* Clean 5-category layout: Restaurants, Events, Services, AI Assistant, Savings Passport */}
           <Link
             to="/restaurants"
             className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-red-100 min-h-[120px] flex flex-col"
@@ -349,14 +350,7 @@ const HomePage: React.FC = () => {
             <p className="text-xs text-gray-500 flex-1">Instant savings at 500+ businesses</p>
           </Link>
 
-          <Link
-            to="/explore-cuisines"
-            className="bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-pink-100 min-h-[120px] flex flex-col"
-          >
-            <Search size={28} className="text-pink-500 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm">Explore Cuisines</h3>
-            <p className="text-xs text-gray-500 flex-1">Discover new flavors</p>
-          </Link>
+
 
           <Link
             to="/todays-deals"
