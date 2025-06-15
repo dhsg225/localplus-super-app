@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish } from 'lucide-react';
 import RestaurantCard from '@/ui-components/cards/RestaurantCard';
@@ -6,6 +6,7 @@ import ExploreCard from '@/ui-components/common/ExploreCard';
 import Button from '@/ui-components/common/Button';
 import MenuModal from './MenuModal';
 import { Restaurant } from '../types';
+import { restaurantService, ProductionRestaurant } from '../../../services/restaurantService';
 
 // Import advertising system
 import AdContainer from "../../advertising/components/AdContainer";
@@ -135,6 +136,9 @@ const mockRestaurants: Restaurant[] = [
 const RestaurantsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'menu' | 'book' | 'offpeak'>('menu');
+  const [currentLocation, setCurrentLocation] = useState('Hua Hin');
+  const [productionRestaurants, setProductionRestaurants] = useState<ProductionRestaurant[]>([]);
+  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
   const [menuModal, setMenuModal] = useState<{
     isOpen: boolean;
     restaurantId: string;
@@ -147,6 +151,68 @@ const RestaurantsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
 
+  // Location detection and restaurant loading
+  useEffect(() => {
+    const detectLocation = async () => {
+      try {
+        // Check if user has manually selected location
+        const storedLocation = localStorage.getItem('user-selected-location');
+        if (storedLocation) {
+          setCurrentLocation(storedLocation);
+          return storedLocation;
+        }
+
+        // Auto-detect location via IP
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        const detectedCity = (data.city || '').toLowerCase();
+        const detectedRegion = (data.region || '').toLowerCase();
+        
+        let location = 'Hua Hin'; // Default to Hua Hin for coastal focus
+        
+        // Check for supported areas
+        if (detectedCity.includes('hua hin') || detectedRegion.includes('prachuap')) {
+          location = 'Hua Hin';
+        } else if (detectedCity.includes('pattaya') || detectedRegion.includes('chonburi')) {
+          location = 'Pattaya';
+        } else if (detectedCity.includes('phuket')) {
+          location = 'Phuket';
+        } else if (detectedCity.includes('chiang mai')) {
+          location = 'Chiang Mai';
+        } else {
+          location = 'Bangkok';
+        }
+        
+        setCurrentLocation(location);
+        return location;
+      } catch (error) {
+        console.error('Location detection failed:', error);
+        setCurrentLocation('Hua Hin');
+        return 'Hua Hin';
+      }
+    };
+
+    const loadRestaurants = async () => {
+      setIsLoadingRestaurants(true);
+      try {
+        const location = await detectLocation();
+        console.log('Loading restaurants for:', location);
+        const restaurants = await restaurantService.getRestaurantsByLocation(location);
+        console.log('Loaded restaurants:', restaurants);
+        setProductionRestaurants(restaurants);
+      } catch (error) {
+        console.error('Failed to load restaurants:', error);
+        // Use fallback restaurants
+        setProductionRestaurants([]);
+      } finally {
+        setIsLoadingRestaurants(false);
+      }
+    };
+
+    loadRestaurants();
+  }, []);
+
   const cuisineTypes = [
     { id: "all", name: "All", icon: Utensils },
     { id: "thai", name: "Thai", icon: Coffee },
@@ -154,10 +220,11 @@ const RestaurantsPage: React.FC = () => {
     { id: "seafood", name: "Seafood", icon: Fish },
   ];
 
-  const filteredRestaurants = mockRestaurants.filter(restaurant => {
+  const filteredRestaurants = productionRestaurants.filter(restaurant => {
     const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         restaurant.cuisine.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = selectedFilter === "all" || restaurant.cuisine.some(c => c.toLowerCase() === selectedFilter);
+                         restaurant.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         restaurant.cuisine?.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesFilter = selectedFilter === "all" || restaurant.cuisine?.some(c => c.toLowerCase() === selectedFilter);
     return matchesSearch && matchesFilter;
   });
 
@@ -230,13 +297,58 @@ const RestaurantsPage: React.FC = () => {
             </button>
             <div>
               <h1 className="text-xl font-semibold text-gray-900">Restaurants</h1>
-              <p className="text-sm text-gray-600">Discover amazing local dining</p>
+              <p className="text-sm text-gray-600">Discover amazing local dining in {currentLocation}</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="p-4 space-y-6">
+        {/* Restaurant Service Tiles */}
+        <section className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => handleExploreClick('todays-deals')}
+            className="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-xl border border-green-200 hover:shadow-md transition-all"
+          >
+            <div className="text-center">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Star size={16} className="text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 text-xs">Today's Deals</h3>
+              <p className="text-xs text-gray-600 mt-0.5">Special offers</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => navigate('/passport')}
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 rounded-xl border-2 border-yellow-300 hover:shadow-md transition-all"
+          >
+            <div className="text-center">
+              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <QrCode size={16} className="text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 text-xs">Savings Passport</h3>
+              <p className="text-xs text-gray-600 mt-0.5">Instant savings</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleExploreClick('ai-assistant')}
+            className="bg-gradient-to-br from-purple-50 to-violet-50 p-3 rounded-xl border border-purple-200 hover:shadow-md transition-all relative"
+          >
+            <div className="text-center">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Bot size={16} className="text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 text-xs">AI Concierge</h3>
+              <p className="text-xs text-gray-600 mt-0.5">Coming soon</p>
+            </div>
+            <div className="absolute -top-1 -right-1 bg-purple-600 text-white px-1.5 py-0.5 rounded-full text-xs font-bold">
+              SOON
+            </div>
+          </button>
+        </section>
+
         {/* [2024-05-10 17:30 UTC] - Top Advertising Section */}
         <section>
           <AdContainer 
@@ -374,7 +486,7 @@ const RestaurantsPage: React.FC = () => {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              {filteredRestaurants.length} restaurants found
+              {isLoadingRestaurants ? 'Loading restaurants...' : `${filteredRestaurants.length} restaurants found`}
             </h2>
             <button className="flex items-center space-x-1 text-red-500 text-sm font-medium">
               <Filter size={16} />
@@ -382,9 +494,29 @@ const RestaurantsPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="space-y-4">
-            {/* Som Tam Paradise Style Cards */}
-            {filteredRestaurants.map((restaurant) => (
+          {isLoadingRestaurants ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="animate-pulse">
+                    <div className="h-48 bg-gray-200"></div>
+                    <div className="p-4">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                      <div className="flex space-x-2 mb-3">
+                        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Som Tam Paradise Style Cards - Production Data */}
+              {filteredRestaurants.map((restaurant) => (
               <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
                 {/* Hero Image */}
                 <div className="relative h-48">
@@ -430,10 +562,12 @@ const RestaurantsPage: React.FC = () => {
                       </h3>
                       <div className="flex items-center space-x-2 mt-1">
                         <span className="text-sm text-gray-600">
-                          {restaurant.cuisine.join(', ')}
+                          {restaurant.cuisine?.join(', ') || 'Restaurant'}
                         </span>
                         <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-600">{restaurant.priceRange}</span>
+                        <span className="text-sm text-gray-600">
+                          {'฿'.repeat(restaurant.priceRange || 2)}
+                        </span>
                       </div>
                     </div>
                     
@@ -446,64 +580,86 @@ const RestaurantsPage: React.FC = () => {
 
                   {/* Signature Dishes Tags */}
                   <div className="flex flex-wrap gap-1 mb-3">
-                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                      Pad Thai
-                    </span>
-                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                      Tom Yum
-                    </span>
-                    <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                      Mango Sticky Rice
-                    </span>
+                    {restaurant.signatureDishes?.slice(0, 3).map((dish, index) => (
+                      <span key={index} className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                        {dish}
+                      </span>
+                    )) || (
+                      <>
+                        <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                          Local Specialty
+                        </span>
+                        <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                          Fresh Daily
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   {/* Location & Timing */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-1 text-sm text-gray-600">
                       <MapPin size={14} className="text-gray-400" />
-                      <span>{restaurant.location.name}</span>
+                      <span>{restaurant.address.split(',')[0]}</span>
                     </div>
                     <div className="flex items-center space-x-1 text-sm text-gray-600">
                       <Clock size={14} className="text-gray-400" />
-                      <span>11:00 AM - 10:00 PM</span>
+                      <span>{restaurant.openingHours || '11:00 AM - 10:00 PM'}</span>
                     </div>
                   </div>
 
                   {/* Features row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className="p-1.5 bg-gray-100 rounded-lg">
-                        <Utensils size={14} className="text-gray-600" />
-                      </div>
-                      <div className="p-1.5 bg-gray-100 rounded-lg">
-                        <MapPin size={14} className="text-gray-600" />
-                      </div>
-                      <div className="p-1.5 bg-gray-100 rounded-lg">
-                        <Clock size={14} className="text-gray-600" />
-                      </div>
+                      {restaurant.features?.slice(0, 3).map((feature, index) => (
+                        <div key={index} className="p-1.5 bg-gray-100 rounded-lg">
+                          {feature === 'beachfront-view' && <MapPin size={14} className="text-gray-600" />}
+                          {feature === 'air-conditioning' && <Clock size={14} className="text-gray-600" />}
+                          {feature === 'parking' && <Utensils size={14} className="text-gray-600" />}
+                          {!['beachfront-view', 'air-conditioning', 'parking'].includes(feature) && <Utensils size={14} className="text-gray-600" />}
+                        </div>
+                      )) || (
+                        <>
+                          <div className="p-1.5 bg-gray-100 rounded-lg">
+                            <Utensils size={14} className="text-gray-600" />
+                          </div>
+                          <div className="p-1.5 bg-gray-100 rounded-lg">
+                            <Clock size={14} className="text-gray-600" />
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Loyalty Program Indicator */}
-                    <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
-                      <Star size={12} className="text-purple-600" />
-                      <span className="text-xs font-medium text-purple-700">
-                        2x Points
-                      </span>
-                    </div>
+                    {restaurant.loyaltyProgram ? (
+                      <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                        <Star size={12} className="text-purple-600" />
+                        <span className="text-xs font-medium text-purple-700">
+                          {restaurant.loyaltyProgram.pointsMultiplier}x Points
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-lg border border-gray-200">
+                        <span className="text-xs font-medium text-gray-600">
+                          Call: {restaurant.phone}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Current Promotions */}
-                  {restaurant.todaysDeal && (
+                  {restaurant.currentPromotions && restaurant.currentPromotions.length > 0 && (
                     <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-200">
                       <p className="text-sm font-medium text-red-800">
-                        🎉 {restaurant.todaysDeal.title} - {restaurant.todaysDeal.description}
+                        🎉 {restaurant.currentPromotions[0]}
                       </p>
                     </div>
                   )}
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </section>
 
         {/* [2024-05-10 17:30 UTC] - Bottom Advertising Section */}
