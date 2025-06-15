@@ -187,13 +187,16 @@ class NewsCacheService {
   // Background fetch news
   private async backgroundFetch(city: string): Promise<void> {
     try {
-      const response = await fetch(`/api/news/${city}?per_page=20`);
+      const { API_ENDPOINTS, buildApiUrl } = await import('../../../config/api');
+      
+      const newsUrl = buildApiUrl(API_ENDPOINTS.news(city), { per_page: '20' });
+      const response = await fetch(newsUrl);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const articles = await response.json();
       
       // Get categories
-      const categoriesResponse = await fetch(`/api/news/${city}/categories`);
+      const categoriesResponse = await fetch(API_ENDPOINTS.categories(city));
       const categories = categoriesResponse.ok ? await categoriesResponse.json() : [];
       
       this.store(city, articles, categories);

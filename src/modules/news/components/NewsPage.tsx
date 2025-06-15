@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Settings, Search, ChevronDown, ChevronRight, MapPin, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { newsCacheService } from '../services/newsCacheService';
+import { API_ENDPOINTS, buildApiUrl } from '../../../config/api';
 
 interface NewsArticle {
   id: number;
@@ -145,23 +146,21 @@ const NewsPage: React.FC = () => {
       }
       
       try {
-        let url = `/api/news/${currentCity}?`;
-        const params = new URLSearchParams();
+        const params: Record<string, string> = {};
         
         if (searchTerm) {
-          params.append('search', searchTerm);
+          params.search = searchTerm;
         }
         
         if (selectedCategories.length > 0) {
           // Get all WordPress category IDs for selected categories
           const wpCategoryIds = getWpCategoryIds(selectedCategories);
           if (wpCategoryIds.length > 0) {
-            params.append('categories', wpCategoryIds.join(','));
+            params.categories = wpCategoryIds.join(',');
           }
         }
         
-        url += params.toString();
-        
+        const url = buildApiUrl(API_ENDPOINTS.news(currentCity), params);
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -174,7 +173,7 @@ const NewsPage: React.FC = () => {
         if (!searchTerm && selectedCategories.length === 0) {
           // Get categories for caching
           try {
-            const categoriesResponse = await fetch(`/api/news/${currentCity}/categories`);
+            const categoriesResponse = await fetch(API_ENDPOINTS.categories(currentCity));
             const categories = categoriesResponse.ok ? await categoriesResponse.json() : [];
             newsCacheService.store(currentCity, data, categories);
           } catch (error) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { newsCacheService } from '../services/newsCacheService';
+import { API_ENDPOINTS, buildApiUrl } from '../../../config/api';
 
 // [2025-01-06 13:45 UTC] - NO MORE MOCK DATA! News server must be running.
 
@@ -65,7 +66,8 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
       } else {
         // Try direct API call
         try {
-          const response = await fetch(`/api/news/${currentCity}?per_page=${maxHeadlines}`);
+          const newsUrl = buildApiUrl(API_ENDPOINTS.news(currentCity), { per_page: String(maxHeadlines) });
+          const response = await fetch(newsUrl);
           if (response.ok) {
             const articles = await response.json();
             if (articles && articles.length > 0) {
