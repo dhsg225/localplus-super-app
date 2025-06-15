@@ -145,7 +145,7 @@ const NewsPage: React.FC = () => {
       }
       
       try {
-        let url = `http://localhost:3004/api/news/${currentCity}?`;
+        let url = `/api/news/${currentCity}?`;
         const params = new URLSearchParams();
         
         if (searchTerm) {
@@ -174,7 +174,7 @@ const NewsPage: React.FC = () => {
         if (!searchTerm && selectedCategories.length === 0) {
           // Get categories for caching
           try {
-            const categoriesResponse = await fetch(`http://localhost:3004/api/news/${currentCity}/categories`);
+            const categoriesResponse = await fetch(`/api/news/${currentCity}/categories`);
             const categories = categoriesResponse.ok ? await categoriesResponse.json() : [];
             newsCacheService.store(currentCity, data, categories);
           } catch (error) {

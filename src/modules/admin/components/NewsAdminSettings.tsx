@@ -53,7 +53,7 @@ const NewsAdminSettings: React.FC = () => {
   const loadWordPressCategories = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3003/api/news/${selectedCity}/categories`);
+      const response = await fetch(`/api/news/${selectedCity}/categories`);
       if (response.ok) {
         const wpCategories = await response.json();
         

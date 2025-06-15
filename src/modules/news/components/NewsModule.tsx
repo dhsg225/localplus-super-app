@@ -81,7 +81,7 @@ const NewsModule: React.FC<NewsModuleProps> = ({ className = '' }) => {
       setLoading(true);
       setError(null);
 
-      let url = `http://localhost:3003/api/news/${selectedCity}?per_page=20`;
+      let url = `/api/news/${selectedCity}?per_page=20`;
       if (selectedCategory !== 'all') {
         url += `&categories=${selectedCategory}`;
       }
@@ -107,7 +107,7 @@ const NewsModule: React.FC<NewsModuleProps> = ({ className = '' }) => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`http://localhost:3003/api/news/${selectedCity}/categories`);
+      const response = await fetch(`/api/news/${selectedCity}/categories`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -65,7 +65,7 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
       } else {
         // Try direct API call
         try {
-          const response = await fetch(`http://localhost:3004/api/news/${currentCity}?per_page=${maxHeadlines}`);
+          const response = await fetch(`/api/news/${currentCity}?per_page=${maxHeadlines}`);
           if (response.ok) {
             const articles = await response.json();
             if (articles && articles.length > 0) {

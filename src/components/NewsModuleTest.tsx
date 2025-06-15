@@ -45,7 +45,7 @@ const NewsModuleTest: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = `http://localhost:3003/api/news/${selectedCity}?per_page=10`;
+      let url = `/api/news/${selectedCity}?per_page=10`;
       if (selectedCategory !== 'all') {
         url += `&categories=${selectedCategory}`;
       }
@@ -71,7 +71,7 @@ const NewsModuleTest: React.FC = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`http://localhost:3003/api/news/${selectedCity}/categories`);
+      const response = await fetch(`/api/news/${selectedCity}/categories`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
