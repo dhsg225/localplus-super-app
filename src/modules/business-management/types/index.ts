@@ -61,7 +61,11 @@ export interface DaySchedule {
 export interface RestaurantProfile extends BusinessProfile {
   cuisine: string[];
   priceRange: 'budget' | 'mid-range' | 'upscale' | 'fine-dining';
+  diningStyle: string[];
   hasReservation: boolean;
+  hasDelivery: boolean;
+  hasBeachfront: boolean;
+  isHalal: boolean;
   menu: MenuItem[];
   offPeakDeals: BusinessOffPeakDeal[];
 }

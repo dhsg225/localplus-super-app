@@ -19,9 +19,17 @@ export const LOCATIONS = {
 } as const;
 
 export const CUISINE_TYPES = [
-  "Thai", "Italian", "Japanese", "Chinese", "Korean", "Indian",
-  "Mediterranean", "American", "French", "Mexican", "Vietnamese",
-  "International", "Seafood", "BBQ", "Vegetarian", "Vegan"
+  // Tier 1 - Essential
+  "Thai Traditional", "Fresh Seafood", "Street Food", "Chinese-Thai", "International",
+  
+  // Tier 2 - Important  
+  "Indian", "Japanese", "Italian", "Fusion", "BBQ & Grill",
+  
+  // Tier 3 - Growing Market
+  "Korean", "Vietnamese", "Halal", "Vegetarian/Vegan", "Cafe & Coffee",
+  
+  // Legacy compatibility
+  "Thai", "Chinese", "Mediterranean", "American", "French", "Mexican", "Seafood", "BBQ", "Vegetarian", "Vegan"
 ] as const;
 
 export const PRICE_RANGES = {

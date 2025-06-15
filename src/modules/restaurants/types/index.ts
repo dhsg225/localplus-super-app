@@ -44,8 +44,11 @@ export interface Deal {
 export interface RestaurantFilters {
   cuisine?: string[];
   priceRange?: string[];
+  diningStyle?: string[];
   hasDelivery?: boolean;
   hasReservation?: boolean;
+  hasBeachfront?: boolean;
+  isHalal?: boolean;
   location?: string;
   isOpen?: boolean;
 }

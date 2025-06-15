@@ -684,32 +684,49 @@ export class DiscoveryService {
   private getCategoryQueries(category: string): string[] {
     const queryMap: { [key: string]: string[] } = {
       'Restaurants': [
+        // Tier 1 - Essential searches for Thai coastal areas
+        'thai traditional restaurant',
+        'fresh seafood restaurant',
+        'street food vendor',
+        'chinese thai restaurant',
+        'international restaurant',
+        
+        // Tier 2 - Important cuisines
+        'indian restaurant',
+        'japanese restaurant', 
+        'italian restaurant',
+        'fusion restaurant',
+        'bbq grill restaurant',
+        
+        // Tier 3 - Growing market
+        'korean restaurant',
+        'vietnamese restaurant',
+        'halal restaurant',
+        'vegetarian vegan restaurant',
+        'cafe coffee shop',
+        
+        // Dining style searches
+        'beachfront restaurant',
+        'waterfront dining',
+        'night market food',
+        'food court',
+        'fine dining',
+        'casual dining',
+        
+        // Legacy/additional terms
         'restaurant',
         'thai restaurant',
         'seafood restaurant', 
-        'cafe coffee',
-        'street food',
-        'international restaurant',
         'local restaurant',
-        // [2025-01-06 12:45 UTC] - Additional diverse search terms
-        'food court',
         'noodle shop',
         'barbecue grill',
         'pizza restaurant',
         'chinese restaurant',
-        'japanese restaurant',
-        'italian restaurant',
-        'indian restaurant',
-        'korean restaurant',
-        'vietnamese restaurant',
         'western restaurant',
         'buffet restaurant',
-        'fine dining',
-        'casual dining',
         'family restaurant',
         'local food',
         'authentic thai food',
-        'fresh seafood',
         'grilled fish',
         'som tam restaurant',
         'pad thai restaurant',

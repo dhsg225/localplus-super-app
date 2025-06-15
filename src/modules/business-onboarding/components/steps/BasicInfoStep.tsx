@@ -10,21 +10,34 @@ interface BasicInfoStepProps {
 }
 
 const restaurantCategories = [
-  { value: 'thai', label: 'Thai Food' },
+  // Tier 1 - Essential
+  { value: 'thai-traditional', label: 'Thai Traditional' },
+  { value: 'seafood', label: 'Fresh Seafood' },
+  { value: 'street-food', label: 'Street Food' },
+  { value: 'chinese-thai', label: 'Chinese-Thai' },
   { value: 'international', label: 'International' },
-  { value: 'chinese', label: 'Chinese' },
+  
+  // Tier 2 - Important
+  { value: 'indian', label: 'Indian' },
   { value: 'japanese', label: 'Japanese' },
   { value: 'italian', label: 'Italian' },
-  { value: 'cafe', label: 'Cafe & Coffee' },
-  { value: 'seafood', label: 'Seafood' },
+  { value: 'fusion', label: 'Fusion' },
   { value: 'bbq', label: 'BBQ & Grill' },
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'fusion', label: 'Fusion' }
+  
+  // Tier 3 - Growing Market
+  { value: 'korean', label: 'Korean' },
+  { value: 'vietnamese', label: 'Vietnamese' },
+  { value: 'halal', label: 'Halal' },
+  { value: 'vegetarian', label: 'Vegetarian/Vegan' },
+  { value: 'cafe', label: 'Cafe & Coffee' }
 ];
 
 const restaurantTypes: { value: RestaurantType; label: string }[] = [
   { value: 'fine-dining', label: 'Fine Dining' },
   { value: 'casual', label: 'Casual Dining' },
+  { value: 'beachfront', label: 'Beachfront/Waterfront' },
+  { value: 'night-market', label: 'Night Market' },
+  { value: 'food-court', label: 'Food Court' },
   { value: 'cafe', label: 'Cafe' },
   { value: 'fast-food', label: 'Fast Food' },
   { value: 'street-food', label: 'Street Food' }

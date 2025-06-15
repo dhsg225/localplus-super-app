@@ -1,7 +1,7 @@
 // Business Onboarding Module Types
 export type BusinessType = 'restaurant' | 'event-organizer' | 'service-provider' | 'other';
 
-export type RestaurantType = 'fine-dining' | 'casual' | 'cafe' | 'fast-food' | 'street-food';
+export type RestaurantType = 'fine-dining' | 'casual' | 'beachfront' | 'night-market' | 'food-court' | 'cafe' | 'fast-food' | 'street-food';
 export type PriceRange = '฿' | '฿฿' | '฿฿฿' | '฿฿฿฿';
 
 export interface OperatingHours {
