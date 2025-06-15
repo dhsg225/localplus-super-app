@@ -398,4 +398,5 @@ class GooglePlacesService {
 export const googlePlacesService = new GooglePlacesService();
 
 // Export types and service
-export default GooglePlacesService; 
+export default GooglePlacesService;
+export { GooglePlacesService }; 
