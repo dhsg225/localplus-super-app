@@ -1,33 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { newsCacheService } from '../services/newsCacheService';
 
-// Fallback mock news data
-const mockHeadlines = [
-  {
-    id: 1,
-    title: { rendered: 'Bangkok Traffic Updates: New BTS Extension Opens' },
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=400&h=300&fit=crop'
-  },
-  {
-    id: 2,
-    title: { rendered: 'Local Restaurant Week Returns with 50+ Participating Venues' },
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=400&h=300&fit=crop'
-  },
-  {
-    id: 3,
-    title: { rendered: 'Weekend Weather: Sunny Skies Expected Across Thailand' },
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&h=300&fit=crop'
-  },
-  {
-    id: 4,
-    title: { rendered: 'New Shopping Mall Opens in Central Bangkok District' },
-    categories: [60], // business
-    featured_image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop'
-  }
-];
+// [2025-01-06 13:45 UTC] - NO MORE MOCK DATA! News server must be running.
 
 interface CategoryInfo {
   id: string;
@@ -97,23 +71,21 @@ const RotatingHeadlines: React.FC<RotatingHeadlinesProps> = ({
             if (articles && articles.length > 0) {
               setHeadlines(articles);
             } else {
-              // Use fallback mock data
-              setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+              console.error('❌ No news articles available from server');
+              setHeadlines([]);
             }
           } else {
-            // Use fallback mock data
-            setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+            console.error('❌ News server not responding (status:', response.status, ')');
+            setHeadlines([]);
           }
         } catch (apiError) {
-          console.log('API call failed, using fallback data');
-          // Use fallback mock data
-          setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+          console.error('❌ News API failed:', apiError);
+          setHeadlines([]);
         }
       }
     } catch (error) {
-      console.error('Failed to fetch headlines:', error);
-      // Always show fallback data instead of empty state
-      setHeadlines(mockHeadlines.slice(0, maxHeadlines));
+      console.error('❌ Failed to fetch headlines:', error);
+      setHeadlines([]);
     } finally {
       setIsLoading(false);
     }

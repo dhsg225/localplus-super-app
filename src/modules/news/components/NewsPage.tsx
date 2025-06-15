@@ -22,64 +22,7 @@ interface CategoryHierarchy {
   parent?: string;
 }
 
-// Add fallback mock news data at the top of the file
-const mockNewsArticles = [
-  {
-    id: 1,
-    title: { rendered: 'Bangkok Traffic Updates: New BTS Extension Opens This Month' },
-    excerpt: { rendered: 'The long-awaited BTS extension connecting central Bangkok to the airport district is set to open, promising to reduce travel times significantly.' },
-    content: { rendered: '<p>The Bangkok Mass Transit System (BTS) announced the opening of its newest extension line, connecting the central business district to the airport area. This development is expected to significantly reduce travel times for commuters and tourists alike.</p>' },
-    date: new Date().toISOString(),
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800&h=600&fit=crop',
-    author: 1,
-    link: '#'
-  },
-  {
-    id: 2,
-    title: { rendered: 'Local Restaurant Week Returns with Record 50+ Participating Venues' },
-    excerpt: { rendered: 'Bangkok Restaurant Week is back with the largest number of participating restaurants ever, offering special menus and discounts across the city.' },
-    content: { rendered: '<p>Food enthusiasts rejoice as Bangkok Restaurant Week returns with over 50 participating venues offering special prix fixe menus. The event showcases the city\'s diverse culinary landscape from street food to fine dining.</p>' },
-    date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=800&h=600&fit=crop',
-    author: 1,
-    link: '#'
-  },
-  {
-    id: 3,
-    title: { rendered: 'Weekend Weather Forecast: Sunny Skies Expected Across Thailand' },
-    excerpt: { rendered: 'The meteorological department predicts clear skies and pleasant temperatures for the upcoming weekend, perfect for outdoor activities.' },
-    content: { rendered: '<p>Thailand\'s meteorological department has issued a favorable weather forecast for the weekend, with sunny skies and temperatures ranging from 25-32°C expected across most regions.</p>' },
-    date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-    categories: [62], // local-news
-    featured_image_url: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=800&h=600&fit=crop',
-    author: 1,
-    link: '#'
-  },
-  {
-    id: 4,
-    title: { rendered: 'New Shopping Complex Opens in Central Bangkok District' },
-    excerpt: { rendered: 'A state-of-the-art shopping and entertainment complex has opened its doors in the heart of Bangkok, featuring international brands and local retailers.' },
-    content: { rendered: '<p>The newest addition to Bangkok\'s retail landscape officially opened this week, bringing together international luxury brands, local designers, and a variety of dining options under one roof.</p>' },
-    date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-    categories: [60], // business
-    featured_image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop',
-    author: 1,
-    link: '#'
-  },
-  {
-    id: 5,
-    title: { rendered: 'Tech Startup Hub Launches Innovation Program for Local Entrepreneurs' },
-    excerpt: { rendered: 'A new innovation hub has launched a comprehensive program to support local tech startups with mentorship, funding, and workspace.' },
-    content: { rendered: '<p>Bangkok\'s growing tech ecosystem receives a boost with the launch of a new innovation program designed to nurture local startups and connect them with international markets.</p>' },
-    date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
-    categories: [297], // technology
-    featured_image_url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop',
-    author: 1,
-    link: '#'
-  }
-];
+// [2025-01-06 13:40 UTC] - NO MORE MOCK DATA IN PRODUCTION! Show errors instead.
 
 const NewsPage: React.FC = () => {
   const navigate = useNavigate();
