@@ -12,6 +12,7 @@ interface BusinessDiscoveryProps {
 const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onBusinessAdded, onLocationUpdate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedLdpArea, setSelectedLdpArea] = useState('');
   const [discoveredBusinesses, setDiscoveredBusinesses] = useState<GooglePlaceResult[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<GooglePlaceResult | null>(null);
   const [businessDetails, setBusinessDetails] = useState<GooglePlaceDetails | null>(null);
@@ -20,6 +21,7 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
   const [importing, setImporting] = useState(false);
   const [importedBusinessIds, setImportedBusinessIds] = useState<Set<string>>(new Set());
   const [radius, setRadius] = useState(3000); // Default 3km
+  const [importStats, setImportStats] = useState({ found: 0, added: 0 });
 
   const categories = [
     { id: '', label: 'All Categories' },
@@ -29,6 +31,16 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
     { id: 'Services', label: 'Services' },
     { id: 'Entertainment', label: 'Entertainment' },
     { id: 'Travel', label: 'Travel & Hotels' }
+  ];
+
+  // [2024-12-19 15:30 UTC] - Added LDP area filtering for geographic zone control
+  const ldpAreas = [
+    { id: '', label: 'All Areas' },
+    { id: 'bangkok', label: 'Bangkok LDP', lat: 13.8179, lng: 100.0416 },
+    { id: 'hua-hin', label: 'Hua Hin LDP', lat: 12.5684, lng: 99.9578 },
+    { id: 'pattaya', label: 'Pattaya LDP', lat: 12.9236, lng: 100.8825 },
+    { id: 'phuket', label: 'Phuket LDP', lat: 7.8804, lng: 98.3923 },
+    { id: 'chiang-mai', label: 'Chiang Mai LDP', lat: 18.7883, lng: 98.9853 }
   ];
 
   const radiusOptions = [
@@ -43,20 +55,48 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
     if (userLocation) {
       discoverNearbyBusinesses();
     }
-  }, [userLocation, selectedCategory, radius]);
+  }, [userLocation, selectedCategory, selectedLdpArea, radius]);
+
+  // [2024-12-19 15:30 UTC] - Updated location when LDP area changes
+  useEffect(() => {
+    if (selectedLdpArea) {
+      const area = ldpAreas.find(a => a.id === selectedLdpArea);
+      if (area && area.lat && area.lng) {
+        onLocationUpdate?.({ lat: area.lat, lng: area.lng });
+      }
+    }
+  }, [selectedLdpArea, onLocationUpdate]);
 
   const discoverNearbyBusinesses = async () => {
     if (!userLocation) return;
 
     setLoading(true);
     try {
+      // [2024-12-19 15:30 UTC] - Enhanced restaurant search with specific query
+      let searchType = selectedCategory;
+      if (selectedCategory === 'Restaurants') {
+        searchType = 'restaurant food dining';
+      }
+
       const businesses = await googlePlacesService.discoverBusinessesNearby(
         userLocation.lat,
         userLocation.lng,
         radius,
-        selectedCategory
+        searchType
       );
-      setDiscoveredBusinesses(businesses);
+      
+      // [2024-12-19 15:30 UTC] - Filter results for restaurants more strictly
+      let filteredBusinesses = businesses;
+      if (selectedCategory === 'Restaurants') {
+        filteredBusinesses = businesses.filter(business => 
+          business.types.some(type => 
+            ['restaurant', 'food', 'meal_takeaway', 'cafe', 'bakery'].includes(type)
+          )
+        );
+      }
+      
+      setDiscoveredBusinesses(filteredBusinesses);
+      setImportStats({ found: filteredBusinesses.length, added: 0 });
     } catch (error) {
       console.error('Error discovering businesses:', error);
     } finally {
@@ -69,13 +109,31 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
 
     setLoading(true);
     try {
+      // [2024-12-19 15:30 UTC] - Enhanced search query for restaurants
+      let enhancedQuery = searchQuery;
+      if (selectedCategory === 'Restaurants') {
+        enhancedQuery = `${searchQuery} restaurant food dining`;
+      }
+
       const businesses = await googlePlacesService.searchBusinessesByText(
-        searchQuery,
+        enhancedQuery,
         userLocation.lat,
         userLocation.lng,
         radius
       );
-      setDiscoveredBusinesses(businesses);
+      
+      // [2024-12-19 15:30 UTC] - Filter results for restaurants more strictly
+      let filteredBusinesses = businesses;
+      if (selectedCategory === 'Restaurants') {
+        filteredBusinesses = businesses.filter(business => 
+          business.types.some(type => 
+            ['restaurant', 'food', 'meal_takeaway', 'cafe', 'bakery'].includes(type)
+          )
+        );
+      }
+      
+      setDiscoveredBusinesses(filteredBusinesses);
+      setImportStats({ found: filteredBusinesses.length, added: 0 });
     } catch (error) {
       console.error('Error searching businesses:', error);
     } finally {
@@ -114,6 +172,9 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
         setImportedBusinessIds(prev => new Set(prev).add(business.place_id));
         onBusinessAdded?.(newBusiness);
         
+        // [2024-12-19 15:30 UTC] - Update import stats when business is successfully added
+        setImportStats(prev => ({ ...prev, added: prev.added + 1 }));
+        
         // Also create a default discount offer
         await businessAPI.addDiscountOffer({
           business_id: newBusiness.id,
@@ -130,6 +191,12 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
     } finally {
       setImporting(false);
     }
+  };
+
+  // [2024-12-19 15:30 UTC] - Reset counters function
+  const resetCounters = () => {
+    setImportStats({ found: 0, added: 0 });
+    setImportedBusinessIds(new Set());
   };
 
   const getRatingStars = (rating: number) => {
@@ -151,8 +218,42 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
     <div className="space-y-6">
       {/* Search and Filters */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Discover Real Businesses</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Discover Real Businesses</h3>
+          
+          {/* [2024-12-19 15:30 UTC] - Import Stats Display */}
+          <div className="flex items-center space-x-4 text-sm">
+            <span className="text-gray-600">
+              ✅ {selectedCategory || 'Businesses'}: Found {importStats.found}, added {importStats.added}
+            </span>
+            <button
+              onClick={resetCounters}
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
         
+        {/* [2024-12-19 15:30 UTC] - LDP Area Selection */}
+        <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <MapPin size={16} className="text-purple-600" />
+              <span className="text-sm font-medium text-purple-900">LDP Area:</span>
+            </div>
+            <select
+              value={selectedLdpArea}
+              onChange={(e) => setSelectedLdpArea(e.target.value)}
+              className="text-sm px-3 py-1 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            >
+              {ldpAreas.map(area => (
+                <option key={area.id} value={area.id}>{area.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* Location Input */}
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between">
@@ -193,7 +294,7 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search for restaurants, spas, shops..."
+              placeholder={selectedCategory === 'Restaurants' ? "Search for restaurants, cafes, dining..." : "Search for restaurants, spas, shops..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && searchBusinesses()}
@@ -241,6 +342,11 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
           <div className="mt-3 text-xs text-gray-600 flex items-center">
             <MapPin size={12} className="mr-1" />
             Searching near: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+            {selectedLdpArea && (
+              <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+                {ldpAreas.find(a => a.id === selectedLdpArea)?.label}
+              </span>
+            )}
           </div>
         )}
       </div>

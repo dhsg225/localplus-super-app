@@ -71,17 +71,33 @@ class GooglePlacesService {
   private isGoogleLoaded = false;
 
   constructor() {
-    this.checkGoogleMapsAvailable();
+    // [2025-01-06 12:00 UTC] - Don't check immediately, wait for Google Maps to load
+    // this.checkGoogleMapsAvailable();
   }
 
-  private checkGoogleMapsAvailable() {
+  private checkGoogleMapsAvailable(): boolean {
     // Check if Google Maps is available
     if (window.google && window.google.maps && window.google.maps.places) {
       this.isGoogleLoaded = true;
+      return true;
     } else {
-      console.warn('Google Maps not available, using fallback data');
       this.isGoogleLoaded = false;
+      return false;
     }
+  }
+
+  // [2025-01-06 12:00 UTC] - Wait for Google Maps to load with retry mechanism
+  private async waitForGoogleMaps(maxRetries: number = 10, delayMs: number = 500): Promise<boolean> {
+    for (let i = 0; i < maxRetries; i++) {
+      if (this.checkGoogleMapsAvailable()) {
+        console.log('✅ Google Maps API is now available');
+        return true;
+      }
+      console.log(`⏳ Waiting for Google Maps API... (attempt ${i + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+    console.error('❌ Google Maps API failed to load after maximum retries');
+    return false;
   }
 
   // Discover businesses near a location
@@ -92,41 +108,66 @@ class GooglePlacesService {
     businessType: string = ''
   ): Promise<GooglePlaceResult[]> {
     try {
-      // Try real Google Places API first
+      // [2024-12-19 16:30 UTC] - Production: Only use real Google Places API
       const realResults = await this.searchRealGooglePlaces(lat, lng, radiusMeters, businessType);
-      if (realResults.length > 0) {
-        console.log(`🌟 Found ${realResults.length} real businesses via Google Places API`);
-        return realResults;
-      }
-      
-      // Fallback to demo data if API fails
-      console.log('📋 Using fallback data (API may have failed)');
-      return this.getFallbackBusinesses(lat, lng, radiusMeters, businessType);
+      console.log(`🌟 Found ${realResults.length} real businesses via Google Places API`);
+      return realResults;
     } catch (error) {
       console.error('Error in discoverBusinessesNearby:', error);
-      return this.getFallbackBusinesses(lat, lng, radiusMeters, businessType);
+      // [2024-12-19 16:30 UTC] - Return empty array for production instead of demo data
+      return [];
     }
   }
 
   // Get detailed information about a specific place
   async getPlaceDetails(placeId: string): Promise<GooglePlaceDetails | null> {
     try {
-      // Return mock details for demo
-      return {
-        place_id: placeId,
-        name: 'Sample Business Details',
-        formatted_address: '123 Sample Street, Bangkok, Thailand',
-        formatted_phone_number: '+66 2 123 4567',
-        website: 'https://example.com',
-        rating: 4.5,
-        user_ratings_total: 150,
-        price_level: 2,
-        geometry: {
-          location: { lat: 13.8179, lng: 100.0416 }
-        },
-        types: ['restaurant', 'establishment'],
-        business_status: 'OPERATIONAL'
-      };
+      // [2025-01-06 12:00 UTC] - Wait for Google Maps API to load before getting details
+      const isAvailable = await this.waitForGoogleMaps();
+      if (!isAvailable) {
+        console.error('Google Maps API not available');
+        return null;
+      }
+
+      // Use real Google Places API to get details
+      return new Promise((resolve, reject) => {
+        const service = new window.google.maps.places.PlacesService(
+          document.createElement('div')
+        );
+
+        service.getDetails(
+          {
+            placeId: placeId,
+            fields: [
+              'place_id', 'name', 'formatted_address', 'formatted_phone_number',
+              'website', 'rating', 'user_ratings_total', 'price_level',
+              'opening_hours', 'photos', 'geometry', 'types', 'business_status'
+            ]
+          },
+          (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+              resolve({
+                place_id: place.place_id!,
+                name: place.name!,
+                formatted_address: place.formatted_address!,
+                formatted_phone_number: place.formatted_phone_number,
+                website: place.website,
+                rating: place.rating,
+                user_ratings_total: place.user_ratings_total,
+                price_level: place.price_level,
+                opening_hours: place.opening_hours,
+                photos: place.photos,
+                geometry: place.geometry!,
+                types: place.types!,
+                business_status: place.business_status!
+              });
+            } else {
+              console.error('Place details request failed:', status);
+              resolve(null);
+            }
+          }
+        );
+      });
     } catch (error) {
       console.error('Error getting place details:', error);
       return null;
@@ -142,12 +183,14 @@ class GooglePlacesService {
   ): Promise<GooglePlaceResult[]> {
     try {
       console.log(`🔍 Searching for "${query}" near ${lat}, ${lng}`);
-      const results = this.getFallbackBusinesses(lat, lng, radiusMeters, query);
-      console.log(`📊 Fallback businesses found:`, results.length);
+      // [2024-12-19 16:30 UTC] - Production: Only use real Google Places API
+      const results = await this.searchRealGooglePlaces(lat, lng, radiusMeters, query);
+      console.log(`📊 Real businesses found:`, results.length);
       console.log(`🏢 Businesses:`, results);
       return results;
     } catch (error) {
       console.error('Error in text search:', error);
+      // [2024-12-19 16:30 UTC] - Return empty array for production
       return [];
     }
   }
@@ -229,170 +272,125 @@ class GooglePlacesService {
     return [rating, price, status].filter(Boolean).join(' • ') || 'Local business in your area';
   }
 
-  // Fallback businesses for demonstration
-  private getFallbackBusinesses(lat: number, lng: number, radiusMeters: number, query?: string): GooglePlaceResult[] {
-    const baseBusinesses = [
-      {
-        place_id: 'demo_restaurant_1',
-        name: 'Seaside Thai Restaurant',
-        vicinity: '123 Beach Road, Bangkok',
-        geometry: { location: { lat: lat + 0.001, lng: lng + 0.001 } },
-        rating: 4.5,
-        price_level: 2,
-        types: ['restaurant', 'food', 'establishment'],
-        business_status: 'OPERATIONAL'
-      },
-      {
-        place_id: 'demo_spa_1',
-        name: 'Lotus Wellness Spa',
-        vicinity: '456 Wellness Street, Bangkok',
-        geometry: { location: { lat: lat + 0.002, lng: lng - 0.001 } },
-        rating: 4.7,
-        price_level: 3,
-        types: ['spa', 'beauty_salon', 'health'],
-        business_status: 'OPERATIONAL'
-      },
-      {
-        place_id: 'demo_cafe_1',
-        name: 'Coffee Culture Cafe',
-        vicinity: '789 Cafe Lane, Bangkok',
-        geometry: { location: { lat: lat - 0.001, lng: lng + 0.002 } },
-        rating: 4.3,
-        price_level: 2,
-        types: ['cafe', 'food', 'establishment'],
-        business_status: 'OPERATIONAL'
-      },
-      {
-        place_id: 'demo_market_1',
-        name: 'Central Shopping Plaza',
-        vicinity: '321 Shopping District, Bangkok',
-        geometry: { location: { lat: lat + 0.003, lng: lng - 0.002 } },
-        rating: 4.2,
-        price_level: 2,
-        types: ['shopping_mall', 'store'],
-        business_status: 'OPERATIONAL'
-      },
-      {
-        place_id: 'demo_hotel_1',
-        name: 'Bangkok Grand Hotel',
-        vicinity: '654 Hotel Avenue, Bangkok',
-        geometry: { location: { lat: lat - 0.002, lng: lng - 0.001 } },
-        rating: 4.6,
-        price_level: 4,
-        types: ['lodging', 'travel_agency'],
-        business_status: 'OPERATIONAL'
-      }
-    ];
-
-    // Filter based on query if provided
-    if (query && query.trim()) {
-      const searchTerm = query.toLowerCase();
-      console.log(`🔍 Filtering businesses with search term: "${searchTerm}"`);
-      
-      const filtered = baseBusinesses.filter(business => {
-        const nameMatch = business.name.toLowerCase().includes(searchTerm);
-        const typeMatch = business.types.some(type => 
-          type.includes(searchTerm) || 
-          (searchTerm.includes('restaurant') && type === 'restaurant') ||
-          (searchTerm.includes('spa') && type === 'spa') ||
-          (searchTerm.includes('cafe') && type === 'cafe') ||
-          (searchTerm.includes('hotel') && type === 'lodging') ||
-          (searchTerm.includes('shop') && (type === 'store' || type === 'shopping_mall'))
-        );
-        const vicinityMatch = business.vicinity.toLowerCase().includes(searchTerm);
-        
-        const matches = nameMatch || typeMatch || vicinityMatch;
-        console.log(`🏢 "${business.name}": name=${nameMatch}, type=${typeMatch}, vicinity=${vicinityMatch}, matches=${matches}`);
-        return matches;
-      });
-      
-      console.log(`📊 Filtered ${filtered.length} businesses from ${baseBusinesses.length} total`);
-      return filtered;
-    }
-
-    return baseBusinesses;
-  }
-
-  // Calculate distance between two points (for fallback filtering)
-  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371e3; // Earth's radius in meters
-    const φ1 = lat1 * Math.PI/180;
-    const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180;
-    const Δλ = (lon2-lon1) * Math.PI/180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c; // Distance in meters
-  }
-
-  // Real Google Places API integration via our proxy server
+  // Real Google Places API integration - production ready
   private async searchRealGooglePlaces(
     lat: number, 
     lng: number, 
     radiusMeters: number,
     businessType: string
   ): Promise<GooglePlaceResult[]> {
-    // Map our categories to Google Place types
-    const typeMap: { [key: string]: string } = {
-      'Restaurants': 'restaurant',
-      'Wellness': 'spa',
-      'Shopping': 'store',
-      'Services': 'establishment',
-      'Entertainment': 'tourist_attraction',
-      'Travel': 'lodging'
-    };
-    
-    const googleType = typeMap[businessType] || 'establishment';
-    
-    // Use our local proxy server instead of calling Google directly (avoids CORS)
-    const proxyUrl = `http://localhost:3003/api/places?` +
-      `lat=${lat}&` +
-      `lng=${lng}&` +
-      `radius=${radiusMeters}&` +
-      `type=${googleType}`;
-    
-    console.log(`🔍 Searching real Google Places in Hua Hin for ${businessType} via proxy...`);
-    console.log(`📍 Location: ${lat}, ${lng} (radius: ${radiusMeters}m)`);
-    
-    try {
-      const response = await fetch(proxyUrl);
-      const data = await response.json();
-      
-      if (data.status === 'OK' && data.results) {
-        console.log(`✅ Google Places API returned ${data.results.length} businesses`);
-        
-        return data.results.map((place: any) => ({
-          place_id: place.place_id,
-          name: place.name,
-          vicinity: place.vicinity || place.formatted_address || 'Hua Hin, Thailand',
-          geometry: {
-            location: {
-              lat: place.geometry.location.lat,
-              lng: place.geometry.location.lng
-            }
-          },
-          rating: place.rating || null,
-          price_level: place.price_level || null,
-          types: place.types || [],
-          photos: place.photos || [],
-          opening_hours: place.opening_hours || null,
-          business_status: place.business_status || 'OPERATIONAL'
-        }));
-      } else {
-        console.log(`⚠️ Proxy API returned: ${data.status || 'ERROR'}`);
-        if (data.error || data.message) {
-          console.log(`💡 Error: ${data.error || data.message}`);
-        }
-        return [];
-      }
-    } catch (error) {
-      console.error('❌ Proxy API error:', error);
+    // [2025-01-06 12:00 UTC] - Wait for Google Maps API to load before searching
+    const isAvailable = await this.waitForGoogleMaps();
+    if (!isAvailable) {
+      console.error('❌ Google Maps API not available - cannot search for real businesses');
       return [];
     }
+
+    return new Promise((resolve) => {
+      const service = new window.google.maps.places.PlacesService(
+        document.createElement('div')
+      );
+
+      // [2025-01-06 13:00 UTC] - Determine if this is a text search or category search
+      const isTextSearch = businessType && !['Restaurants', 'Wellness', 'Shopping', 'Entertainment', 'Services', 'Travel'].includes(businessType);
+      
+      if (isTextSearch) {
+        // Use text search for specific queries like "daddy" or "pizza"
+        console.log(`🔍 Performing TEXT search for "${businessType}"`);
+        const request = {
+          query: businessType,
+          location: new window.google.maps.LatLng(lat, lng),
+          radius: radiusMeters
+        };
+
+        service.textSearch(request, (results, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+            console.log(`✅ Found ${results.length} businesses for query: "${businessType}"`);
+            
+            const mappedResults = results.map(place => ({
+              place_id: place.place_id!,
+              name: place.name!,
+              vicinity: place.vicinity || place.formatted_address || 'Hua Hin, Thailand',
+              geometry: {
+                location: {
+                  lat: place.geometry!.location!.lat(),
+                  lng: place.geometry!.location!.lng()
+                }
+              },
+              rating: place.rating || null,
+              price_level: place.price_level || null,
+              types: place.types || [],
+              photos: place.photos || [],
+              opening_hours: place.opening_hours || null,
+              business_status: place.business_status || 'OPERATIONAL'
+            }));
+
+            resolve(mappedResults);
+          } else {
+            console.error(`❌ Google Places text search error for "${businessType}": ${status}`);
+            resolve([]);
+          }
+        });
+      } else {
+        // Use nearby search for category-based searches
+        const getSingleGoogleType = (businessType: string): string => {
+          if (businessType.includes('restaurant') || businessType.includes('food') || businessType.includes('dining')) {
+            return 'restaurant'; // Single most relevant type
+          }
+          
+          const typeMap: { [key: string]: string } = {
+            'Wellness': 'spa',
+            'spa wellness massage beauty salon': 'spa',
+            'Shopping': 'store',
+            'store shop mall market': 'store',
+            'Entertainment': 'tourist_attraction',
+            'entertainment attraction activity': 'tourist_attraction'
+          };
+          
+          return typeMap[businessType] || 'establishment';
+        };
+        
+        const googleType = getSingleGoogleType(businessType);
+        console.log(`🔍 Performing NEARBY search for category: ${businessType}`);
+        console.log(`🏷️ Using Google type: ${googleType}`);
+        console.log(`📍 Location: ${lat}, ${lng} (radius: ${radiusMeters}m)`);
+
+        const request = {
+          location: new window.google.maps.LatLng(lat, lng),
+          radius: radiusMeters,
+          type: googleType
+        };
+
+        service.nearbySearch(request, (results, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+            console.log(`✅ Found ${results.length} businesses for type: ${googleType}`);
+            
+            const mappedResults = results.map(place => ({
+              place_id: place.place_id!,
+              name: place.name!,
+              vicinity: place.vicinity || 'Hua Hin, Thailand',
+              geometry: {
+                location: {
+                  lat: place.geometry!.location!.lat(),
+                  lng: place.geometry!.location!.lng()
+                }
+              },
+              rating: place.rating || null,
+              price_level: place.price_level || null,
+              types: place.types || [],
+              photos: place.photos || [],
+              opening_hours: place.opening_hours || null,
+              business_status: place.business_status || 'OPERATIONAL'
+            }));
+
+            resolve(mappedResults);
+          } else {
+            console.error(`❌ Google Places API error for type ${googleType}: ${status}`);
+            resolve([]);
+          }
+        });
+      }
+    });
   }
 }
 

@@ -55,6 +55,21 @@ export interface UserRedemption {
 
 // Business API Functions
 export const businessAPI = {
+  // Get all businesses
+  async getAllBusinesses(): Promise<Business[]> {
+    const { data, error } = await supabase
+      .from('businesses')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching all businesses:', error);
+      throw error;
+    }
+
+    return data || [];
+  },
+
   // Get all businesses within radius
   async getBusinessesNearby(lat: number, lng: number, radiusKm: number) {
     const { data, error } = await supabase
