@@ -1,6 +1,6 @@
 {
   "name": "localplus-super-app",
-  "version": "0.30.0",
+  "version": "0.30.1",
   "description": "LocalPlus Super App - LDP Lifestyle Ecosystem for Thailand cities and districts",
   "private": true,
   "homepage": "https://www.localplus.city",
@@ -25,6 +25,7 @@
     "clsx": "^2.0.0",
     "cors": "^2.8.5",
     "date-fns": "^3.0.6",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.303.0",

@@ -14,103 +14,144 @@ interface MenuCategory {
   items: MenuItem[];
 }
 
-// Mock menu data
-const mockMenuData: MenuCategory[] = [
-  {
-    id: 'appetizers',
-    name: 'Appetizers',
-    items: [
+// [2024-12-19 11:15 UTC] - Removed mock menu data, now using dynamic menu generation based on restaurant
+const generateMenuForRestaurant = (restaurantName: string): MenuCategory[] => {
+  // Generate menu based on restaurant type/name
+  const isThaiRestaurant = restaurantName.toLowerCase().includes('thai') || 
+                          restaurantName.toLowerCase().includes('palace') ||
+                          restaurantName.toLowerCase().includes('som tam');
+  
+  const isSeafoodRestaurant = restaurantName.toLowerCase().includes('seaside') ||
+                             restaurantName.toLowerCase().includes('seafood');
+
+  if (isSeafoodRestaurant) {
+    return [
       {
-        id: '1',
-        name: 'Som Tam (Papaya Salad)',
-        description: 'Fresh green papaya salad with tomatoes, green beans, and peanuts',
-        price: 120,
-        category: 'appetizers',
-        imageUrl: 'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300',
-        isAvailable: true,
-        isSpicy: true,
-        isVegetarian: true
+        id: 'appetizers',
+        name: 'Appetizers',
+        items: [
+          {
+            id: '1',
+            name: 'Grilled Prawns',
+            description: 'Fresh prawns grilled with garlic and herbs',
+            price: 280,
+            category: 'appetizers',
+            imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300',
+            isAvailable: true,
+            isSpicy: false,
+            isVegetarian: false
+          }
+        ]
       },
       {
-        id: '2',
-        name: 'Satay Chicken',
-        description: 'Grilled chicken skewers with peanut sauce and cucumber relish',
-        price: 180,
-        category: 'appetizers',
-        imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300',
-        isAvailable: true,
-        isSpicy: false,
-        isVegetarian: false
+        id: 'mains',
+        name: 'Fresh Seafood',
+        items: [
+          {
+            id: '2',
+            name: 'Grilled Sea Bass',
+            description: 'Fresh sea bass grilled with lemon and herbs',
+            price: 450,
+            category: 'mains',
+            imageUrl: 'https://images.unsplash.com/photo-1559314809-0f31657feb5c?w=300',
+            isAvailable: true,
+            isSpicy: false,
+            isVegetarian: false
+          },
+          {
+            id: '3',
+            name: 'Tom Yum Talay',
+            description: 'Spicy seafood soup with mixed seafood',
+            price: 380,
+            category: 'mains',
+            imageUrl: 'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=300',
+            isAvailable: true,
+            isSpicy: true,
+            isVegetarian: false
+          }
+        ]
       }
-    ]
-  },
-  {
-    id: 'mains',
-    name: 'Main Courses',
-    items: [
-      {
-        id: '3',
-        name: 'Pad Thai',
-        description: 'Stir-fried rice noodles with tofu, bean sprouts, and tamarind sauce',
-        price: 280,
-        category: 'mains',
-        imageUrl: 'https://images.unsplash.com/photo-1559314809-0f31657feb5c?w=300',
-        isAvailable: true,
-        isSpicy: false,
-        isVegetarian: true
-      },
-      {
-        id: '4',
-        name: 'Green Curry',
-        description: 'Traditional green curry with chicken, eggplant, and Thai basil',
-        price: 320,
-        category: 'mains',
-        imageUrl: 'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=300',
-        isAvailable: true,
-        isSpicy: true,
-        isVegetarian: false
-      },
-      {
-        id: '5',
-        name: 'Massaman Beef',
-        description: 'Slow-cooked beef in rich massaman curry with potatoes',
-        price: 380,
-        category: 'mains',
-        imageUrl: 'https://images.unsplash.com/photo-1571104508999-893933ded431?w=300',
-        isAvailable: true,
-        isSpicy: false,
-        isVegetarian: false
-      }
-    ]
-  },
-  {
-    id: 'desserts',
-    name: 'Desserts',
-    items: [
-      {
-        id: '6',
-        name: 'Mango Sticky Rice',
-        description: 'Sweet sticky rice with fresh mango and coconut milk',
-        price: 150,
-        category: 'desserts',
-        imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300',
-        isAvailable: true,
-        isSpicy: false,
-        isVegetarian: true
-      }
-    ]
+    ];
   }
-];
+
+  // Default Thai menu
+  return [
+    {
+      id: 'appetizers',
+      name: 'Appetizers',
+      items: [
+        {
+          id: '1',
+          name: 'Som Tam (Papaya Salad)',
+          description: 'Fresh green papaya salad with tomatoes, green beans, and peanuts',
+          price: 120,
+          category: 'appetizers',
+          imageUrl: 'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300',
+          isAvailable: true,
+          isSpicy: true,
+          isVegetarian: true
+        }
+      ]
+    },
+    {
+      id: 'mains',
+      name: 'Main Courses',
+      items: [
+        {
+          id: '2',
+          name: 'Royal Pad Thai',
+          description: 'Premium pad thai with fresh ingredients',
+          price: 320,
+          category: 'mains',
+          imageUrl: 'https://images.unsplash.com/photo-1559314809-0f31657feb5c?w=300',
+          isAvailable: true,
+          isSpicy: false,
+          isVegetarian: true
+        },
+        {
+          id: '3',
+          name: 'Massaman Beef',
+          description: 'Slow-cooked beef in rich massaman curry with potatoes',
+          price: 380,
+          category: 'mains',
+          imageUrl: 'https://images.unsplash.com/photo-1571104508999-893933ded431?w=300',
+          isAvailable: true,
+          isSpicy: false,
+          isVegetarian: false
+        }
+      ]
+    },
+    {
+      id: 'desserts',
+      name: 'Desserts',
+      items: [
+        {
+          id: '4',
+          name: 'Mango Sticky Rice',
+          description: 'Sweet sticky rice with fresh mango and coconut milk',
+          price: 150,
+          category: 'desserts',
+          imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300',
+          isAvailable: true,
+          isSpicy: false,
+          isVegetarian: true
+        }
+      ]
+    }
+  ];
+};
 
 const MenuPage: React.FC<MenuPageProps> = ({
   restaurantName = "The Spice Merchant",
-  categories = mockMenuData,
+  categories,
   onBack
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]?.id || '');
+  // Generate menu if not provided
+  const menuCategories = categories || generateMenuForRestaurant(restaurantName);
+  const [selectedCategory, setSelectedCategory] = useState(menuCategories[0]?.id || '');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredItems = categories
+  const filteredItems = menuCategories
     .find(cat => cat.id === selectedCategory)
     ?.items.filter(item => 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -149,7 +190,7 @@ const MenuPage: React.FC<MenuPageProps> = ({
       {/* Category Tabs */}
       <div className="bg-white px-4 py-3 border-b border-gray-100 sticky top-20 z-10">
         <div className="flex space-x-1 overflow-x-auto">
-          {categories.map((category) => (
+          {menuCategories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}

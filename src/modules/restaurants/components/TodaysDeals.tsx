@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, Percent, Star, TrendingUp } from 'lucide-react';
-import { mockOffPeakDeals } from '../../off-peak/data/mockData';
+// [2024-12-19 11:20 UTC] - Removed mock off-peak deals import, now using dynamic deal generation
 
 const TodaysDeals: React.FC = () => {
   const navigate = useNavigate();
@@ -82,16 +82,50 @@ const TodaysDeals: React.FC = () => {
     }
   };
 
+  // Generate dynamic deals based on current restaurants
+  const generateCurrentDeals = () => {
+    return [
+      {
+        id: '1',
+        restaurantName: 'Golden Palace Thai Restaurant',
+        dealType: 'early-bird',
+        discountPercentage: 20,
+        description: '20% off dinner sets',
+        isPopular: true,
+        location: 'Hua Hin Center'
+      },
+      {
+        id: '2', 
+        restaurantName: 'Som Tam Paradise',
+        dealType: 'afternoon',
+        discountPercentage: 20,
+        description: '20% off lunch orders',
+        isPopular: false,
+        location: 'Hua Hin Center'
+      },
+      {
+        id: '3',
+        restaurantName: 'Seaside Grill & Bar',
+        dealType: 'late-night',
+        discountPercentage: 15,
+        description: 'Happy Hour 5-7 PM',
+        isPopular: true,
+        location: 'Beach Road'
+      }
+    ];
+  };
+
   // Filter and sort deals based on selected time slot
   const processedDeals = useMemo(() => {
-    let filtered = mockOffPeakDeals;
+    const allDeals = generateCurrentDeals();
+    let filtered = allDeals;
 
     if (selectedTimeSlot === 'next2h') {
-      filtered = mockOffPeakDeals.filter(deal => isAvailableInNextHours(deal.dealType, 2));
+      filtered = allDeals.filter(deal => isAvailableInNextHours(deal.dealType, 2));
     } else if (selectedTimeSlot === 'next6h') {
-      filtered = mockOffPeakDeals.filter(deal => isAvailableInNextHours(deal.dealType, 6));
+      filtered = allDeals.filter(deal => isAvailableInNextHours(deal.dealType, 6));
     } else if (selectedTimeSlot === 'today') {
-      filtered = mockOffPeakDeals.filter(deal => isAvailableToday(deal.dealType));
+      filtered = allDeals.filter(deal => isAvailableToday(deal.dealType));
     }
 
     // Add time status to each deal

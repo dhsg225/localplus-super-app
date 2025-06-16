@@ -1,8 +1,9 @@
 // [2025-01-06 14:40 UTC] - Enhanced Restaurant Discovery with tier-based filtering and Som Tam Paradise card style
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Filter, MapPin, Star, Clock, Utensils, Search, Heart, Music, AirVent, Car } from 'lucide-react';
 import { CUISINE_TIERS, DINING_STYLES, DIETARY_FILTERS } from '../../../shared/constants/restaurants';
+import { restaurantService } from '../../../services/restaurantService';
 
 interface Restaurant {
   id: string;
@@ -26,64 +27,64 @@ interface Restaurant {
   currentPromotions?: string[];
 }
 
-// Mock data showcasing the tier-based system
-const mockRestaurants: Restaurant[] = [
-  {
-    id: '1',
-    name: 'Som Tam Paradise',
-    cuisine: ['thai-traditional'],
-    diningStyle: ['casual', 'beachfront'],
-    location: 'Hua Hin Beach Road',
-    priceRange: 2,
-    rating: 4.8,
-    reviewCount: 1247,
-    heroImage: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    signatureDishes: ['Som Tam', 'Larb', 'Sticky Rice'],
-    isOpen: true,
-    features: ['beachfront-view', 'outdoor-seating', 'live-music'],
-    dietaryOptions: ['spicy', 'vegetarian'],
-    loyaltyProgram: {
-      name: 'Paradise Points',
-      pointsMultiplier: 2
-    },
-    openingHours: '11:00 AM - 10:00 PM',
-    currentPromotions: ['20% off lunch orders']
-  },
-  {
-    id: '2',
-    name: 'Royal India Palace',
-    cuisine: ['indian'],
-    diningStyle: ['fine-dining'],
-    location: 'Central Hua Hin',
-    priceRange: 3,
-    rating: 4.6,
-    reviewCount: 892,
-    heroImage: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    signatureDishes: ['Butter Chicken', 'Biryani', 'Naan'],
-    isOpen: true,
-    features: ['air-conditioning', 'parking', 'groups'],
-    dietaryOptions: ['halal', 'vegetarian', 'vegan'],
-    loyaltyProgram: {
-      name: 'Maharaja Club',
-      pointsMultiplier: 3
-    },
-    openingHours: '5:00 PM - 11:00 PM'
-  }
-];
+// [2024-12-19 23:45 UTC] - Removed mock data, now using production restaurants from database
+const mockRestaurants: Restaurant[] = [];
 
 const EnhancedRestaurantDiscovery: React.FC = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     cuisines: [] as string[],
     searchQuery: '',
     openOnly: false
   });
 
+  // Load production restaurants on component mount
+  useEffect(() => {
+    loadProductionRestaurants();
+  }, []);
+
+  const loadProductionRestaurants = async () => {
+    try {
+      setIsLoading(true);
+      console.log('🏪 Loading restaurants for enhanced discovery...');
+             const productionRestaurants = await restaurantService.getRestaurantsByLocation('Hua Hin');
+      console.log('🏪 Loaded restaurants for enhanced discovery:', productionRestaurants.length);
+      
+             // Transform production data to match component interface
+       const transformedRestaurants: Restaurant[] = productionRestaurants.map(restaurant => ({
+         id: restaurant.id,
+         name: restaurant.name,
+         cuisine: restaurant.cuisine || [],
+         diningStyle: ['casual'],
+         location: restaurant.address || 'Location not specified',
+         priceRange: (restaurant.priceRange || 2) as 1 | 2 | 3 | 4,
+         rating: restaurant.rating || 4.0,
+         reviewCount: restaurant.reviewCount || 0,
+         heroImage: restaurant.heroImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+         signatureDishes: restaurant.signatureDishes || [],
+         isOpen: restaurant.status === 'active',
+         features: restaurant.features || [],
+         dietaryOptions: [],
+         openingHours: restaurant.openingHours || '9:00 AM - 10:00 PM',
+         currentPromotions: restaurant.currentPromotions || []
+       }));
+      
+      setRestaurants(transformedRestaurants);
+    } catch (error) {
+      console.error('🏪 Failed to load restaurants for enhanced discovery:', error);
+      setRestaurants([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const allCuisines = [...CUISINE_TIERS.tier1, ...CUISINE_TIERS.tier2, ...CUISINE_TIERS.tier3];
 
   const filteredRestaurants = useMemo(() => {
-    return mockRestaurants.filter(restaurant => {
+    return restaurants.filter(restaurant => {
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
         const searchMatch = 
@@ -105,7 +106,7 @@ const EnhancedRestaurantDiscovery: React.FC = () => {
       
       return true;
     });
-  }, [filters]);
+  }, [restaurants, filters]);
 
   const toggleCuisine = (cuisine: string) => {
     setFilters(prev => ({

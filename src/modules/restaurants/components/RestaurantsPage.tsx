@@ -1,137 +1,124 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish } from 'lucide-react';
-import RestaurantCard from '@/ui-components/cards/RestaurantCard';
-import ExploreCard from '@/ui-components/common/ExploreCard';
-import Button from '@/ui-components/common/Button';
 import MenuModal from './MenuModal';
-import { Restaurant } from '../types';
 import { restaurantService, ProductionRestaurant } from '../../../services/restaurantService';
-
-// Import advertising system
+import { dynamicSelectorService, type LocationBasedSelectors, type DynamicSelector } from '../../../shared/constants/dynamicSelectors';
+import TodaysDeals from './TodaysDeals';
+import CuisineExplorer from './CuisineExplorer';
 import AdContainer from "../../advertising/components/AdContainer";
+import { useGooglePlacesImage } from '../../../hooks/useGooglePlacesImage';
+import ImageCarousel from '../../../ui-components/common/ImageCarousel';
 
-// Mock data - in real app this would come from API
-const mockRestaurants: Restaurant[] = [
-  {
-    id: '1',
-    name: 'The Spice Merchant',
-    description: 'Authentic Thai cuisine with modern presentation in a cozy, contemporary setting',
-    cuisine: ['Thai'],
-    priceRange: 'mid-range',
-    imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
-      'https://images.unsplash.com/photo-1571104508999-893933ded431?w=400',
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400',
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: true,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    todaysDeal: {
-      id: '1',
-      restaurantId: '1',
-      title: '20% off dinner',
-      description: 'Valid until 9pm',
-      discount: 20,
-      validUntil: new Date(),
-      isActive: true
-    }
-  },
-  {
-    id: '2',
-    name: 'Siam Bistro',
-    description: 'Modern fusion dining experience with innovative Asian flavors',
-    cuisine: ['Fusion'],
-    priceRange: 'upscale',
-    imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400',
-      'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400',
-      'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: true,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '3',
-    name: 'Riverfront Grill',
-    description: 'Fresh seafood with stunning river views and outdoor terrace dining',
-    cuisine: ['Seafood'],
-    priceRange: 'upscale',
-    imageUrl: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400',
-      'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400',
-      'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: true,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '4',
-    name: 'Urban Eats',
-    description: 'Contemporary urban dining with street food inspired dishes',
-    cuisine: ['Modern'],
-    priceRange: 'mid-range',
-    imageUrl: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=400',
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400',
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: false,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '5',
-    name: 'Golden Spoon',
-    description: 'Exquisite fine dining experience with award-winning cuisine',
-    cuisine: ['Fine Dining'],
-    priceRange: 'fine-dining',
-    imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400',
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
-      'https://images.unsplash.com/photo-1571104508999-893933ded431?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: true,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '6',
-    name: 'Thai Delights',
-    description: 'Traditional Thai flavors in an authentic family-run setting',
-    cuisine: ['Authentic'],
-    priceRange: 'budget',
-    imageUrl: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400',
-    photos: [
-      'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400',
-      'https://images.unsplash.com/photo-1559847844-5315695dadae?w=400',
-      'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400'
-    ],
-    location: { id: '1', name: 'Bangkok', slug: 'bangkok', type: 'city' },
-    hasReservation: true,
-    openingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date()
+// [2024-12-19 11:05 UTC] - Removed mock data, now using production restaurants from database
+
+// [2025-01-07 02:10 UTC] - COMPLETELY REMOVED ALL FAKE/MOCK IMAGES - ONLY REAL GOOGLE PLACES IMAGES
+const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ restaurant }) => {
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      if (!restaurant.heroImage || !restaurant.heroImage.startsWith('google-places:')) {
+        console.log('📸 No Google Places image available for:', restaurant.name);
+        setImages([]);
+        return;
+      }
+
+      setIsLoading(true);
+      
+      try {
+        const placeId = restaurant.heroImage.replace('google-places:', '');
+        console.log('📸 Loading Google Places gallery for:', restaurant.name, placeId);
+        
+        // Import the service dynamically
+        const { googlePlacesImageService } = await import('../../../services/googlePlacesImageService');
+        
+        // Get up to 5 images for the gallery
+        const gallery = await googlePlacesImageService.getRestaurantGallery(placeId, 5);
+        
+        if (gallery.length > 0) {
+          console.log('📸 Loaded', gallery.length, 'Google Places images for', restaurant.name);
+          setImages(gallery);
+        } else {
+          console.log('📸 No Google Places images available for', restaurant.name);
+          setImages([]);
+        }
+      } catch (error) {
+        console.error('📸 Error loading Google Places images:', error);
+        console.log('📸 No images available for', restaurant.name);
+        setImages([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadImages();
+  }, [restaurant.heroImage, restaurant.name]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="relative w-full h-64 bg-gray-200 rounded-t-lg flex items-center justify-center">
+        <div className="text-gray-500">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+        </div>
+      </div>
+    );
   }
-];
+
+  // Show image gallery if available
+  if (images.length > 0) {
+    return (
+      <div className="relative w-full h-64 rounded-t-lg overflow-hidden">
+        <ImageCarousel 
+          images={images} 
+          alt={restaurant.name}
+          className="w-full h-full object-cover"
+        />
+        
+        {/* Status overlay */}
+        <div className="absolute top-3 left-3 z-20">
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            restaurant.status === 'active' 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {restaurant.status === 'active' ? 'Open' : 'Closed'}
+          </span>
+        </div>
+
+        {/* Promotions badge */}
+        {restaurant.currentPromotions && restaurant.currentPromotions.length > 0 && (
+          <div className="absolute top-3 right-3 z-20">
+            <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+              Special Deal
+            </span>
+          </div>
+        )}
+
+        {/* Heart/Favorite button */}
+        <button className="absolute bottom-3 right-3 p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 z-20">
+          <Star size={16} className="text-gray-600" />
+        </button>
+
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+          📸 {images.length} photo{images.length > 1 ? 's' : ''}
+        </div>
+      </div>
+    );
+  }
+
+  // Show placeholder when no images available
+  return (
+    <div className="relative w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-t-lg flex items-center justify-center">
+      <div className="text-center text-gray-600">
+        <div className="text-4xl mb-2">🍽️</div>
+        <div className="text-sm">No photos available</div>
+      </div>
+    </div>
+  );
+};
 
 const RestaurantsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -139,6 +126,8 @@ const RestaurantsPage: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState('Hua Hin');
   const [productionRestaurants, setProductionRestaurants] = useState<ProductionRestaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
+  const [dynamicSelectors, setDynamicSelectors] = useState<LocationBasedSelectors | null>(null);
+  const [isLoadingSelectors, setIsLoadingSelectors] = useState(true);
   const [menuModal, setMenuModal] = useState<{
     isOpen: boolean;
     restaurantId: string;
@@ -180,8 +169,10 @@ const RestaurantsPage: React.FC = () => {
           location = 'Phuket';
         } else if (detectedCity.includes('chiang mai')) {
           location = 'Chiang Mai';
+        } else if (detectedCity.includes('hua hin') || detectedRegion.includes('prachuap khiri khan')) {
+          location = 'Hua Hin';
         } else {
-          location = 'Bangkok';
+          location = 'Hua Hin';  // Changed default from Bangkok to Hua Hin
         }
         
         setCurrentLocation(location);
@@ -195,18 +186,29 @@ const RestaurantsPage: React.FC = () => {
 
     const loadRestaurants = async () => {
       setIsLoadingRestaurants(true);
+      setIsLoadingSelectors(true);
       try {
         const location = await detectLocation();
-        console.log('Loading restaurants for:', location);
-        const restaurants = await restaurantService.getRestaurantsByLocation(location);
-        console.log('Loaded restaurants:', restaurants);
+        console.log('🏪 Loading restaurants for location:', location);
+        
+        // Load restaurants and dynamic selectors in parallel
+        const [restaurants, selectors] = await Promise.all([
+          restaurantService.getRestaurantsByLocation(location),
+          dynamicSelectorService.generateLocationSelectors(location)
+        ]);
+        
+        console.log('🏪 Loaded restaurants:', restaurants.length, 'restaurants');
+        console.log('🎯 Loaded dynamic selectors:', selectors);
+        
         setProductionRestaurants(restaurants);
+        setDynamicSelectors(selectors);
       } catch (error) {
-        console.error('Failed to load restaurants:', error);
-        // Use fallback restaurants
+        console.error('🏪 Failed to load restaurants:', error);
         setProductionRestaurants([]);
+        setDynamicSelectors(null);
       } finally {
         setIsLoadingRestaurants(false);
+        setIsLoadingSelectors(false);
       }
     };
 
@@ -224,7 +226,17 @@ const RestaurantsPage: React.FC = () => {
     const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          restaurant.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          restaurant.cuisine?.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = selectedFilter === "all" || restaurant.cuisine?.some(c => c.toLowerCase() === selectedFilter);
+    
+    // Enhanced filtering using dynamic selectors
+    const matchesFilter = selectedFilter === "all" || 
+      restaurant.cuisine?.some(c => c.toLowerCase() === selectedFilter) ||
+      restaurant.cuisine?.some(c => c.includes(selectedFilter)) ||
+      // Check if selector ID matches any cuisine types
+      (dynamicSelectors && [...dynamicSelectors.mostPopular, ...dynamicSelectors.popularChoices]
+        .find(s => s.id === selectedFilter)?.localPlusCuisines?.some(lc => 
+          restaurant.cuisine?.includes(lc)
+        ));
+    
     return matchesSearch && matchesFilter;
   });
 
@@ -234,7 +246,7 @@ const RestaurantsPage: React.FC = () => {
   };
 
   const handleMenuClick = (restaurantId: string) => {
-    const restaurant = mockRestaurants.find(r => r.id === restaurantId);
+    const restaurant = productionRestaurants.find(r => r.id === restaurantId);
     if (restaurant) {
       setMenuModal({
         isOpen: true,
@@ -245,7 +257,7 @@ const RestaurantsPage: React.FC = () => {
   };
 
   const handleOffPeakClick = (restaurantId: string) => {
-    const restaurant = mockRestaurants.find(r => r.id === restaurantId);
+    const restaurant = productionRestaurants.find(r => r.id === restaurantId);
     if (restaurant) {
       // Navigate to off-peak page with restaurant filter
       navigate(`/off-peak?restaurant=${encodeURIComponent(restaurant.name)}`);
@@ -373,101 +385,110 @@ const RestaurantsPage: React.FC = () => {
             />
           </div>
 
-          {/* Enhanced Tier-Based Cuisine Filter */}
-          <div className="space-y-3">
-            {/* Tier 1 - Most Popular */}
-            <div>
-              <h3 className="text-xs font-medium text-green-700 mb-2">🏆 Most Popular in Coastal Areas</h3>
+          {/* Dynamic Smart Selectors */}
+          {isLoadingSelectors ? (
+            <div className="space-y-3">
+              <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
-                  <span>🍛</span>
-                  <span className="text-sm">Thai Traditional</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
-                  <span>🦐</span>
-                  <span className="text-sm">Fresh Seafood</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
-                  <span>🍜</span>
-                  <span className="text-sm">Street Food</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
-                  <span>🥢</span>
-                  <span className="text-sm">Chinese-Thai</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-green-50 text-green-800 rounded-full whitespace-nowrap border border-green-200 hover:bg-green-100 transition-colors">
-                  <span>🌍</span>
-                  <span className="text-sm">International</span>
-                </button>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-8 bg-gray-100 rounded-full w-24 animate-pulse"></div>
+                ))}
               </div>
             </div>
+          ) : dynamicSelectors ? (
+            <div className="space-y-3">
+              {/* Most Popular in Location */}
+              {dynamicSelectors.mostPopular.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-medium text-green-700 mb-2">
+                    🏆 Most Popular in {currentLocation}
+                  </h3>
+                  <div className="flex space-x-2 overflow-x-auto pb-2">
+                    {dynamicSelectors.mostPopular.map(selector => (
+                      <button
+                        key={selector.id}
+                        onClick={() => setSelectedFilter(selector.id)}
+                        className={`flex items-center space-x-2 px-3 py-2 rounded-full whitespace-nowrap border transition-colors ${
+                          selectedFilter === selector.id
+                            ? 'bg-green-100 text-green-800 border-green-300'
+                            : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
+                        }`}
+                      >
+                        <span>{selector.icon}</span>
+                        <span className="text-sm">{selector.label}</span>
+                        {selector.count && selector.count > 0 && (
+                          <span className="text-xs bg-green-200 text-green-700 px-1.5 py-0.5 rounded-full">
+                            {selector.count}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            {/* Tier 2 - Popular */}
-            <div>
-              <h3 className="text-xs font-medium text-blue-700 mb-2">🥈 Popular Choices</h3>
-              <div className="flex space-x-2 overflow-x-auto pb-2">
-                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
-                  <span>🍛</span>
-                  <span className="text-sm">Indian</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
-                  <span>🍱</span>
-                  <span className="text-sm">Japanese</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
-                  <span>🍝</span>
-                  <span className="text-sm">Italian</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
-                  <span>🍽️</span>
-                  <span className="text-sm">Fusion</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-blue-50 text-blue-800 rounded-full whitespace-nowrap border border-blue-200 hover:bg-blue-100 transition-colors">
-                  <span>🔥</span>
-                  <span className="text-sm">BBQ & Grill</span>
-                </button>
-              </div>
-            </div>
+              {/* Popular Choices */}
+              {dynamicSelectors.popularChoices.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-medium text-blue-700 mb-2">🥈 Popular Choices</h3>
+                  <div className="flex space-x-2 overflow-x-auto pb-2">
+                    {dynamicSelectors.popularChoices.map(selector => (
+                      <button
+                        key={selector.id}
+                        onClick={() => setSelectedFilter(selector.id)}
+                        className={`flex items-center space-x-2 px-3 py-2 rounded-full whitespace-nowrap border transition-colors ${
+                          selectedFilter === selector.id
+                            ? 'bg-blue-100 text-blue-800 border-blue-300'
+                            : 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100'
+                        }`}
+                      >
+                        <span>{selector.icon}</span>
+                        <span className="text-sm">{selector.label}</span>
+                        {selector.count && selector.count > 0 && (
+                          <span className="text-xs bg-blue-200 text-blue-700 px-1.5 py-0.5 rounded-full">
+                            {selector.count}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            {/* Quick Filters */}
-            <div>
-              <h3 className="text-xs font-medium text-gray-700 mb-2">⚡ Quick Filters</h3>
-              <div className="flex space-x-2 overflow-x-auto pb-2">
-                <button className="flex items-center space-x-2 px-3 py-2 bg-orange-50 text-orange-800 rounded-full whitespace-nowrap border border-orange-200 hover:bg-orange-100 transition-colors">
-                  <span>🟢</span>
-                  <span className="text-sm">Open Now</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-red-50 text-red-800 rounded-full whitespace-nowrap border border-red-200 hover:bg-red-100 transition-colors">
-                  <span>💰</span>
-                  <span className="text-sm">Current Promotions</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-purple-50 text-purple-800 rounded-full whitespace-nowrap border border-purple-200 hover:bg-purple-100 transition-colors">
-                  <span>🏖️</span>
-                  <span className="text-sm">Beachfront</span>
-                </button>
-                <button className="flex items-center space-x-2 px-3 py-2 bg-gray-50 text-gray-800 rounded-full whitespace-nowrap border border-gray-200 hover:bg-gray-100 transition-colors">
-                  <span>🌶️</span>
-                  <span className="text-sm">Spicy Food</span>
-                </button>
+              {/* Quick Filters */}
+              {dynamicSelectors.quickFilters.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-medium text-gray-700 mb-2">⚡ Quick Filters</h3>
+                  <div className="flex space-x-2 overflow-x-auto pb-2">
+                    {dynamicSelectors.quickFilters.map(selector => (
+                      <button
+                        key={selector.id}
+                        onClick={() => console.log('Quick filter:', selector.id)}
+                        className="flex items-center space-x-2 px-3 py-2 bg-gray-50 text-gray-800 rounded-full whitespace-nowrap border border-gray-200 hover:bg-gray-100 transition-colors"
+                      >
+                        <span>{selector.icon}</span>
+                        <span className="text-sm">{selector.label}</span>
+                        {selector.count && selector.count > 0 && (
+                          <span className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded-full">
+                            {selector.count}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Data source indicator */}
+              <div className="text-xs text-gray-500 mt-2">
+                🎯 Smart suggestions based on real data • Updated {dynamicSelectors.lastUpdated.toLocaleTimeString()}
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Quick Actions */}
-        <section className="grid grid-cols-1 gap-4">
-          <button
-            onClick={() => handleExploreClick('todays-deals')}
-            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all"
-          >
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <Star size={24} className="text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 text-sm">Today's Deals</h3>
-              <p className="text-xs text-gray-600 mt-1">Special offers</p>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <p>Unable to load cuisine options</p>
             </div>
-          </button>
+          )}
         </section>
 
         {/* External Ads Section */}
@@ -519,38 +540,7 @@ const RestaurantsPage: React.FC = () => {
               {filteredRestaurants.map((restaurant) => (
               <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
                 {/* Hero Image */}
-                <div className="relative h-48">
-                  <img
-                    src={restaurant.imageUrl}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Status overlay */}
-                  <div className="absolute top-3 left-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      restaurant.hasReservation 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {restaurant.hasReservation ? 'Open' : 'Closed'}
-                    </span>
-                  </div>
-
-                  {/* Promotions badge */}
-                  {restaurant.todaysDeal && (
-                    <div className="absolute top-3 right-3">
-                      <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {restaurant.todaysDeal.discount}% OFF
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Heart/Favorite button */}
-                  <button className="absolute bottom-3 right-3 p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100">
-                    <Star size={16} className="text-gray-600" />
-                  </button>
-                </div>
+                <RestaurantImage restaurant={restaurant} />
 
                 {/* Content */}
                 <div className="p-4">

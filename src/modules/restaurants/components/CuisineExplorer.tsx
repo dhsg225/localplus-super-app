@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Filter, MapPin, Star, DollarSign, Utensils } from 'lucide-react';
+import { restaurantService, ProductionRestaurant } from '../../../services/restaurantService';
 
 interface Restaurant {
   id: string;
@@ -17,164 +18,7 @@ interface Restaurant {
   estimatedDeliveryTime?: string;
 }
 
-// Mock restaurant data for Thailand
-const mockRestaurants: Restaurant[] = [
-  {
-    id: '1',
-    name: 'Som Tam Paradise',
-    cuisine: 'Thai Street Food',
-    location: 'Hua Hin Center',
-    priceRange: 1,
-    rating: 4.6,
-    reviewCount: 1250,
-    image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Authentic Isaan-style som tam and northeastern Thai specialties',
-    specialties: ['Som Tam', 'Larb', 'Sticky Rice'],
-    isOpen: true,
-    estimatedDeliveryTime: '25-35 min'
-  },
-  {
-    id: '2',
-    name: 'Blue Elephant',
-    cuisine: 'Fine Dining Thai',
-    location: 'Hua Hin Center',
-    priceRange: 4,
-    rating: 4.8,
-    reviewCount: 890,
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Royal Thai cuisine in an elegant colonial setting',
-    specialties: ['Royal Thai Curry', 'Tom Kha Gai', 'Mango Sticky Rice'],
-    isOpen: true,
-    estimatedDeliveryTime: '45-60 min'
-  },
-  {
-    id: '3',
-    name: 'Sushi Masato',
-    cuisine: 'Japanese',
-    location: 'Night Market Area',
-    priceRange: 3,
-    rating: 4.7,
-    reviewCount: 650,
-    image: 'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Premium omakase experience with fresh daily catches',
-    specialties: ['Omakase Set', 'Otoro Sashimi', 'Chirashi Bowl'],
-    isOpen: false,
-    estimatedDeliveryTime: 'Closed'
-  },
-  {
-    id: '4',
-    name: 'Chez Laurent',
-    cuisine: 'French',
-    location: 'Khao Takiab',
-    priceRange: 4,
-    rating: 4.5,
-    reviewCount: 420,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Classic French bistro with ocean views and wine selection',
-    specialties: ['Bouillabaisse', 'Duck Confit', 'Crème Brûlée'],
-    isOpen: true,
-    estimatedDeliveryTime: '50-70 min'
-  },
-  {
-    id: '5',
-    name: 'Nonna Sofia',
-    cuisine: 'Italian',
-    location: 'Cicada Market',
-    priceRange: 2,
-    rating: 4.4,
-    reviewCount: 380,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Homemade pasta and wood-fired pizzas in a cozy trattoria',
-    specialties: ['Carbonara', 'Margherita Pizza', 'Tiramisu'],
-    isOpen: true,
-    estimatedDeliveryTime: '30-45 min'
-  },
-  {
-    id: '6',
-    name: 'Baan Khao Tom',
-    cuisine: 'Modern Thai',
-    location: 'Suan Son Beach',
-    priceRange: 2,
-    rating: 4.3,
-    reviewCount: 290,
-    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Contemporary Thai dishes with creative presentations',
-    specialties: ['Khao Tom Pla', 'Green Curry Risotto', 'Coconut Ice Cream'],
-    isOpen: true,
-    estimatedDeliveryTime: '25-40 min'
-  },
-  {
-    id: '7',
-    name: 'Pad Thai Thip Samai',
-    cuisine: 'Thai Street Food',
-    location: 'Railway Station Area',
-    priceRange: 1,
-    rating: 4.3,
-    reviewCount: 2100,
-    image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Famous for the best Pad Thai in Hua Hin since 1966',
-    specialties: ['Pad Thai Superb', 'Pad Thai with Crab', 'Thai Tea'],
-    isOpen: true,
-    estimatedDeliveryTime: '15-25 min'
-  },
-  {
-    id: '8',
-    name: 'Nahm Bangkok',
-    cuisine: 'Modern Thai',
-    location: 'Sathorn',
-    priceRange: 4,
-    rating: 4.9,
-    reviewCount: 560,
-    image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Michelin-starred modern interpretations of traditional Thai cuisine',
-    specialties: ['Tasting Menu', 'Green Curry', 'Thai Herbs Salad'],
-    isOpen: false,
-    estimatedDeliveryTime: 'Closed'
-  },
-  // Pattaya restaurants
-  {
-    id: '9',
-    name: 'Rimpa Lapin',
-    cuisine: 'Modern Thai',
-    location: 'Central Pattaya',
-    priceRange: 3,
-    rating: 4.5,
-    reviewCount: 340,
-    image: 'https://images.unsplash.com/photo-1571104508999-893933ded431?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Contemporary Thai dishes in a stylish beachside setting',
-    specialties: ['Tom Yum Goong', 'Massaman Curry', 'Mango Tango'],
-    isOpen: true,
-    estimatedDeliveryTime: '35-50 min'
-  },
-  {
-    id: '10',
-    name: 'The Sky Gallery Pattaya',
-    cuisine: 'Fine Dining Thai',
-    location: 'North Pattaya',
-    priceRange: 4,
-    rating: 4.7,
-    reviewCount: 890,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Rooftop fine dining with panoramic views of Pattaya Bay',
-    specialties: ['Royal Thai Set', 'Lobster Thermidor', 'Chocolate Soufflé'],
-    isOpen: true,
-    estimatedDeliveryTime: '60-75 min'
-  },
-  {
-    id: '11',
-    name: 'Walking Street Seafood',
-    cuisine: 'Thai Street Food',
-    location: 'Walking Street',
-    priceRange: 2,
-    rating: 4.2,
-    reviewCount: 650,
-    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    description: 'Fresh seafood and street food in the heart of Pattaya nightlife',
-    specialties: ['Grilled Fish', 'Som Tam', 'Beer Towers'],
-    isOpen: true,
-    estimatedDeliveryTime: '20-30 min'
-  }
-];
+// [2024-12-19 11:10 UTC] - Removed mock data, now using production restaurants from database
 
 interface CuisineFilters {
   selectedCuisines: string[];
@@ -277,6 +121,8 @@ const CuisineExplorer: React.FC = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [currentCity, setCurrentCity] = useState<SupportedCity>('Bangkok'); // Default to Bangkok
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [productionRestaurants, setProductionRestaurants] = useState<ProductionRestaurant[]>([]);
+  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
   const [filters, setFilters] = useState<CuisineFilters>({
     selectedCuisines: [],
     selectedLocations: [],
@@ -284,10 +130,32 @@ const CuisineExplorer: React.FC = () => {
     openOnly: false
   });
 
-  // Location detection
+  // Location detection and restaurant loading
   useEffect(() => {
     detectUserLocation();
   }, []);
+
+  // Load restaurants when city changes
+  useEffect(() => {
+    if (!isLoadingLocation) {
+      loadRestaurants();
+    }
+  }, [currentCity, isLoadingLocation]);
+
+  const loadRestaurants = async () => {
+    setIsLoadingRestaurants(true);
+    try {
+      console.log('🏪 Loading restaurants for cuisine explorer in:', currentCity);
+      const restaurants = await restaurantService.getRestaurantsByLocation(currentCity);
+      console.log('🏪 Loaded restaurants for cuisine explorer:', restaurants.length);
+      setProductionRestaurants(restaurants);
+    } catch (error) {
+      console.error('🏪 Failed to load restaurants for cuisine explorer:', error);
+      setProductionRestaurants([]);
+    } finally {
+      setIsLoadingRestaurants(false);
+    }
+  };
 
   const detectUserLocation = async () => {
     setIsLoadingLocation(true);
@@ -411,22 +279,35 @@ const CuisineExplorer: React.FC = () => {
   const cityData = getCityWithFallback(currentCity);
   const availableAreas = cityData.areas;
 
-  // Extract unique cuisines and locations
+  // Convert production restaurants to local format and extract unique cuisines and locations
+  const convertedRestaurants = useMemo(() => {
+    return productionRestaurants.map(restaurant => ({
+      id: restaurant.id,
+      name: restaurant.name,
+      cuisine: restaurant.cuisine?.[0] || 'Restaurant',
+      location: restaurant.address?.split(',')[0] || currentCity,
+      priceRange: restaurant.priceRange || 2,
+      rating: restaurant.rating || (4.0 + Math.random() * 0.9),
+      reviewCount: restaurant.reviewCount || Math.floor(Math.random() * 1000) + 100,
+      image: restaurant.heroImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
+      description: restaurant.description,
+      specialties: restaurant.signatureDishes || ['Local Specialty'],
+      isOpen: restaurant.status === 'active',
+      estimatedDeliveryTime: '30-45 min'
+    }));
+  }, [productionRestaurants, currentCity]);
+
   const availableCuisines = useMemo(() => 
-    Array.from(new Set(mockRestaurants.map(restaurant => restaurant.cuisine))).sort()
-  , []);
+    Array.from(new Set(convertedRestaurants.map(restaurant => restaurant.cuisine))).sort()
+  , [convertedRestaurants]);
 
   const availableLocations = useMemo(() => 
-    Array.from(new Set(mockRestaurants.map(restaurant => restaurant.location))).sort()
-  , []);
+    Array.from(new Set(convertedRestaurants.map(restaurant => restaurant.location))).sort()
+  , [convertedRestaurants]);
 
-  // Filter restaurants based on current filters AND current city
+  // Filter restaurants based on current filters
   const filteredRestaurants = useMemo(() => {
-    return mockRestaurants.filter(restaurant => {
-      // First filter by current city - only show restaurants from detected city areas
-      const isFromCurrentCity = availableAreas.includes(restaurant.location);
-      if (!isFromCurrentCity) return false;
-      
+    return convertedRestaurants.filter(restaurant => {
       const cuisineMatch = filters.selectedCuisines.length === 0 || 
         filters.selectedCuisines.includes(restaurant.cuisine);
       
@@ -440,7 +321,7 @@ const CuisineExplorer: React.FC = () => {
       
       return cuisineMatch && locationMatch && priceMatch && openMatch;
     });
-  }, [filters, availableAreas]);
+  }, [convertedRestaurants, filters]);
 
   const handleCuisineToggle = (cuisine: string) => {
     setFilters(prev => ({

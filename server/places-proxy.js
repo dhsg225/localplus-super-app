@@ -119,6 +119,92 @@ app.get('/api/news/:city/categories', async (req, res) => {
   }
 });
 
+// [2025-01-07 02:30 UTC] - Google Places Photos endpoints
+// Get photos for a specific place ID
+app.get('/api/places/photos/:placeId', async (req, res) => {
+  try {
+    const { placeId } = req.params;
+
+    if (!placeId) {
+      return res.status(400).json({ error: 'Place ID is required' });
+    }
+
+    console.log(`📸 Fetching photos for place: ${placeId}`);
+
+    const fetch = (await import('node-fetch')).default;
+
+    // Call Google Places API Place Details to get photos
+    const googleUrl = `https://maps.googleapis.com/maps/api/place/details/json?` +
+      `place_id=${placeId}&` +
+      `fields=photos&` +
+      `key=${GOOGLE_PLACES_API_KEY}`;
+
+    const response = await fetch(googleUrl);
+    const data = await response.json();
+
+    if (data.status === 'OK') {
+      const photos = data.result?.photos || [];
+      console.log(`📸 Found ${photos.length} photos for place ${placeId}`);
+      
+      // Return photos in the format expected by the frontend
+      res.json({
+        success: true,
+        photos: photos.map(photo => ({
+          photo_reference: photo.photo_reference,
+          height: photo.height,
+          width: photo.width
+        }))
+      });
+    } else {
+      console.log(`⚠️ Google Places API returned: ${data.status} for place ${placeId}`);
+      res.status(400).json({ 
+        success: false,
+        error: data.status, 
+        message: data.error_message || 'Failed to fetch photos'
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Places Photos API error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error', 
+      details: error.message 
+    });
+  }
+});
+
+// Get photo URL (redirect to actual Google Places photo)
+app.get('/api/places/photo', async (req, res) => {
+  try {
+    const { photo_reference, maxwidth = 600, maxheight = 400 } = req.query;
+
+    if (!photo_reference) {
+      return res.status(400).json({ error: 'Photo reference is required' });
+    }
+
+    console.log(`📸 Serving photo: ${photo_reference} (${maxwidth}x${maxheight})`);
+
+    // Construct Google Places Photo URL
+    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
+      `maxwidth=${maxwidth}&` +
+      `maxheight=${maxheight}&` +
+      `photo_reference=${photo_reference}&` +
+      `key=${GOOGLE_PLACES_API_KEY}`;
+
+    // Redirect to the actual Google Places photo URL
+    // This allows the frontend to load the image directly while bypassing CORS
+    res.redirect(302, photoUrl);
+
+  } catch (error) {
+    console.error('❌ Places Photo URL error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message 
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
@@ -126,6 +212,8 @@ app.get('/health', (req, res) => {
     message: 'Places & News proxy server is running',
     endpoints: {
       places: '/api/places',
+      'places/photos/:placeId': '/api/places/photos/:placeId',
+      'places/photo': '/api/places/photo',
       news: '/api/news/:city',
       categories: '/api/news/:city/categories'
     }
