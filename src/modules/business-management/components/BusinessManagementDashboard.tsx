@@ -267,7 +267,7 @@ const BusinessManagementDashboard: React.FC = () => {
       
       {/* Discreet Build Number */}
       <div className="mt-4">
-                  <p className="text-xs text-gray-400 text-center">v{require('../../../package.json').version}</p>
+                                     <p className="text-xs text-gray-400 text-center">v0.31.0</p>
       </div>
     </div>
   );
