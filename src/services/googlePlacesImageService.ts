@@ -1,4 +1,7 @@
 // [2025-01-07 02:10 UTC] - COMPLETELY REMOVED ALL FAKE/MOCK IMAGES - ONLY REAL GOOGLE PLACES IMAGES
+// [2025-01-07 11:30 UTC] - Updated to use environment-aware API URLs for production compatibility
+
+import { API_BASE_URL } from '../config/api';
 
 export interface GooglePlacePhoto {
   height: number;
@@ -15,10 +18,14 @@ export interface GooglePlaceDetails {
 export class GooglePlacesImageService {
   private apiKey: string;
   private useBackendProxy: boolean;
+  private baseUrl: string;
 
   constructor(useBackendProxy = true) {
     this.apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY || '';
     this.useBackendProxy = useBackendProxy;
+    
+    // Use environment-aware base URL for production compatibility
+    this.baseUrl = API_BASE_URL || '';
 
     if (!this.apiKey && !useBackendProxy) {
       console.warn('⚠️ Google Places API key not found. Backend proxy mode enabled.');
@@ -39,8 +46,9 @@ export class GooglePlacesImageService {
       if (this.useBackendProxy) {
         console.log('🔄 Using backend proxy for place photos');
         
-        // Use Express server running on port 3004
-        const response = await fetch(`http://localhost:3004/api/places/photos/${placeId}`);
+        // Use environment-aware URL (localhost in dev, relative path in production)
+        const apiUrl = this.baseUrl ? `${this.baseUrl}/api/places/photos/${placeId}` : `/api/places/photos/${placeId}`;
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
           throw new Error(`Backend proxy error: ${response.status}`);
@@ -86,8 +94,9 @@ export class GooglePlacesImageService {
    */
   getPhotoUrl(photoReference: string, maxWidth: number, maxHeight: number): string {
     if (this.useBackendProxy) {
-      // Use Express server running on port 3004
-      return `http://localhost:3004/api/places/photo?photo_reference=${photoReference}&maxwidth=${maxWidth}&maxheight=${maxHeight}`;
+      // Use environment-aware URL (localhost in dev, relative path in production)
+      const apiUrl = this.baseUrl ? `${this.baseUrl}/api/places/photo` : `/api/places/photo`;
+      return `${apiUrl}?photo_reference=${photoReference}&maxwidth=${maxWidth}&maxheight=${maxHeight}`;
     }
     
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&maxheight=${maxHeight}&photo_reference=${photoReference}&key=${this.apiKey}`;

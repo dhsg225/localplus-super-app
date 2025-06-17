@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish } from 'lucide-react';
+import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish, Map } from 'lucide-react';
 import MenuModal from './MenuModal';
 import { restaurantService, ProductionRestaurant } from '../../../services/restaurantService';
 import { dynamicSelectorService, type LocationBasedSelectors, type DynamicSelector } from '../../../shared/constants/dynamicSelectors';
@@ -9,6 +9,7 @@ import CuisineExplorer from './CuisineExplorer';
 import AdContainer from "../../advertising/components/AdContainer";
 import { useGooglePlacesImage } from '../../../hooks/useGooglePlacesImage';
 import ImageCarousel from '../../../ui-components/common/ImageCarousel';
+import MapSearchModule from '../../../components/MapSearchModule';
 
 // [2024-12-19 11:05 UTC] - Removed mock data, now using production restaurants from database
 
@@ -139,6 +140,7 @@ const RestaurantsPage: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // [2025-01-07 02:40 UTC] - Added map/list toggle
 
   // Location detection and restaurant loading
   useEffect(() => {
@@ -316,6 +318,55 @@ const RestaurantsPage: React.FC = () => {
       </div>
 
       <div className="p-4 space-y-6">
+        {/* [2025-01-07 02:40 UTC] - View Mode Toggle */}
+        <div className="flex justify-between items-center">
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Utensils size={16} className="inline mr-2" />
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'map'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Map size={16} className="inline mr-2" />
+              Map View
+            </button>
+          </div>
+        </div>
+
+        {/* [2025-01-07 02:40 UTC] - Conditional rendering: Map or List */}
+        {viewMode === 'map' ? (
+          <div className="bg-white rounded-lg shadow-sm">
+            <MapSearchModule
+              context="consumer"
+              resultCardType="restaurant"
+              actions={['view', 'call', 'directions', 'book', 'menu']}
+              onView={(business) => navigate(`/restaurants/${business.id}`)}
+              onCall={(business) => window.open(`tel:${business.phone}`, '_self')}
+              onDirections={(business) => {
+                const address = encodeURIComponent(business.address || business.name);
+                window.open(`https://maps.google.com?daddr=${address}`, '_blank');
+              }}
+              onBook={(business) => navigate(`/restaurants/${business.id}/book`)}
+              onMenu={(business) => handleMenuClick(business.id)}
+              className="h-[600px]"
+            />
+          </div>
+        ) : (
+          <>
+            {/* Original List View Content */}
         {/* Restaurant Service Tiles */}
         <section className="grid grid-cols-3 gap-3">
           <button
@@ -661,6 +712,8 @@ const RestaurantsPage: React.FC = () => {
             size="medium"
           />
         </section>
+          </>
+        )}
       </div>
       
       {/* Menu Modal */}

@@ -436,7 +436,7 @@ const HomePage: React.FC = () => {
             onClick={() => window.location.href = '/admin'}
             className="text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
-            v0.29
+            v{require('../../package.json').version}
           </button>
         </div>
       </div>
