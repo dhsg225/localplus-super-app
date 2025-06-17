@@ -8,6 +8,7 @@ import NewsAdminSettings from './NewsAdminSettings';
 import { useAuth } from '../../auth/context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { googlePlacesService } from '../../../services/googlePlaces';
+import MapSearchModule from '../../../components/MapSearchModule';
 interface BusinessFormData {
   name: string;
   category: string;
@@ -33,7 +34,7 @@ interface DiscountFormData {
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   
-  const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics' | 'news'>('pipeline');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'pipeline' | 'discounts' | 'analytics' | 'news' | 'map-discovery'>('pipeline');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showAddBusiness, setShowAddBusiness] = useState(false);
   const [showAddDiscount, setShowAddDiscount] = useState(false);
@@ -1513,6 +1514,7 @@ const AdminDashboard: React.FC = () => {
           <nav className="-mb-px flex overflow-x-auto space-x-2 md:space-x-8 scrollbar-hide">
             {[
               { id: 'pipeline', label: 'Pipeline', icon: Building },
+              { id: 'map-discovery', label: 'Map Discovery', icon: MapPin },
               { id: 'businesses', label: 'Businesses', icon: Building },
               { id: 'discounts', label: 'Discounts', icon: Tag },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -2192,6 +2194,40 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Map Discovery Tab */}
+        {activeTab === 'map-discovery' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🗺️ Interactive Business Discovery</h3>
+              <p className="text-gray-600 mb-6">
+                Use the interactive map to visually discover and curate businesses. Click on the map to search specific areas, 
+                then approve, reject, or flag businesses for sales leads.
+              </p>
+              
+              <MapSearchModule
+                context="admin"
+                resultCardType="business"
+                actions={['approve', 'reject', 'lead', 'details']}
+                initialLocation={{ lat: 12.5684, lng: 99.9578 }} // Hua Hin center
+                onApprove={handleApproveBusiness}
+                onReject={(business) => handleRejectBusiness(business.id, 'Map Discovery')}
+                onLead={handleFlagForSales}
+                onDetails={(business) => {
+                  console.log('🔍 Business Details:', business);
+                  setMessage({ 
+                    type: 'info', 
+                    text: `📋 ${business.name} - ${business.address} | Rating: ${business.rating || 'N/A'} | Types: ${business.types?.join(', ') || 'N/A'}` 
+                  });
+                }}
+                className="h-[700px]"
+                radiusSlider={true}
+                showLocationInfo={true}
+                maxResults={20}
+              />
             </div>
           </div>
         )}
