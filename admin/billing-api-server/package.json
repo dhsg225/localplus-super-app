@@ -1,0 +1,30 @@
+{
+  "name": "billing-api-server",
+  "version": "1.0.0",
+  "description": "Real-time billing API server for Google Cloud and Azure",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "billing",
+    "api",
+    "google-cloud",
+    "azure"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/arm-costmanagement": "^1.0.0-beta.1",
+    "@azure/arm-monitor": "^7.0.0",
+    "@azure/arm-resources": "^6.1.0",
+    "@azure/identity": "^4.10.1",
+    "@google-cloud/billing": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}

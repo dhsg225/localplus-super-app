@@ -17,6 +17,7 @@
     "version:major": "npm version major --no-git-tag-version",
     "news-server": "node server/places-proxy.js",
     "dev:full": "concurrently \"npm run news-server\" \"npm run dev\"",
+    "dev:admin": "cd admin && npm run dev",
     "deploy": "npm run version:patch && npm run build && git add package.json && git commit -m \"Version bump to $(node -p 'require(\"./package.json\").version')\" && git push && npx vercel --prod"
   },
   "dependencies": {
