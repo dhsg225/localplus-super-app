@@ -1,3 +1,18 @@
+# LocalPlus Admin Dashboard
+
+Admin dashboard for managing LocalPlus business approvals and photo enrichment.
+
+## Features
+- Business approval workflow
+- Photo gallery management
+- Google Places integration
+- Supabase database management
+
+## Deployment
+Deployed on Vercel at: [URL will be provided after deployment]
+
+Last updated: January 22, 2025
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
