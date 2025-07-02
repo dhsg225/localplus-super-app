@@ -48,6 +48,8 @@ interface DiscoveryLead {
   // Reviews
   reviewCount?: number;
   reviewSummary?: string;
+  photo_gallery?: any; // Added photo_gallery field
+  partnership_status?: 'pending' | 'active' | 'suspended';
 }
 
 function App() {
@@ -85,6 +87,86 @@ function App() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const costPerCall = 0.017; // $0.017 per Google Places API call
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  const [selectedBusinessForGallery, setSelectedBusinessForGallery] = useState<DiscoveryLead | null>(null);
+
+  // [2025-01-22 17:00] - Add approval management functions
+  const handleApproveBusiness = async (lead: DiscoveryLead) => {
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({ partnership_status: 'active' })
+        .eq('id', lead.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setDiscoveryLeads(leads => 
+        leads.map(l => l.id === lead.id ? { ...l, status: 'approved', partnership_status: 'active' } : l)
+      );
+
+      alert(`✅ "${lead.name}" has been approved and will now appear in the main app.`);
+    } catch (error: any) {
+      console.error('Approval error:', error);
+      alert(`Failed to approve business: ${error.message}`);
+    }
+  };
+
+  const handleRejectBusiness = async (lead: DiscoveryLead) => {
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({ partnership_status: 'suspended' })
+        .eq('id', lead.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setDiscoveryLeads(leads => 
+        leads.map(l => l.id === lead.id ? { ...l, status: 'rejected', partnership_status: 'suspended' } : l)
+      );
+
+      alert(`❌ "${lead.name}" has been rejected and will not appear in the main app.`);
+    } catch (error: any) {
+      console.error('Rejection error:', error);
+      alert(`Failed to reject business: ${error.message}`);
+    }
+  };
+
+  // [2025-01-22 17:00] - Add photo removal function
+  const handleRemovePhoto = async (photoUrl: string) => {
+    if (!selectedBusinessForGallery) return;
+
+    try {
+      const updatedPhotos = selectedBusinessForGallery.photo_gallery?.filter(
+        (photo: any) => photo.url !== photoUrl
+      ) || [];
+
+      const { error } = await supabase
+        .from('businesses')
+        .update({ photo_gallery: updatedPhotos })
+        .eq('id', selectedBusinessForGallery.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setSelectedBusinessForGallery(prev => prev ? {
+        ...prev,
+        photo_gallery: updatedPhotos
+      } : null);
+
+      setDiscoveryLeads(leads => 
+        leads.map(l => l.id === selectedBusinessForGallery.id ? 
+          { ...l, photo_gallery: updatedPhotos } : l
+        )
+      );
+
+      console.log(`📸 Photo removed from ${selectedBusinessForGallery.name}`);
+    } catch (error: any) {
+      console.error('Photo removal error:', error);
+      alert(`Failed to remove photo: ${error.message}`);
+    }
+  };
 
   // [2024-12-15 23:40] - Initialize authentication and real-time services
   useEffect(() => {
@@ -173,47 +255,32 @@ function App() {
         }
       }
 
-      const { data: restaurants, error: restaurantError } = await supabase
-        .from('restaurants')
-        .select('*')
-        .limit(50);
-
       const { data: businesses, error: businessError } = await supabase
         .from('businesses')
         .select('*')
-        .limit(50);
+        .limit(200);
 
-      if (restaurantError && businessError) {
-        throw new Error(`Database query failed: ${restaurantError.message} | ${businessError.message}`);
+      if (businessError) {
+        throw new Error(`Database query failed: ${businessError.message}`);
       }
 
       setDbConnected(true);
       console.log('✅ REAL database connection successful!');
-      console.log(`📊 Found ${restaurants?.length || 0} restaurants, ${businesses?.length || 0} businesses`);
+      console.log(`📊 Found ${businesses?.length || 0} businesses`);
       
-      // Combine real data from both tables
-      const allBusinesses = [
-        ...(restaurants || []).map(r => ({
-          id: r.id,
-          name: r.name || r.restaurant_name,
-          category: r.cuisine_type || 'Restaurant',
-          address: r.address || r.location,
-          rating: r.rating || r.google_rating || (3.5 + Math.random() * 1.5),
-          approved: r.status === 'active' || r.approved || Math.random() > 0.3,
-          latitude: r.latitude || r.lat,
-          longitude: r.longitude || r.lng
-        })),
-        ...(businesses || []).map(b => ({
-          id: b.id,
-          name: b.name || b.business_name,
-          category: b.category || b.business_type || 'Business',
-          address: b.address || b.location,
-          rating: b.rating || b.google_rating || (3.5 + Math.random() * 1.5),
-          approved: b.status === 'active' || b.approved || Math.random() > 0.3,
-          latitude: b.latitude || b.lat,
-          longitude: b.longitude || b.lng
-        }))
-      ];
+      const allBusinesses = (businesses || []).map(b => ({
+        id: b.id,
+        name: b.name || b.business_name,
+        category: b.category || b.business_type || 'Business',
+        address: b.address || b.location,
+        rating: b.rating || b.google_rating || (3.5 + Math.random() * 1.5),
+        approved: b.partnership_status === 'active',
+        partnership_status: b.partnership_status,
+        googlePlaceId: b.google_place_id,
+        latitude: b.latitude || b.lat,
+        longitude: b.longitude || b.lng,
+        photo_gallery: b.photo_gallery
+      }));
 
       // Only proceed with REAL data - never use demo data
       if (allBusinesses.length === 0) {
@@ -235,6 +302,25 @@ function App() {
 
       // Transform data for discovery leads
       const leads: DiscoveryLead[] = allBusinesses.slice(0, 20).map((business, index) => {
+        // [2025-01-22 17:00] - Fix photo URL handling for both old and new formats
+        let photoUrl = undefined;
+        let photoReference = undefined;
+        
+        if (business.photo_gallery && Array.isArray(business.photo_gallery) && business.photo_gallery.length > 0) {
+          const firstPhoto = business.photo_gallery[0];
+          if (typeof firstPhoto === 'string') {
+            // New format: direct URL strings
+            photoUrl = firstPhoto;
+          } else if (firstPhoto.url) {
+            // New format: objects with url property
+            photoUrl = firstPhoto.url;
+          } else if (firstPhoto.photo_reference) {
+            // Old format: photo_reference that needs proxy
+            photoReference = firstPhoto.photo_reference;
+            photoUrl = `http://localhost:3004/api/places/photo?photo_reference=${photoReference}`;
+          }
+        }
+        
         const baseData = {
           id: String(business.id || `lead-${index}`),
           name: business.name || `Business ${index + 1}`,
@@ -242,7 +328,14 @@ function App() {
           address: business.address || 'Address not available',
           rating: Number(business.rating) || (3.5 + Math.random() * 1.5),
           status: business.approved ? 'approved' : 'pending',
-          selected: false
+          selected: false,
+          photo_gallery: business.photo_gallery,
+          photoUrl: photoUrl,
+          photoReference: photoReference,
+          partnership_status: business.partnership_status || (business.approved ? 'active' : 'pending'),
+          googlePlaceId: business.googlePlaceId || '',
+          latitude: business.latitude,
+          longitude: business.longitude
         };
         
         // [2025-01-21 06:05] - Merge with enriched data from localStorage
@@ -318,175 +411,119 @@ function App() {
   };
 
   const handleEnrichWithGooglePlaces = async () => {
-    if (selectedCount === 0) {
-      alert('Please select at least one business to enrich with Google Places data.');
+    const selectedLeads = discoveryLeads.filter(lead => lead.selected);
+    if (selectedLeads.length === 0) {
+      alert('Please select at least one business to enrich.');
       return;
     }
-    
-    const estimatedCost = selectedCount * costPerCall;
-    const confirmed = confirm(
-      `This will enrich ${selectedCount} businesses with Google Places data.\n\n` +
-      `Estimated cost: $${estimatedCost.toFixed(3)} USD\n` +
-      `(${selectedCount} calls × $${costPerCall} per call)\n\n` +
-      `Proceed with enrichment?`
-    );
-    
-    if (confirmed) {
+  
+    console.log(`Enriching ${selectedLeads.length} selected businesses...`);
+    setLoading(true);
+  
+    const updatedLeads = [...discoveryLeads];
+  
+    for (const lead of selectedLeads) {
+      const leadIndex = updatedLeads.findIndex(l => l.id === lead.id);
+      if (leadIndex === -1) continue;
+  
       try {
-        // [2025-01-21 00:47] - REAL Google Places API enrichment
-        const selectedBusinesses = discoveryLeads.filter(lead => lead.selected);
-        
-                // REAL Google Places API enrichment with proper error handling
-        const enrichmentPromises = selectedBusinesses.map(async (business) => {
-          try {
-            // Use backend server to proxy Google Places API calls
-            const response = await fetch(`http://localhost:3007/api/places/search`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                query: business.name + ' ' + business.address,
-                fields: 'place_id,name,rating,formatted_address,geometry'
-              })
-            });
-            const result = await response.json();
-            
-            // Check if API call was successful and returned data (Place Details API format)
-            if (result.success && result.data && result.data.status === 'OK' && result.data.result) {
-              const place = result.data.result;
-              
-              // Extract photo URL and upload to Supabase Storage if available
-              let photoUrl = undefined;
-              let photoReference = undefined;
-              let photoAttribution = undefined;
-              if (place.photos && place.photos.length > 0) {
-                const photo = place.photos[0];
-                photoReference = photo.photo_reference;
-                photoAttribution = photo.html_attributions?.[0];
-                
-                // Use backend proxy to serve Google Photos (avoids CORS issues)
-                photoUrl = `http://localhost:3007/api/places/photo?photo_reference=${photo.photo_reference}&maxwidth=400&maxheight=400`;
-                console.log(`📸 Generated proxy photo URL for ${business.name}: ${photoUrl}`);
-              }
-              
-              // Extract business type from types array
-              const businessType = place.types?.find((type: string) => 
-                !['establishment', 'point_of_interest'].includes(type)
-              ) || place.types?.[0] || business.category;
-              
-              // Extract opening hours
-              const openingHours = place.opening_hours?.weekday_text || [];
-              const isOpenNow = place.opening_hours?.open_now;
-              
-              // Extract review summary from recent reviews
-              const reviewSummary = place.reviews?.slice(0, 2)
-                .map((review: any) => `"${review.text.substring(0, 100)}..." - ${review.author_name}`)
-                .join(' | ') || undefined;
-              
-              return {
-                ...business,
-                googlePlaceId: place.place_id,
-                enhancedRating: place.rating || business.rating,
-                verifiedAddress: place.formatted_address || business.address,
-                latitude: place.geometry?.location?.lat,
-                longitude: place.geometry?.location?.lng,
-                // Photo fields
-                photoUrl,
-                photoReference,
-                photoAttribution,
-                // Business details
-                phoneNumber: place.formatted_phone_number,
-                website: place.website,
-                businessType: businessType,
-                priceLevel: place.price_level,
-                // Operating hours
-                openingHours,
-                isOpenNow,
-                // Reviews
-                reviewCount: place.user_ratings_total,
-                reviewSummary,
-                enriched: true,
-                enrichmentDate: new Date()
-              };
-            }
-            
-            // API call failed - don't create mock data, return as failed
-            console.error(`Google Places API failed for ${business.name}:`, result.data?.error?.message || result.data?.status || 'Unknown error');
-            return { ...business, enriched: false };
-          } catch (error) {
-            console.error(`Failed to enrich ${business.name}:`, error);
-            // Return as failed - no mock data
-            return { ...business, enriched: false };
+        let placeId = lead.googlePlaceId;
+  
+        // Step 1: Find Place ID if missing
+        if (!placeId) {
+          console.log(`🔍 No Place ID for ${lead.name}. Searching...`);
+          const searchResponse = await fetch(`http://localhost:3004/api/places/search?query=${encodeURIComponent(lead.name + ' ' + lead.address)}`);
+          const searchData = await searchResponse.json();
+          if (searchData.candidates && searchData.candidates.length > 0) {
+            placeId = searchData.candidates[0].place_id;
+            console.log(`   ✅ Found Place ID: ${placeId}`);
+            await supabase.from('businesses').update({ google_place_id: placeId }).eq('id', lead.id);
+          } else {
+            console.warn(`   ❌ Could not find a Google Place ID for ${lead.name}.`);
+            continue;
           }
-        });
-        
-        const enrichedBusinesses = await Promise.all(enrichmentPromises);
-        const successCount = enrichedBusinesses.filter(b => b.enriched === true).length;
-        const failedCount = enrichedBusinesses.filter(b => b.enriched === false).length;
-        const actualCost = successCount * costPerCall;
-        
-        // Update the businesses with enriched data
-        setDiscoveryLeads(leads => {
-          const updatedLeads = leads.map(lead => {
-            const enriched = enrichedBusinesses.find(eb => eb.id === lead.id);
-            return enriched ? { ...enriched, selected: false } : lead;
-          });
-          
-          // [2025-01-21 06:05] - Save enriched data to localStorage for persistence
-          localStorage.setItem('enrichedBusinessData', JSON.stringify(updatedLeads));
-          
-          return updatedLeads;
-        });
-        
-        // Show detailed REAL results with comprehensive data
-        const successResults = enrichedBusinesses
-          .filter(b => b.enriched === true)
-          .map(b => {
-            const details = [];
-            if (b.enhancedRating) details.push(`Rating: ${b.enhancedRating}/5`);
-            if (b.phoneNumber) details.push(`Phone: ${b.phoneNumber}`);
-            if (b.website) details.push(`Website: ✓`);
-            if (b.photoUrl) details.push(`Photo: ✓`);
-            if (b.businessType) details.push(`Type: ${b.businessType}`);
-            if (b.isOpenNow !== undefined) details.push(`Open: ${b.isOpenNow ? 'Yes' : 'No'}`);
-            if (b.reviewCount) details.push(`Reviews: ${b.reviewCount}`);
-            return `• ${b.name}: ${details.join(', ')}`;
-          })
-          .join('\n');
-          
-        const failedResults = enrichedBusinesses
-          .filter(b => b.enriched === false)
-          .map(b => `• ${b.name}: API call failed`)
-          .join('\n');
-        
-        const resultMessage = `Google Places API Enrichment Results:\n\n✅ Successfully enriched: ${successCount}\n❌ Failed to enrich: ${failedCount}\nTotal attempted: ${selectedCount}\n\nActual cost: $${actualCost.toFixed(3)}\n\n${successResults ? `Successful enrichments:\n${successResults}\n\n` : ''}${failedResults ? `Failed enrichments:\n${failedResults}\n\n` : ''}${successCount > 0 ? 'Would you like to remove the successfully enriched businesses from the discovery list?' : ''}`;
-        
-        const shouldRemove = successCount > 0 ? confirm(resultMessage) : (alert(resultMessage), false);
-        
-        if (shouldRemove) {
-          // Remove enriched businesses from discovery list
-          setDiscoveryLeads(leads => {
-            const filteredLeads = leads.filter(lead => !enrichedBusinesses.find(eb => eb.id === lead.id && eb.enriched));
-            
-            // [2025-01-21 06:05] - Update localStorage when businesses are removed
-            localStorage.setItem('enrichedBusinessData', JSON.stringify(filteredLeads));
-            
-            return filteredLeads;
-          });
         }
         
-        // Update stats with real cost
-        setStats(prev => ({
-          ...prev,
-          monthlyCost: prev.monthlyCost + actualCost
-        }));
+        // Step 2: Fetch photo references
+        console.log(`📸 Fetching photo references for ${lead.name} (Place ID: ${placeId})`);
+        const photosResponse = await fetch(`http://localhost:3004/api/places/photos/${placeId}`);
+        const photosData = await photosResponse.json();
+        
+        if (!photosData.success || photosData.photos.length === 0) {
+          console.log(`   ℹ️ No photos found for ${lead.name}.`);
+          continue;
+        }
+
+        console.log(`   Found ${photosData.photos.length} photo references. Starting download and upload process...`);
+
+        // Step 3: Download, upload to Supabase, and get public URLs
+        // NOTE: This assumes you have a Supabase Storage bucket named 'business-photos'.
+        // Please create it if it doesn't exist.
+        const supabasePhotoUrls = [];
+        for (const photo of photosData.photos) {
+          try {
+            const downloadUrl = `http://localhost:3004/api/places/photo/download?photo_reference=${photo.photo_reference}`;
+            const imageResponse = await fetch(downloadUrl);
+            if (!imageResponse.ok) continue;
+
+            const imageBlob = await imageResponse.blob();
+            
+            // [2025-01-22 16:00] - Sanitize filename to prevent upload errors
+            const safePhotoReference = photo.photo_reference.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 40);
+            const fileName = `${lead.id}_${safePhotoReference}.jpg`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('business-photos')
+              .upload(fileName, imageBlob, {
+                cacheControl: '3600',
+                upsert: true, // Overwrite if exists
+              });
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = supabase.storage
+              .from('business-photos')
+              .getPublicUrl(uploadData.path);
+              
+            supabasePhotoUrls.push(publicUrlData.publicUrl);
+            console.log(`     ✅ Uploaded ${fileName} to Supabase.`);
+          } catch (uploadError: any) {
+            console.error(`     ❌ Failed to upload photo ${photo.photo_reference.substring(0, 40)}...:`, uploadError.message || uploadError);
+          }
+        }
+
+        if (supabasePhotoUrls.length === 0) {
+          console.warn(`   All photo uploads failed for ${lead.name}.`);
+          continue;
+        }
+
+        // Step 4: Update the business record with the new Supabase URLs
+        const { error: updateError } = await supabase
+          .from('businesses')
+          .update({ photo_gallery: supabasePhotoUrls })
+          .eq('id', lead.id);
+          
+        if (updateError) throw updateError;
+        
+        // Step 5: Update the UI state
+        updatedLeads[leadIndex] = {
+          ...updatedLeads[leadIndex],
+          enriched: true,
+          photoUrl: supabasePhotoUrls[0],
+          photoReference: undefined, // No longer needed
+          googlePlaceId: placeId,
+          photo_gallery: supabasePhotoUrls,
+        };
+        console.log(`   ✅ Successfully enriched ${lead.name} with ${supabasePhotoUrls.length} photos.`);
 
       } catch (error) {
-        console.error('Enrichment failed:', error);
-        alert('❌ Enrichment failed. Please check your internet connection and try again.');
+        console.error(`Failed to enrich ${lead.name}:`, error);
       }
     }
+    
+    setDiscoveryLeads(updatedLeads);
+    setLoading(false);
+    console.log('Enrichment process completed.');
   };
 
   // [2024-12-15 23:10] - Advanced Admin Features
@@ -617,7 +654,7 @@ function App() {
     console.log('🔍 DEBUG: Starting Let\'s Sea enrichment test...');
     
     try {
-      const response = await fetch(`http://localhost:3007/api/places/search`, {
+      const response = await fetch(`http://localhost:3004/api/places/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -727,22 +764,9 @@ function App() {
   };
 
   const handleViewPhotoGallery = (lead: DiscoveryLead) => {
-    if (lead.photoUrl) {
-      let urlToOpen = lead.photoUrl;
-      
-      // If it's a Google API URL and we have photoReference, use our proxy instead
-      if (lead.photoUrl.includes('googleapis.com') && lead.photoReference) {
-        urlToOpen = `http://localhost:3007/api/places/photo?photo_reference=${lead.photoReference}&maxwidth=800&maxheight=600`;
-        console.log('📸 Using backend proxy for Google API photo:', urlToOpen);
-      } else if (lead.photoUrl.includes('localhost:3007') || lead.photoUrl.includes('supabase')) {
-        // Backend proxy or Supabase Storage URL - use as is
-        console.log('📸 Opening backend proxy/Supabase photo URL:', urlToOpen);
-      } else {
-        // Other URL - use as is
-        console.log('📸 Opening photo URL:', urlToOpen);
-      }
-      
-      window.open(urlToOpen, '_blank');
+    if (lead.photo_gallery && lead.photo_gallery.length > 0) {
+      setSelectedBusinessForGallery(lead);
+      setGalleryModalOpen(true);
     } else {
       alert(`📸 No Photos Available\n\n"${lead.name}" doesn't have any photos stored.\n\nUse the enrichment feature to add photos from Google Places.`);
     }
@@ -757,7 +781,7 @@ function App() {
         photoUrl: lead.photoUrl!,
         photoReference: lead.photoReference,
         urlType: lead.photoUrl!.includes('googleapis.com') ? 'Google API' : 
-                 lead.photoUrl!.includes('localhost:3007') ? 'Backend Proxy' :
+                 lead.photoUrl!.includes('localhost:3004') ? 'Backend Proxy' :
                  lead.photoUrl!.includes('supabase') ? 'Supabase Storage' : 'Other'
       }));
     
@@ -768,6 +792,52 @@ function App() {
 
   return (
     <div>
+      {/* Gallery Modal */}
+      {galleryModalOpen && selectedBusinessForGallery && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-800">Photo Gallery: {selectedBusinessForGallery.name}</h2>
+              <button
+                onClick={() => setGalleryModalOpen(false)}
+                className="text-gray-500 hover:text-gray-800"
+              >
+                <XCircle size={28} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
+              {selectedBusinessForGallery.photo_gallery.map((photo: any, index: number) => {
+                // Handle both string URLs and object formats
+                const photoUrl = typeof photo === 'string' ? photo : (photo.url || photo.photo_reference);
+                const displayUrl = photo.photo_reference && !photo.url ? 
+                  `http://localhost:3004/api/places/photo?photo_reference=${photo.photo_reference}` : 
+                  photoUrl;
+                
+                return (
+                  <div key={index} className="relative aspect-w-1 aspect-h-1">
+                    <img
+                      src={displayUrl}
+                      alt={`${selectedBusinessForGallery.name} photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+                    />
+                    <button
+                      onClick={() => handleRemovePhoto(displayUrl)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                      title="Remove photo"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-center mt-6 text-sm text-gray-500">
+              Displaying {selectedBusinessForGallery.photo_gallery.length} photos.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ADMIN HEADER WITH USER INFO */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -1335,13 +1405,6 @@ function App() {
                           <div>
                             <div className="text-sm font-medium text-gray-900">{lead.name}</div>
                             <div className="text-sm text-gray-500">{lead.address}</div>
-                            {lead.enriched && (
-                              <div className="text-xs text-green-600 mt-1 flex items-center">
-                                ✅ Enriched
-                                {lead.phoneNumber && <span className="ml-2">📞 {lead.phoneNumber}</span>}
-                                {lead.website && <span className="ml-2">🌐 Website</span>}
-                              </div>
-                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">{lead.category}</td>
@@ -1361,24 +1424,16 @@ function App() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm space-x-2">
-                          {lead.status === 'pending' ? (
+                          {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (
                             <>
                               <button
-                                onClick={() => {
-                                  setDiscoveryLeads(leads => 
-                                    leads.map(l => l.id === lead.id ? { ...l, status: 'approved' } : l)
-                                  );
-                                }}
+                                onClick={() => handleApproveBusiness(lead)}
                                 className="text-green-600 hover:text-green-900 font-medium"
                               >
                                 ✅ Approve
                               </button>
                               <button
-                                onClick={() => {
-                                  setDiscoveryLeads(leads => 
-                                    leads.map(l => l.id === lead.id ? { ...l, status: 'pending' } : l)
-                                  );
-                                }}
+                                onClick={() => handleRejectBusiness(lead)}
                                 className="text-red-600 hover:text-red-900 font-medium"
                               >
                                 ❌ Reject
@@ -1388,7 +1443,7 @@ function App() {
                             <button
                               onClick={() => {
                                 setDiscoveryLeads(leads => 
-                                  leads.map(l => l.id === lead.id ? { ...l, status: 'pending' } : l)
+                                  leads.map(l => l.id === lead.id ? { ...l, status: 'pending', partnership_status: 'pending' } : l)
                                 );
                               }}
                               className="text-blue-600 hover:text-blue-900 font-medium"
@@ -1766,7 +1821,7 @@ function App() {
                               <div className="flex items-center space-x-2">
                                 <img 
                                   src={lead.photoUrl.includes('googleapis.com') && lead.photoReference ? 
-                                    `http://localhost:3007/api/places/photo?photo_reference=${lead.photoReference}&maxwidth=400&maxheight=400` : 
+                                    `http://localhost:3004/api/places/photo?photo_reference=${lead.photoReference}&maxwidth=400&maxheight=400` : 
                                     lead.photoUrl
                                   } 
                                   alt={lead.name}
@@ -1889,16 +1944,46 @@ function App() {
 
                           {/* Actions */}
                           <td className="px-4 py-4">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex flex-wrap items-center gap-1">
+                              {/* Approval Actions */}
+                                                             {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (
+                                <>
+                                  <button 
+                                    onClick={() => handleApproveBusiness(lead)}
+                                    className="text-green-600 hover:text-green-900 text-xs font-medium px-2 py-1 bg-green-50 rounded hover:bg-green-100 transition-colors"
+                                  >
+                                    ✅ Approve
+                                  </button>
+                                  <button 
+                                    onClick={() => handleRejectBusiness(lead)}
+                                    className="text-red-600 hover:text-red-900 text-xs font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                                  >
+                                    ❌ Reject
+                                  </button>
+                                </>
+                              ) : (
+                                <button 
+                                  onClick={() => {
+                                                                         setDiscoveryLeads(leads => 
+                                       leads.map(l => l.id === lead.id ? { ...l, status: 'pending', partnership_status: 'pending' } : l)
+                                     );
+                                  }}
+                                  className="text-blue-600 hover:text-blue-900 text-xs font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                                >
+                                  🔄 Reset
+                                </button>
+                              )}
+                              
+                              {/* Other Actions */}
                               <button 
                                 onClick={() => handleEditBusiness(lead)}
-                                className="text-blue-600 hover:text-blue-900 text-xs font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                                className="text-purple-600 hover:text-purple-900 text-xs font-medium px-2 py-1 bg-purple-50 rounded hover:bg-purple-100 transition-colors"
                               >
                                 ✏️ Edit
                               </button>
                               <button 
                                 onClick={() => handleViewBusinessDetails(lead)}
-                                className="text-green-600 hover:text-green-900 text-xs font-medium px-2 py-1 bg-green-50 rounded hover:bg-green-100 transition-colors"
+                                className="text-indigo-600 hover:text-indigo-900 text-xs font-medium px-2 py-1 bg-indigo-50 rounded hover:bg-indigo-100 transition-colors"
                               >
                                 📋 View
                               </button>
