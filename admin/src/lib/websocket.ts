@@ -61,10 +61,6 @@ class RealTimeService {
               console.log('📡 Business table update:', payload);
               this.handleBusinessUpdate(payload);
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, (payload) => {
-              console.log('📡 Restaurant table update:', payload);
-              this.handleRestaurantUpdate(payload);
-            })
             .subscribe((status) => {
               if (status === 'SUBSCRIBED') {
                 resolve();
@@ -159,15 +155,6 @@ class RealTimeService {
     this.refreshStats();
   }
 
-  private handleRestaurantUpdate(payload: any): void {
-    const { eventType, new: newRecord } = payload;
-    
-    if (eventType === 'INSERT') {
-      this.emitUpdate({ type: 'business_added', data: newRecord, timestamp: new Date() });
-      this.refreshStats();
-    }
-  }
-
   private startStatsMonitoring(): void {
     this.refreshStats();
     setInterval(() => { this.refreshStats(); }, 30000);
@@ -175,12 +162,14 @@ class RealTimeService {
 
   private async refreshStats(): Promise<void> {
     try {
-      const [businessesResult, restaurantsResult] = await Promise.all([
-        supabase.from('businesses').select('*'),
-        supabase.from('restaurants').select('*')
-      ]);
+      const { data: businesses, error } = await supabase.from('businesses').select('*');
 
-      const allBusinesses = [...(businessesResult.data || []), ...(restaurantsResult.data || [])];
+      if (error) {
+        console.error('❌ Failed to fetch stats from businesses table:', error);
+        return;
+      }
+
+      const allBusinesses = businesses || [];
       const pending = allBusinesses.filter(b => !b.approved).length;
       const approved = allBusinesses.filter(b => b.approved).length;
       const totalLeads = allBusinesses.length;

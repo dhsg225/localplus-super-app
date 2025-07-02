@@ -1,9 +1,15 @@
 // Simple Express server to proxy Google Places API calls
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
 
-const GOOGLE_PLACES_API_KEY = 'AIzaSyCEMtUfl8yJzVZIcTaaEajKRtqEJZZ_G2Y';
+const GOOGLE_PLACES_API_KEY = process.env.VITE_GOOGLE_PLACES_API_KEY;
+
+if (!GOOGLE_PLACES_API_KEY) {
+  console.error("FATAL ERROR: VITE_GOOGLE_PLACES_API_KEY is not defined in your .env file.");
+  process.exit(1);
+}
 
 // WordPress site mappings
 const WORDPRESS_SITES = {
@@ -15,6 +21,37 @@ const WORDPRESS_SITES = {
 
 // Enable CORS for all routes
 app.use(cors());
+
+// New endpoint for Google Places Text Search (Find Place)
+app.get('/api/places/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    console.log(`🔍 Google Places search for query: "${query}"`);
+    const fetch = (await import('node-fetch')).default;
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
+      query
+    )}&inputtype=textquery&fields=place_id,name,formatted_address&key=${GOOGLE_PLACES_API_KEY}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.error('Google Places API Error:', data);
+      throw new Error(data.error_message || data.status);
+    }
+    
+    console.log(`✅ Search successful, found ${data.candidates?.length || 0} candidates.`);
+    res.json(data);
+
+  } catch (error) {
+    console.error('❌ Places Search API error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
 
 // Hua Hin Google Places proxy endpoint
 app.get('/api/places', async (req, res) => {
@@ -202,6 +239,35 @@ app.get('/api/places/photo', async (req, res) => {
       error: 'Internal server error', 
       details: error.message 
     });
+  }
+});
+
+// [2025-01-22 14:00] - New endpoint to download the photo data directly
+app.get('/api/places/photo/download', async (req, res) => {
+  try {
+    const { photo_reference } = req.query;
+    if (!photo_reference) {
+      return res.status(400).json({ error: 'Photo reference is required' });
+    }
+
+    const fetch = (await import('node-fetch')).default;
+    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1024&photo_reference=${photo_reference}&key=${GOOGLE_PLACES_API_KEY}`;
+    
+    console.log(`🔽 Downloading photo: ${photo_reference}`);
+
+    const response = await fetch(photoUrl);
+    if (!response.ok) {
+      throw new Error(`Google API responded with status ${response.status}`);
+    }
+
+    const imageBuffer = await response.buffer();
+
+    res.set('Content-Type', response.headers.get('content-type'));
+    res.send(imageBuffer);
+
+  } catch (error) {
+    console.error('❌ Photo Download error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 

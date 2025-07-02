@@ -7,66 +7,20 @@ import { dynamicSelectorService, type LocationBasedSelectors, type DynamicSelect
 import TodaysDeals from './TodaysDeals';
 import CuisineExplorer from './CuisineExplorer';
 import AdContainer from "../../advertising/components/AdContainer";
-import { useGooglePlacesImage } from '../../../hooks/useGooglePlacesImage';
 import ImageCarousel from '../../../ui-components/common/ImageCarousel';
 import MapSearchModule from '../../../components/MapSearchModule';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3004';
 
 // [2024-12-19 11:05 UTC] - Removed mock data, now using production restaurants from database
 
 // [2025-01-07 02:10 UTC] - COMPLETELY REMOVED ALL FAKE/MOCK IMAGES - ONLY REAL GOOGLE PLACES IMAGES
+// [2024-05-22] REFACTORED to use photo_gallery from the database, removing live API calls.
 const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ restaurant }) => {
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const loadImages = async () => {
-      if (!restaurant.heroImage || !restaurant.heroImage.startsWith('google-places:')) {
-        console.log('📸 No Google Places image available for:', restaurant.name);
-        setImages([]);
-        return;
-      }
-
-      setIsLoading(true);
-      
-      try {
-        const placeId = restaurant.heroImage.replace('google-places:', '');
-        console.log('📸 Loading Google Places gallery for:', restaurant.name, placeId);
-        
-        // Import the service dynamically
-        const { googlePlacesImageService } = await import('../../../services/googlePlacesImageService');
-        
-        // Get up to 5 images for the gallery
-        const gallery = await googlePlacesImageService.getRestaurantGallery(placeId, 5);
-        
-        if (gallery.length > 0) {
-          console.log('📸 Loaded', gallery.length, 'Google Places images for', restaurant.name);
-          setImages(gallery);
-        } else {
-          console.log('📸 No Google Places images available for', restaurant.name);
-          setImages([]);
-        }
-      } catch (error) {
-        console.error('📸 Error loading Google Places images:', error);
-        console.log('📸 No images available for', restaurant.name);
-        setImages([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadImages();
-  }, [restaurant.heroImage, restaurant.name]);
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="relative w-full h-64 bg-gray-200 rounded-t-lg flex items-center justify-center">
-        <div className="text-gray-500">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-        </div>
-      </div>
-    );
-  }
+  // Construct image URLs from the photo_gallery data
+  const images = (restaurant.photo_gallery || []).map(photo => 
+    `${API_BASE_URL}/api/places/photo?photo_reference=${photo.photo_reference}&maxwidth=800`
+  );
 
   // Show image gallery if available
   if (images.length > 0) {

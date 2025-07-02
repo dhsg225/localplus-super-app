@@ -12,6 +12,7 @@ export interface ProductionRestaurant {
   email: string;
   description: string;
   status: 'active' | 'inactive';
+  photo_gallery?: any[]; // For storing Google Places photo data
   
   // Enhanced fields for Google Places integration
   google_place_id?: string;
@@ -167,6 +168,9 @@ export class RestaurantService {
       discovery_source: dbBusiness.discovery_source || (dbBusiness.source || 'manual'),
       curation_status: dbBusiness.curation_status || 'approved',
       
+      // Pass through the photo gallery data
+      photo_gallery: dbBusiness.photo_gallery,
+
       // Enhanced data based on business type and curation
       cuisine: this.determineCuisine(dbBusiness),
       priceRange: this.determinePriceRange(dbBusiness),
