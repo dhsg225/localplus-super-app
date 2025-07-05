@@ -16,6 +16,12 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   showDots = true,
   showArrows = true
 }) => {
+  // [2025-01-05 10:05] - Debug logging for broken images
+  console.log(`🖼️ ImageCarousel Debug for ${alt}:`);
+  console.log(`🖼️ Received images:`, images);
+  console.log(`🖼️ Images array length:`, images.length);
+  console.log(`🖼️ First image:`, images[0]);
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const touchStartX = useRef<number | null>(null);

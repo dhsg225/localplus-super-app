@@ -24,6 +24,17 @@ const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ resta
     typeof photo === 'string' && photo.length > 0
   );
 
+  // [2025-01-05 10:05] - Debug logging for broken images
+  console.log(`🖼️ RestaurantImage Debug for ${restaurant.name}:`);
+  console.log(`🖼️ Raw photo_gallery:`, restaurant.photo_gallery);
+  console.log(`🖼️ Filtered images:`, images);
+  console.log(`🖼️ Images count:`, images.length);
+  
+  if (images.length > 0) {
+    console.log(`🖼️ First image URL:`, images[0]);
+    console.log(`🖼️ Passing to ImageCarousel:`, images);
+  }
+
   // Show image gallery if available
   if (images.length > 0) {
     return (
@@ -31,7 +42,7 @@ const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ resta
         <ImageCarousel 
           images={images} 
           alt={restaurant.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full"
         />
         
         {/* Photo count badge */}
@@ -138,16 +149,9 @@ const RestaurantsPage: React.FC = () => {
         
         console.log('🏪 Loaded restaurants:', restaurants.length, 'restaurants');
         console.log('🎯 Loaded dynamic selectors:', selectors);
-        console.log('🚨 RESTAURANTS ARRAY:', restaurants);
-        console.log('🚨 FIRST RESTAURANT:', restaurants[0]);
         
-        // [2025-01-03 17:30] - Force visible debug with alert
-        window.alert(`FOUND ${restaurants.length} RESTAURANTS! First: ${restaurants[0]?.name} with ${restaurants[0]?.photo_gallery?.length || 0} photos`);
-        
-        console.log('🚨 BEFORE setting state');
         setProductionRestaurants(restaurants);
         setDynamicSelectors(selectors);
-        console.log('🚨 AFTER setting state');
       } catch (error) {
         console.error('🏪 Failed to load restaurants:', error);
         console.log('🚨 ERROR in loadRestaurants:', error);
@@ -540,6 +544,13 @@ const RestaurantsPage: React.FC = () => {
               {filteredRestaurants.map((restaurant) => (
                 <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
                   {/* Hero Image */}
+                  {(() => {
+                    // [2025-01-05 10:10] - Debug: Check if component is called
+                    console.log(`🔥 RESTAURANT CARD RENDERING: ${restaurant.name}`);
+                    console.log(`🔥 Has photo_gallery:`, !!restaurant.photo_gallery);
+                    console.log(`🔥 Photo_gallery:`, restaurant.photo_gallery);
+                    return null;
+                  })()}
                   <RestaurantImage restaurant={restaurant} />
 
                   {/* Content */}
