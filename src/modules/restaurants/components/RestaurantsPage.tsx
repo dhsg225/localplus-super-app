@@ -17,9 +17,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3004
 // [2025-01-07 02:10 UTC] - COMPLETELY REMOVED ALL FAKE/MOCK IMAGES - ONLY REAL GOOGLE PLACES IMAGES
 // [2024-05-22] REFACTORED to use photo_gallery from the database, removing live API calls.
 const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ restaurant }) => {
-  // Construct image URLs from the photo_gallery data
-  const images = (restaurant.photo_gallery || []).map(photo => 
-    `${API_BASE_URL}/api/places/photo?photo_reference=${photo.photo_reference}&maxwidth=800`
+  // [2025-01-03 16:20] - Fixed photo URL handling to use direct Supabase Storage URLs
+  // photo_gallery now contains direct URLs, not photo_reference objects
+  
+  const images = (restaurant.photo_gallery || []).filter(photo => 
+    typeof photo === 'string' && photo.length > 0
   );
 
   // Show image gallery if available
@@ -32,44 +34,22 @@ const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ resta
           className="w-full h-full object-cover"
         />
         
-        {/* Status overlay */}
-        <div className="absolute top-3 left-3 z-20">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            restaurant.status === 'active' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {restaurant.status === 'active' ? 'Open' : 'Closed'}
-          </span>
-        </div>
-
-        {/* Promotions badge */}
-        {restaurant.currentPromotions && restaurant.currentPromotions.length > 0 && (
-          <div className="absolute top-3 right-3 z-20">
-            <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-              Special Deal
-            </span>
-          </div>
-        )}
-
-        {/* Heart/Favorite button */}
-        <button className="absolute bottom-3 right-3 p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 z-20">
-          <Star size={16} className="text-gray-600" />
-        </button>
-
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-          📸 {images.length} photo{images.length > 1 ? 's' : ''}
+        {/* Photo count badge */}
+        <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-md text-sm font-medium">
+          {images.length} photos
         </div>
       </div>
     );
   }
 
-  // Show placeholder when no images available
+  // Fallback placeholder when no photos available
   return (
-    <div className="relative w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-t-lg flex items-center justify-center">
-      <div className="text-center text-gray-600">
-        <div className="text-4xl mb-2">🍽️</div>
-        <div className="text-sm">No photos available</div>
+    <div className="relative w-full h-64 rounded-t-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+      <div className="text-center text-gray-500">
+        <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p className="text-sm">No photos available</p>
       </div>
     </div>
   );
@@ -141,6 +121,7 @@ const RestaurantsPage: React.FC = () => {
     };
 
     const loadRestaurants = async () => {
+      console.log('🚨 STARTING loadRestaurants function');
       setIsLoadingRestaurants(true);
       setIsLoadingSelectors(true);
       try {
@@ -148,23 +129,35 @@ const RestaurantsPage: React.FC = () => {
         console.log('🏪 Loading restaurants for location:', location);
         
         // Load restaurants and dynamic selectors in parallel
+        console.log('🚨 BEFORE Promise.all');
         const [restaurants, selectors] = await Promise.all([
           restaurantService.getRestaurantsByLocation(location),
           dynamicSelectorService.generateLocationSelectors(location)
         ]);
+        console.log('🚨 AFTER Promise.all');
         
         console.log('🏪 Loaded restaurants:', restaurants.length, 'restaurants');
         console.log('🎯 Loaded dynamic selectors:', selectors);
+        console.log('🚨 RESTAURANTS ARRAY:', restaurants);
+        console.log('🚨 FIRST RESTAURANT:', restaurants[0]);
         
+        // [2025-01-03 17:30] - Force visible debug with alert
+        window.alert(`FOUND ${restaurants.length} RESTAURANTS! First: ${restaurants[0]?.name} with ${restaurants[0]?.photo_gallery?.length || 0} photos`);
+        
+        console.log('🚨 BEFORE setting state');
         setProductionRestaurants(restaurants);
         setDynamicSelectors(selectors);
+        console.log('🚨 AFTER setting state');
       } catch (error) {
         console.error('🏪 Failed to load restaurants:', error);
+        console.log('🚨 ERROR in loadRestaurants:', error);
         setProductionRestaurants([]);
         setDynamicSelectors(null);
       } finally {
+        console.log('🚨 SETTING LOADING STATES TO FALSE');
         setIsLoadingRestaurants(false);
         setIsLoadingSelectors(false);
+        console.log('🚨 LOADING STATES SET TO FALSE');
       }
     };
 
@@ -522,6 +515,7 @@ const RestaurantsPage: React.FC = () => {
 
           {isLoadingRestaurants ? (
             <div className="space-y-4">
+              {console.log('🚨 SHOWING LOADING STATE - isLoadingRestaurants:', isLoadingRestaurants)}
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="animate-pulse">
@@ -541,118 +535,119 @@ const RestaurantsPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
+              {console.log('🚨 SHOWING RESTAURANT LIST - filteredRestaurants.length:', filteredRestaurants.length, 'isLoadingRestaurants:', isLoadingRestaurants)}
               {/* Som Tam Paradise Style Cards - Production Data */}
               {filteredRestaurants.map((restaurant) => (
-              <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
-                {/* Hero Image */}
-                <RestaurantImage restaurant={restaurant} />
+                <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
+                  {/* Hero Image */}
+                  <RestaurantImage restaurant={restaurant} />
 
-                {/* Content */}
-                <div className="p-4">
-                  {/* Header: Name, Cuisine, Rating */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg text-gray-900 leading-tight">
-                        {restaurant.name}
-                      </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm text-gray-600">
-                          {restaurant.cuisine?.join(', ') || 'Restaurant'}
-                        </span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-600">
-                          {'฿'.repeat(restaurant.priceRange || 2)}
-                        </span>
+                  {/* Content */}
+                  <div className="p-4">
+                    {/* Header: Name, Cuisine, Rating */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-gray-900 leading-tight">
+                          {restaurant.name}
+                        </h3>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-sm text-gray-600">
+                            {restaurant.cuisine?.join(', ') || 'Restaurant'}
+                          </span>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-sm text-gray-600">
+                            {'฿'.repeat(restaurant.priceRange || 2)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-1 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+                        <Star size={14} className="text-amber-500 fill-current" />
+                        <span className="text-sm font-semibold text-gray-900">4.{Math.floor(Math.random() * 9) + 1}</span>
+                        <span className="text-xs text-gray-500">({Math.floor(Math.random() * 1000) + 100})</span>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center space-x-1 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
-                      <Star size={14} className="text-amber-500 fill-current" />
-                      <span className="text-sm font-semibold text-gray-900">4.{Math.floor(Math.random() * 9) + 1}</span>
-                      <span className="text-xs text-gray-500">({Math.floor(Math.random() * 1000) + 100})</span>
-                    </div>
-                  </div>
 
-                  {/* Signature Dishes Tags */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {restaurant.signatureDishes?.slice(0, 3).map((dish, index) => (
-                      <span key={index} className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                        {dish}
-                      </span>
-                    )) || (
-                      <>
-                        <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                          Local Specialty
+                    {/* Signature Dishes Tags */}
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {restaurant.signatureDishes?.slice(0, 3).map((dish, index) => (
+                        <span key={index} className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                          {dish}
                         </span>
-                        <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                          Fresh Daily
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Location & Timing */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-1 text-sm text-gray-600">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span>{restaurant.address.split(',')[0]}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-sm text-gray-600">
-                      <Clock size={14} className="text-gray-400" />
-                      <span>{restaurant.openingHours || '11:00 AM - 10:00 PM'}</span>
-                    </div>
-                  </div>
-
-                  {/* Features row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      {restaurant.features?.slice(0, 3).map((feature, index) => (
-                        <div key={index} className="p-1.5 bg-gray-100 rounded-lg">
-                          {feature === 'beachfront-view' && <MapPin size={14} className="text-gray-600" />}
-                          {feature === 'air-conditioning' && <Clock size={14} className="text-gray-600" />}
-                          {feature === 'parking' && <Utensils size={14} className="text-gray-600" />}
-                          {!['beachfront-view', 'air-conditioning', 'parking'].includes(feature) && <Utensils size={14} className="text-gray-600" />}
-                        </div>
                       )) || (
                         <>
-                          <div className="p-1.5 bg-gray-100 rounded-lg">
-                            <Utensils size={14} className="text-gray-600" />
-                          </div>
-                          <div className="p-1.5 bg-gray-100 rounded-lg">
-                            <Clock size={14} className="text-gray-600" />
-                          </div>
+                          <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                            Local Specialty
+                          </span>
+                          <span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                            Fresh Daily
+                          </span>
                         </>
                       )}
                     </div>
 
-                    {/* Loyalty Program Indicator */}
-                    {restaurant.loyaltyProgram ? (
-                      <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
-                        <Star size={12} className="text-purple-600" />
-                        <span className="text-xs font-medium text-purple-700">
-                          {restaurant.loyaltyProgram.pointsMultiplier}x Points
-                        </span>
+                    {/* Location & Timing */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-1 text-sm text-gray-600">
+                        <MapPin size={14} className="text-gray-400" />
+                        <span>{restaurant.address.split(',')[0]}</span>
                       </div>
-                    ) : (
-                      <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-lg border border-gray-200">
-                        <span className="text-xs font-medium text-gray-600">
-                          Call: {restaurant.phone}
-                        </span>
+                      <div className="flex items-center space-x-1 text-sm text-gray-600">
+                        <Clock size={14} className="text-gray-400" />
+                        <span>{restaurant.openingHours || '11:00 AM - 10:00 PM'}</span>
+                      </div>
+                    </div>
+
+                    {/* Features row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {restaurant.features?.slice(0, 3).map((feature, index) => (
+                          <div key={index} className="p-1.5 bg-gray-100 rounded-lg">
+                            {feature === 'beachfront-view' && <MapPin size={14} className="text-gray-600" />}
+                            {feature === 'air-conditioning' && <Clock size={14} className="text-gray-600" />}
+                            {feature === 'parking' && <Utensils size={14} className="text-gray-600" />}
+                            {!['beachfront-view', 'air-conditioning', 'parking'].includes(feature) && <Utensils size={14} className="text-gray-600" />}
+                          </div>
+                        )) || (
+                          <>
+                            <div className="p-1.5 bg-gray-100 rounded-lg">
+                              <Utensils size={14} className="text-gray-600" />
+                            </div>
+                            <div className="p-1.5 bg-gray-100 rounded-lg">
+                              <Clock size={14} className="text-gray-600" />
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Loyalty Program Indicator */}
+                      {restaurant.loyaltyProgram ? (
+                        <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                          <Star size={12} className="text-purple-600" />
+                          <span className="text-xs font-medium text-purple-700">
+                            {restaurant.loyaltyProgram.pointsMultiplier}x Points
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-lg border border-gray-200">
+                          <span className="text-xs font-medium text-gray-600">
+                            Call: {restaurant.phone}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Current Promotions */}
+                    {restaurant.currentPromotions && restaurant.currentPromotions.length > 0 && (
+                      <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-sm font-medium text-red-800">
+                          🎉 {restaurant.currentPromotions[0]}
+                        </p>
                       </div>
                     )}
                   </div>
-
-                  {/* Current Promotions */}
-                  {restaurant.currentPromotions && restaurant.currentPromotions.length > 0 && (
-                    <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-200">
-                      <p className="text-sm font-medium text-red-800">
-                        🎉 {restaurant.currentPromotions[0]}
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
             </div>
           )}
         </section>

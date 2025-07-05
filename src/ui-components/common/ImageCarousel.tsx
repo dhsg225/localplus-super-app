@@ -98,6 +98,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             src={image}
             alt={`${alt} - Image ${index + 1}`}
             className="w-full h-full object-cover flex-shrink-0"
+            onError={(e) => {
+              console.error('🖼️ Image failed to load:', image);
+              console.error('🖼️ Error event:', e);
+            }}
+            onLoad={() => {
+              console.log('🖼️ Image loaded successfully:', image);
+            }}
           />
         ))}
       </div>
