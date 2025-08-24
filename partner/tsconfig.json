@@ -3,18 +3,18 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "..",
-    "baseUrl": "..",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./partner/src/*"],
-      "shared/*": ["./shared/*"]
+      "@/*": ["src/*"],
+      "shared/*": ["../shared/*"]
     },
     "composite": true,
     "jsx": "react-jsx",
     "types": ["vite/client"]
   },
   "include": [
-    "partner/src",
-    "shared"
+    "src",
+    "../shared"
   ],
   "exclude": [
     "node_modules",
