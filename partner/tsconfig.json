@@ -1,25 +1,23 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "..",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "shared/*": ["../shared/*"]
-    },
-    "composite": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
     "types": ["vite/client"]
   },
-  "include": [
-    "src",
-    "../shared"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "admin",
-    "src"
-  ]
+  "include": ["src", "../shared"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
