@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "composite": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src",
+    "shared",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../admin",
+    "../src"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
