@@ -329,7 +329,7 @@ class UnifiedAuthService {
     if (error || !data?.length) return undefined;
 
     return {
-      businessIds: data.map(p => p.business_id),
+      businessIds: data.map((p: any) => p.business_id),
       permissions: data[0].permissions || [],
       role: data[0].role || 'staff'
     };

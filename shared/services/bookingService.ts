@@ -519,12 +519,12 @@ export const bookingService = {
 
     const stats = {
       totalBookings: data?.length || 0,
-      confirmedBookings: data?.filter(b => b.status === 'confirmed').length || 0,
-      cancelledBookings: data?.filter(b => b.status === 'cancelled').length || 0,
-      completedBookings: data?.filter(b => b.status === 'completed').length || 0,
-      noShowBookings: data?.filter(b => b.status === 'no_show').length || 0,
-      totalGuests: data?.reduce((sum, b) => sum + (b.party_size || 0), 0) || 0,
-      averagePartySize: data?.length ? (data.reduce((sum, b) => sum + (b.party_size || 0), 0) / data.length) : 0
+      confirmedBookings: data?.filter((b: any) => b.status === 'confirmed').length || 0,
+      cancelledBookings: data?.filter((b: any) => b.status === 'cancelled').length || 0,
+      completedBookings: data?.filter((b: any) => b.status === 'completed').length || 0,
+      noShowBookings: data?.filter((b: any) => b.status === 'no_show').length || 0,
+      totalGuests: data?.reduce((sum: any, b: any) => sum + (b.party_size || 0), 0) || 0,
+      averagePartySize: data?.length ? (data.reduce((sum: any, b: any) => sum + (b.party_size || 0), 0) / data.length) : 0
     }
 
     return stats

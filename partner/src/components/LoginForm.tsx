@@ -195,7 +195,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               label="Email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
             />
@@ -203,7 +203,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               label="Password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
             />
@@ -211,7 +211,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             <FormSelect
               label="Select Business"
               value={selectedBusiness}
-              onChange={(e) => setSelectedBusiness(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedBusiness(e.target.value)}
               options={businesses.map(b => ({ value: b.id, label: b.name }))}
               required
               placeholder={businesses.length === 0 ? 'No businesses available' : 'Choose a business'}
