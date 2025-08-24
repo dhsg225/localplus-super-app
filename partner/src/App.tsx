@@ -41,7 +41,7 @@ function App() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: string, session: Session | null) => {
+      async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           const currentUser = await authService.getUserProfile(session.user);
           setUser(currentUser);

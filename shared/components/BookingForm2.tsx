@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { FormInput } from './FormInput';
 import { FormSelect } from './FormSelect';
-import { bookingService } from '@shared/services/bookingService';
+import { bookingService } from '../../shared/services/bookingService';
 import type { CreateBookingData, TimeSlot, RestaurantSettings } from '../types';
 
 interface BookingFormProps {
@@ -85,10 +85,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   }, [businessId, formData.booking_date, formData.booking_time, formData.party_size]);
 
   const handleInputChange = (field: keyof CreateBookingData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev: any) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -189,7 +189,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   }
 
   // Generate time slot options
-  const timeOptions = timeSlots.map((slot: TimeSlot) => ({
+  const timeOptions = timeSlots.map((slot: any) => ({
     value: slot.slot_time,
     label: new Date(`2000-01-01T${slot.slot_time}`).toLocaleTimeString('en-US', {
       hour: 'numeric',

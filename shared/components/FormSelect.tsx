@@ -54,7 +54,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
+        {options.map((option: SelectOption) => (
           <option
             key={option.value}
             value={option.value}

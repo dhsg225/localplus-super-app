@@ -117,7 +117,7 @@ export const restaurantService = {
     }
 
     // Filter by cuisine in JavaScript since we don't have a cuisine column yet
-    return data?.filter((restaurant: any) => 
+    return data?.filter(restaurant => 
       cuisines.some(cuisine => 
         restaurant.description?.toLowerCase().includes(cuisine.toLowerCase()) ||
         restaurant.name.toLowerCase().includes(cuisine.toLowerCase())

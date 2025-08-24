@@ -216,9 +216,9 @@ const Analytics: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={bookingsOverTime} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(d: any) => d.slice(5)} fontSize={12} />
+                  <XAxis dataKey="date" tickFormatter={d => d.slice(5)} fontSize={12} />
                   <YAxis allowDecimals={false} fontSize={12} />
-                  <Tooltip formatter={(value: any) => [value, 'Bookings']} labelFormatter={(d: any) => `Date: ${d}`} />
+                  <Tooltip formatter={(value: any) => [value, 'Bookings']} labelFormatter={d => `Date: ${d}`} />
                   <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -239,9 +239,9 @@ const Analytics: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueOverTime} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(d: any) => d.slice(5)} fontSize={12} />
-                  <YAxis allowDecimals={false} fontSize={12} tickFormatter={(v: any) => `$${v}`} />
-                  <Tooltip formatter={(value: any) => [`$${value}`, 'Revenue']} labelFormatter={(d: any) => `Date: ${d}`} />
+                  <XAxis dataKey="date" tickFormatter={d => d.slice(5)} fontSize={12} />
+                  <YAxis allowDecimals={false} fontSize={12} tickFormatter={v => `$${v}`} />
+                  <Tooltip formatter={(value: any) => [`$${value}`, 'Revenue']} labelFormatter={d => `Date: ${d}`} />
                   <Line type="monotone" dataKey="revenue" stroke="#16a34a" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>

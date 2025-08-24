@@ -1,8 +1,8 @@
 // [2024-07-08] - Supabase client configuration with service role key for admin operations
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 // [2024-07-29] - Added check to ensure Supabase configuration is loaded correctly.
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -13,7 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Development mode logging
-if (import.meta.env.DEV) {
+if (process.env.NODE_ENV === 'development') {
   console.log('🔧 Supabase client initialized in development mode')
 }
 
@@ -106,13 +106,13 @@ export const businessAPI = {
     }
 
     // Calculate distances and filter
-    return data?.filter(business => {
+    return data?.filter((business: any) => {
       const distance = calculateDistance(lat, lng, business.latitude, business.longitude);
       return distance <= radiusKm;
-    }).map(business => ({
+    }).map((business: any) => ({
       ...business,
       distance: calculateDistance(lat, lng, business.latitude, business.longitude)
-    })).sort((a, b) => a.distance - b.distance) || [];
+    })).sort((a: any, b: any) => a.distance - b.distance) || [];
   },
 
   // Add new business
