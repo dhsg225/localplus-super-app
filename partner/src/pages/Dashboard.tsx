@@ -1,173 +1,146 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../shared/components';
 import { bookingService } from '../../../shared/services/bookingService';
 import { restaurantService } from '../../shared/services/restaurantService';
-var Dashboard = function (_a) {
-    var onNavigate = _a.onNavigate;
-    var _b = useState([]), bookings = _b[0], setBookings = _b[1];
-    var _c = useState([]), restaurants = _c[0], setRestaurants = _c[1];
-    var _d = useState(true), loading = _d[0], setLoading = _d[1];
-    var _e = useState(''), error = _e[0], setError = _e[1];
-    var _f = useState(false), isDevelopmentMode = _f[0], setIsDevelopmentMode = _f[1];
-    useEffect(function () {
-        var loadDashboardData = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var devUser, restaurantData, err_1, allRestaurants, fallbackErr_1, allBookings, bookingErr_1, err_2, errorMessage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 13, 14, 15]);
-                        devUser = localStorage.getItem('partner_dev_user');
-                        if (devUser) {
-                            setIsDevelopmentMode(true);
-                            console.log('🔧 Development mode active');
-                        }
-                        restaurantData = [];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 8]);
-                        return [4 /*yield*/, bookingService.getPartnerRestaurants()];
-                    case 2:
-                        restaurantData = _a.sent();
-                        console.log('✅ Partner restaurants loaded:', restaurantData.length);
-                        return [3 /*break*/, 8];
-                    case 3:
-                        err_1 = _a.sent();
-                        console.warn('⚠️ Partner authentication failed, falling back to development mode');
-                        _a.label = 4;
-                    case 4:
-                        _a.trys.push([4, 6, , 7]);
-                        return [4 /*yield*/, restaurantService.getRestaurants()];
-                    case 5:
-                        allRestaurants = _a.sent();
-                        restaurantData = allRestaurants.filter(function (r) {
-                            return r.name.toLowerCase().includes('shannon');
-                        });
-                        if (restaurantData.length === 0) {
-                            // If no Shannon's restaurant found, just show first restaurant for demo
-                            restaurantData = allRestaurants.slice(0, 1);
-                        }
-                        console.log('🔧 Development fallback restaurants:', restaurantData.length);
-                        setIsDevelopmentMode(true);
-                        return [3 /*break*/, 7];
-                    case 6:
-                        fallbackErr_1 = _a.sent();
-                        console.error('❌ Development fallback also failed:', fallbackErr_1);
-                        throw new Error('Failed to load restaurant data. Please check your setup.');
-                    case 7: return [3 /*break*/, 8];
-                    case 8:
-                        setRestaurants(restaurantData);
-                        if (!(restaurantData.length > 0)) return [3 /*break*/, 12];
-                        _a.label = 9;
-                    case 9:
-                        _a.trys.push([9, 11, , 12]);
-                        return [4 /*yield*/, Promise.all(restaurantData.map(function (restaurant) {
-                                return bookingService.getUpcomingBookings(restaurant.id, 7);
-                            }))];
-                    case 10:
-                        allBookings = _a.sent();
-                        setBookings(allBookings.flat());
-                        return [3 /*break*/, 12];
-                    case 11:
-                        bookingErr_1 = _a.sent();
-                        console.warn('⚠️ Failed to load bookings:', bookingErr_1);
-                        // Don't throw error, just show empty bookings
-                        setBookings([]);
-                        return [3 /*break*/, 12];
-                    case 12: return [3 /*break*/, 15];
-                    case 13:
-                        err_2 = _a.sent();
-                        errorMessage = err_2 instanceof Error ? err_2.message : 'Failed to load dashboard data';
-                        setError(errorMessage);
-                        console.error('Error loading dashboard:', err_2);
-                        return [3 /*break*/, 15];
-                    case 14:
-                        setLoading(false);
-                        return [7 /*endfinally*/];
-                    case 15: return [2 /*return*/];
-                }
-            });
-        }); };
-        loadDashboardData();
-    }, []);
-    var todayBookings = bookings.filter(function (booking) {
-        return booking.booking_date === new Date().toISOString().split('T')[0];
-    });
-    var pendingBookings = bookings.filter(function (booking) { return booking.status === 'pending'; });
-    var confirmedBookings = bookings.filter(function (booking) { return booking.status === 'confirmed'; });
-    var formatTime = function (time) {
-        return new Date("2000-01-01T".concat(time)).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-    };
-    var getStatusColor = function (status) {
-        switch (status) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800';
-            case 'confirmed': return 'bg-green-100 text-green-800';
-            case 'seated': return 'bg-blue-100 text-blue-800';
-            case 'completed': return 'bg-gray-100 text-gray-800';
-            case 'cancelled': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
+import type { Booking, Restaurant } from '../../shared/types';
+
+// Add prop for navigation
+interface DashboardProps {
+  onNavigate?: (page: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [isDevelopmentMode, setIsDevelopmentMode] = useState(false);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        // Check if we're in development mode
+        const devUser = localStorage.getItem('partner_dev_user');
+        if (devUser) {
+          setIsDevelopmentMode(true);
+          console.log('🔧 Development mode active');
         }
+
+        // Try to get partner restaurants
+        let restaurantData: Restaurant[] = [];
+        
+        try {
+          restaurantData = await bookingService.getPartnerRestaurants();
+          console.log('✅ Partner restaurants loaded:', restaurantData.length);
+        } catch (err) {
+          console.warn('⚠️ Partner authentication failed, falling back to development mode');
+          
+          // Development fallback: get Shannon's Restaurant
+          try {
+            const allRestaurants = await restaurantService.getRestaurants();
+            restaurantData = allRestaurants.filter(r => 
+              r.name.toLowerCase().includes('shannon')
+            );
+            
+            if (restaurantData.length === 0) {
+              // If no Shannon's restaurant found, just show first restaurant for demo
+              restaurantData = allRestaurants.slice(0, 1);
+            }
+            
+            console.log('🔧 Development fallback restaurants:', restaurantData.length);
+            setIsDevelopmentMode(true);
+          } catch (fallbackErr) {
+            console.error('❌ Development fallback also failed:', fallbackErr);
+            throw new Error('Failed to load restaurant data. Please check your setup.');
+          }
+        }
+        
+        setRestaurants(restaurantData);
+
+        // Load bookings for restaurants
+        if (restaurantData.length > 0) {
+          try {
+            const allBookings = await Promise.all(
+              restaurantData.map(restaurant => 
+                bookingService.getUpcomingBookings(restaurant.id, 7)
+              )
+            );
+            setBookings(allBookings.flat());
+          } catch (bookingErr) {
+            console.warn('⚠️ Failed to load bookings:', bookingErr);
+            // Don't throw error, just show empty bookings
+            setBookings([]);
+          }
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load dashboard data';
+        setError(errorMessage);
+        console.error('Error loading dashboard:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-    if (loading) {
-        return (<div className="p-6">
+
+    loadDashboardData();
+  }, []);
+
+  const todayBookings = bookings.filter(booking => 
+    booking.booking_date === new Date().toISOString().split('T')[0]
+  );
+
+  const pendingBookings = bookings.filter(booking => booking.status === 'pending');
+  const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed');
+
+  const formatTime = (time: string) => {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'seated': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-gray-100 text-gray-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
         <p className="mt-2 text-center text-gray-600">Loading dashboard...</p>
-      </div>);
-    }
-    return (<div className="p-6 max-w-7xl mx-auto">
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Partner Dashboard</h1>
         <p className="text-gray-600">Manage your restaurant bookings and settings</p>
-        {isDevelopmentMode && (<div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+        {isDevelopmentMode && (
+          <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
             🔧 Development Mode
-          </div>)}
+          </div>
+        )}
       </div>
 
-      {error && (<div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-600">{error}</p>
-          {isDevelopmentMode && (<p className="text-sm text-gray-600 mt-2">
+          {isDevelopmentMode && (
+            <p className="text-sm text-gray-600 mt-2">
               Running in development mode. Some features may be limited.
-            </p>)}
-        </div>)}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -229,40 +202,46 @@ var Dashboard = function (_a) {
       </div>
 
       {/* Restaurant Info */}
-      {restaurants.length > 0 && (<div className="bg-white rounded-lg shadow mb-8">
+      {restaurants.length > 0 && (
+        <div className="bg-white rounded-lg shadow mb-8">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Restaurants</h2>
             <div className="space-y-4">
-              {restaurants.map(function (restaurant) { return (<div key={restaurant.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              {restaurants.map((restaurant) => (
+                <div key={restaurant.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <h3 className="font-medium text-gray-900">{restaurant.name}</h3>
                     <p className="text-sm text-gray-600">{restaurant.address}</p>
                     <p className="text-sm text-gray-500">ID: {restaurant.id.slice(0, 8)}...</p>
                   </div>
                   <div className="text-right">
-                    <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ".concat(restaurant.partnership_status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800')}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      restaurant.partnership_status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
                       {restaurant.partnership_status}
                     </span>
                   </div>
-                </div>); })}
+                </div>
+              ))}
             </div>
           </div>
-        </div>)}
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow mb-8">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button theme="blue" className="w-full" onClick={function () { return onNavigate && onNavigate('bookings'); }}>
+            <Button theme="blue" className="w-full" onClick={() => onNavigate && onNavigate('bookings')}>
               📋 Manage Bookings
             </Button>
-            <Button theme="gray" className="w-full" onClick={function () { return onNavigate && onNavigate('availability'); }}>
+            <Button theme="gray" className="w-full" onClick={() => onNavigate && onNavigate('availability')}>
               🕐 Availability Settings
             </Button>
-            <Button theme="gray" className="w-full" onClick={function () { return onNavigate && onNavigate('analytics'); }}>
+            <Button theme="gray" className="w-full" onClick={() => onNavigate && onNavigate('analytics')}>
               📊 View Analytics
             </Button>
           </div>
@@ -274,19 +253,25 @@ var Dashboard = function (_a) {
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold text-gray-900">Today's Bookings</h2>
-            <button className="text-blue-600 hover:text-blue-800 text-sm" onClick={function () { return onNavigate && onNavigate('bookings'); }}>
+            <button className="text-blue-600 hover:text-blue-800 text-sm" onClick={() => onNavigate && onNavigate('bookings')}>
               View All
             </button>
           </div>
         </div>
 
-        {todayBookings.length === 0 ? (<div className="p-8 text-center">
+        {todayBookings.length === 0 ? (
+          <div className="p-8 text-center">
             <p className="text-gray-500">No bookings for today</p>
-            {isDevelopmentMode && (<p className="text-sm text-gray-400 mt-2">
+            {isDevelopmentMode && (
+              <p className="text-sm text-gray-400 mt-2">
                 In development mode, booking data may be limited
-              </p>)}
-          </div>) : (<div className="divide-y divide-gray-200">
-            {todayBookings.slice(0, 5).map(function (booking) { return (<div key={booking.id} className="p-6 hover:bg-gray-50">
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {todayBookings.slice(0, 5).map((booking) => (
+              <div key={booking.id} className="p-6 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div>
@@ -297,22 +282,28 @@ var Dashboard = function (_a) {
                         {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'} at {formatTime(booking.booking_time)}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {booking.customer_phone && "\uD83D\uDCDE ".concat(booking.customer_phone)}
+                        {booking.customer_phone && `📞 ${booking.customer_phone}`}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ".concat(getStatusColor(booking.status))}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                       {booking.status}
                     </span>
-                    {booking.special_requests && (<p className="text-xs text-gray-500 mt-1">
+                    {booking.special_requests && (
+                      <p className="text-xs text-gray-500 mt-1">
                         Note: {booking.special_requests}
-                      </p>)}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>); })}
-          </div>)}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>);
+    </div>
+  );
 };
-export default Dashboard;
+
+export default Dashboard; 

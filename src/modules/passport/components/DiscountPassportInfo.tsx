@@ -1,17 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Award, Star, Trophy, Target, Users, Zap, MapPin, Percent, Crown, ArrowLeft } from 'lucide-react';
-var DiscountPassportInfo = function () {
-    return (<div className="min-h-screen bg-gray-50">
+import { 
+  Award, 
+  Star, 
+  Trophy, 
+  Target, 
+  Users, 
+  Zap, 
+  MapPin,
+  Percent,
+  Crown,
+  ArrowLeft
+} from 'lucide-react';
+
+const DiscountPassportInfo: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white">
         <div className="px-4 py-6">
           <div className="flex items-center justify-between mb-4">
             <Link to="/" className="text-white hover:text-orange-100 transition-colors">
-              <ArrowLeft size={24}/>
+              <ArrowLeft size={24} />
             </Link>
             <div className="flex items-center space-x-2">
-              <Award size={28}/>
+              <Award size={28} />
               <span className="text-lg font-semibold">Savings Passport</span>
             </div>
             <div></div>
@@ -36,7 +49,7 @@ var DiscountPassportInfo = function () {
       {/* Business Categories */}
       <div className="px-4 py-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Percent size={24} className="mr-2 text-orange-500"/>
+          <Percent size={24} className="mr-2 text-orange-500" />
           Instant Discounts at 500+ Businesses
         </h3>
         
@@ -94,14 +107,14 @@ var DiscountPassportInfo = function () {
       {/* Gamification System */}
       <div className="px-4 py-6 bg-white">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Trophy size={24} className="mr-2 text-orange-500"/>
+          <Trophy size={24} className="mr-2 text-orange-500" />
           Gamification & Rewards
         </h3>
         
         <div className="space-y-4">
           <div className="border border-gray-200 rounded-xl p-4">
             <div className="flex items-center mb-3">
-              <Star size={20} className="text-yellow-500 mr-2"/>
+              <Star size={20} className="text-yellow-500 mr-2" />
               <h4 className="font-semibold text-gray-900">Stamps & Points System</h4>
             </div>
             <ul className="text-gray-600 text-sm space-y-1">
@@ -114,7 +127,7 @@ var DiscountPassportInfo = function () {
 
           <div className="border border-gray-200 rounded-xl p-4">
             <div className="flex items-center mb-3">
-              <Award size={20} className="text-blue-500 mr-2"/>
+              <Award size={20} className="text-blue-500 mr-2" />
               <h4 className="font-semibold text-gray-900">Achievement Badges</h4>
             </div>
             <ul className="text-gray-600 text-sm space-y-1">
@@ -127,7 +140,7 @@ var DiscountPassportInfo = function () {
 
           <div className="border border-gray-200 rounded-xl p-4">
             <div className="flex items-center mb-3">
-              <Target size={20} className="text-green-500 mr-2"/>
+              <Target size={20} className="text-green-500 mr-2" />
               <h4 className="font-semibold text-gray-900">District Challenges</h4>
             </div>
             <ul className="text-gray-600 text-sm space-y-1">
@@ -140,7 +153,7 @@ var DiscountPassportInfo = function () {
 
           <div className="border border-gray-200 rounded-xl p-4">
             <div className="flex items-center mb-3">
-              <Crown size={20} className="text-purple-500 mr-2"/>
+              <Crown size={20} className="text-purple-500 mr-2" />
               <h4 className="font-semibold text-gray-900">Member Levels</h4>
             </div>
             <div className="space-y-2">
@@ -168,14 +181,14 @@ var DiscountPassportInfo = function () {
       {/* Premium Benefits */}
       <div className="px-4 py-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Zap size={24} className="mr-2 text-orange-500"/>
+          <Zap size={24} className="mr-2 text-orange-500" />
           Exclusive Passport Benefits
         </h3>
         
         <div className="grid grid-cols-1 gap-4">
           <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl border border-orange-200">
             <div className="flex items-center mb-2">
-              <Percent size={20} className="text-orange-600 mr-2"/>
+              <Percent size={20} className="text-orange-600 mr-2" />
               <h4 className="font-semibold text-gray-900">Instant Discounts</h4>
             </div>
             <p className="text-gray-600 text-sm">Skip the wait - get immediate savings at all 500+ partner businesses</p>
@@ -183,7 +196,7 @@ var DiscountPassportInfo = function () {
 
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
             <div className="flex items-center mb-2">
-              <Star size={20} className="text-blue-600 mr-2"/>
+              <Star size={20} className="text-blue-600 mr-2" />
               <h4 className="font-semibold text-gray-900">2x Bonus Stamps</h4>
             </div>
             <p className="text-gray-600 text-sm">Earn double stamps on every purchase to unlock rewards faster</p>
@@ -191,7 +204,7 @@ var DiscountPassportInfo = function () {
 
           <div className="bg-gradient-to-r from-green-50 to-teal-50 p-4 rounded-xl border border-green-200">
             <div className="flex items-center mb-2">
-              <Users size={20} className="text-green-600 mr-2"/>
+              <Users size={20} className="text-green-600 mr-2" />
               <h4 className="font-semibold text-gray-900">Exclusive Member Events</h4>
             </div>
             <p className="text-gray-600 text-sm">VIP access to special events, tastings, and member-only experiences</p>
@@ -201,7 +214,7 @@ var DiscountPassportInfo = function () {
 
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-200">
             <div className="flex items-center mb-2">
-              <Zap size={20} className="text-yellow-600 mr-2"/>
+              <Zap size={20} className="text-yellow-600 mr-2" />
               <h4 className="font-semibold text-gray-900">Ad-Free Experience</h4>
             </div>
             <p className="text-gray-600 text-sm">Enjoy the app without any interruptions or promotional banners</p>
@@ -212,7 +225,7 @@ var DiscountPassportInfo = function () {
       {/* How It Works */}
       <div className="px-4 py-6 bg-white">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <MapPin size={24} className="mr-2 text-orange-500"/>
+          <MapPin size={24} className="mr-2 text-orange-500" />
           How It Works
         </h3>
         
@@ -258,16 +271,24 @@ var DiscountPassportInfo = function () {
           <p className="text-orange-100 mb-6">Join thousands of members already enjoying exclusive discounts</p>
           
           <div className="space-y-3">
-            <Link to="/passport" className="block bg-white text-orange-600 px-6 py-3 rounded-xl font-semibold text-lg hover:bg-orange-50 transition-colors">
+            <Link
+              to="/passport"
+              className="block bg-white text-orange-600 px-6 py-3 rounded-xl font-semibold text-lg hover:bg-orange-50 transition-colors"
+            >
               Subscribe Now
             </Link>
             
-            <Link to="/" className="block text-orange-100 text-sm hover:text-white transition-colors">
+            <Link
+              to="/"
+              className="block text-orange-100 text-sm hover:text-white transition-colors"
+            >
               ← Back to Home
             </Link>
           </div>
         </div>
       </div>
-    </div>);
+    </div>
+  );
 };
-export default DiscountPassportInfo;
+
+export default DiscountPassportInfo; 

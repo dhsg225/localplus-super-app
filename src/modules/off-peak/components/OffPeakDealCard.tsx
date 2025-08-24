@@ -1,44 +1,69 @@
 import React, { useState } from 'react';
 import { MapPin, Star, ChevronRight } from 'lucide-react';
-var OffPeakDealCard = function (_a) {
-    var deal = _a.deal, selectedDate = _a.selectedDate, selectedPax = _a.selectedPax, onBookNow = _a.onBookNow;
-    var _b = useState(false), showTimeSlots = _b[0], setShowTimeSlots = _b[1];
-    var formatPrice = function (price) {
-        return "\u0E3F".concat(price.toLocaleString());
-    };
-    var getDealTypeColor = function (type) {
-        switch (type) {
-            case 'early-bird': return 'bg-orange-100 text-orange-700';
-            case 'afternoon': return 'bg-blue-100 text-blue-700';
-            case 'late-night': return 'bg-purple-100 text-purple-700';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
-    var getDealTypeLabel = function (type) {
-        switch (type) {
-            case 'early-bird': return 'Early Bird';
-            case 'afternoon': return 'Afternoon';
-            case 'late-night': return 'Late Night';
-            default: return type;
-        }
-    };
-    var availableTimeSlots = deal.timeSlots.filter(function (slot) { return slot.isAvailable; });
-    return (<div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+import { OffPeakDeal } from '../types';
+
+interface OffPeakDealCardProps {
+  deal: OffPeakDeal;
+  selectedPax: number;
+  onBookNow?: (deal: OffPeakDeal) => void;
+}
+
+const OffPeakDealCard: React.FC<OffPeakDealCardProps> = ({
+  deal,
+  selectedPax,
+  onBookNow
+}) => {
+  const [showTimeSlots, setShowTimeSlots] = useState(false);
+
+  const formatPrice = (price: number) => {
+    return `฿${price.toLocaleString()}`;
+  };
+
+  const getDealTypeColor = (type: string) => {
+    switch (type) {
+      case 'early-bird': return 'bg-orange-100 text-orange-700';
+      case 'afternoon': return 'bg-blue-100 text-blue-700';
+      case 'late-night': return 'bg-purple-100 text-purple-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getDealTypeLabel = (type: string) => {
+    switch (type) {
+      case 'early-bird': return 'Early Bird';
+      case 'afternoon': return 'Afternoon';
+      case 'late-night': return 'Late Night';
+      default: return type;
+    }
+  };
+
+  const availableTimeSlots = deal.timeSlots.filter(slot => slot.isAvailable);
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {/* Restaurant Image and Deal Badge */}
       <div className="relative">
-        <img src={deal.restaurantImage} alt={deal.restaurantName} className="w-full h-40 object-cover"/>
+        <img
+          src={deal.restaurantImage}
+          alt={deal.restaurantName}
+          className="w-full h-40 object-cover"
+        />
         
         {/* Deal Badges */}
         <div className="absolute top-3 left-3 flex space-x-2">
-          <span className={"px-2 py-1 rounded-full text-xs font-medium ".concat(getDealTypeColor(deal.dealType))}>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDealTypeColor(deal.dealType)}`}>
             {getDealTypeLabel(deal.dealType)}
           </span>
-          {deal.isPopular && (<span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+          {deal.isPopular && (
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
               Popular
-            </span>)}
-          {deal.isLimitedTime && (<span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+            </span>
+          )}
+          {deal.isLimitedTime && (
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
               Limited Time
-            </span>)}
+            </span>
+          )}
         </div>
 
         {/* Discount Badge */}
@@ -58,11 +83,11 @@ var OffPeakDealCard = function (_a) {
             
             <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
               <div className="flex items-center space-x-1">
-                <MapPin size={12}/>
+                <MapPin size={12} />
                 <span>{deal.location}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Star size={12} className="text-yellow-400 fill-current"/>
+                <Star size={12} className="text-yellow-400 fill-current" />
                 <span>{deal.rating}</span>
                 <span>({deal.reviewCount})</span>
               </div>
@@ -90,29 +115,42 @@ var OffPeakDealCard = function (_a) {
         </div>
 
         {/* Available Time Slots Preview */}
-        {availableTimeSlots.length > 0 && (<div className="mb-4">
+        {availableTimeSlots.length > 0 && (
+          <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Available Times</span>
-              <button onClick={function () { return setShowTimeSlots(!showTimeSlots); }} className="text-xs text-red-600 flex items-center space-x-1">
+              <button
+                onClick={() => setShowTimeSlots(!showTimeSlots)}
+                className="text-xs text-red-600 flex items-center space-x-1"
+              >
                 <span>{showTimeSlots ? 'Hide' : 'View All'}</span>
-                <ChevronRight size={12} className={"transform transition-transform ".concat(showTimeSlots ? 'rotate-90' : '')}/>
+                <ChevronRight size={12} className={`transform transition-transform ${showTimeSlots ? 'rotate-90' : ''}`} />
               </button>
             </div>
             
-            <div className={"grid gap-2 transition-all duration-200 ".concat(showTimeSlots ? 'grid-cols-2' : 'grid-cols-3')}>
-              {(showTimeSlots ? availableTimeSlots : availableTimeSlots.slice(0, 3)).map(function (slot) { return (<div key={slot.id} className="bg-gray-50 rounded-lg px-3 py-2 text-center">
+            <div className={`grid gap-2 transition-all duration-200 ${showTimeSlots ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {(showTimeSlots ? availableTimeSlots : availableTimeSlots.slice(0, 3)).map((slot) => (
+                <div
+                  key={slot.id}
+                  className="bg-gray-50 rounded-lg px-3 py-2 text-center"
+                >
                   <div className="text-xs font-medium text-gray-900">
                     {slot.startTime} - {slot.endTime}
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">
                     {slot.remainingSeats} seats left
                   </div>
-                </div>); })}
+                </div>
+              ))}
             </div>
-          </div>)}
+          </div>
+        )}
 
         {/* Book Now Button */}
-        <button onClick={function () { return onBookNow === null || onBookNow === void 0 ? void 0 : onBookNow(deal); }} className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition-colors">
+        <button
+          onClick={() => onBookNow?.(deal)}
+          className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition-colors"
+        >
           Book Now for {selectedPax} guest{selectedPax !== 1 ? 's' : ''}
         </button>
 
@@ -123,6 +161,8 @@ var OffPeakDealCard = function (_a) {
           </button>
         </div>
       </div>
-    </div>);
+    </div>
+  );
 };
-export default OffPeakDealCard;
+
+export default OffPeakDealCard; 
