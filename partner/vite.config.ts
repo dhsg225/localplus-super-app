@@ -7,10 +7,8 @@ export default defineConfig({
     react(),
   ],
   esbuild: {
-    loader: 'jsx',
-    include: [
-      './src/**/*.js',
-      '../shared/**/*.js'
-    ]
-  }
+    loader: {
+      '.js': 'jsx',
+    },
+  },
 })
