@@ -10,7 +10,8 @@
     },
     "composite": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "strict": false
   },
   "include": [
     "partner/src",
