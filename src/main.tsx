@@ -5,37 +5,31 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import App from "./App";
 import "./styles/globals.css";
-
 console.log("🚀 Main.tsx loaded");
-
 // Configure React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
-      retry: 2,
-      refetchOnWindowFocus: false,
+var queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            cacheTime: 1000 * 60 * 30, // 30 minutes
+            retry: 2,
+            refetchOnWindowFocus: false,
+        },
     },
-  },
 });
-
 console.log("📱 About to render React app");
-
-const rootElement = document.getElementById("root");
+var rootElement = document.getElementById("root");
 console.log("🎯 Root element:", rootElement);
-
 if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
+    ReactDOM.createRoot(rootElement).render(<React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </QueryClientProvider>
-    </React.StrictMode>
-  );
-  console.log("✅ React app rendered successfully");
-} else {
-  console.error("❌ Root element not found!");
+    </React.StrictMode>);
+    console.log("✅ React app rendered successfully");
+}
+else {
+    console.error("❌ Root element not found!");
 }

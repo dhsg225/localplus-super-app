@@ -1,860 +1,873 @@
-import { useState, useEffect } from 'react';
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+import React, { useState, useEffect } from 'react';
 import { BarChart3, MapPin, Star, Shield, Activity, LogOut, XCircle, TrendingUp } from 'lucide-react';
 import AzureMapComponent from './components/AzureMapComponent';
 import { AdminLogin } from './components/AdminLogin';
-import { AnalyticsCharts, generateSampleAnalyticsData, type AnalyticsData } from './components/AnalyticsCharts';
+import { AnalyticsCharts, generateSampleAnalyticsData } from './components/AnalyticsCharts';
 import { RealCostTracker } from './components/RealCostTracker';
 // [2024-12-19 22:40] - Migrated to unified authentication
 import { authService } from '@shared/services/authService';
-import type { UnifiedUser } from '@shared/services/authService';
-import { realTimeService, type RealTimeUpdate, type DashboardStats } from './lib/websocket';
+import { realTimeService } from './lib/websocket';
 import { supabase } from './lib/supabase';
 import 'azure-maps-control/dist/atlas.min.css';
-
-interface PipelineStats {
-  discoveryLeads: number;
-  pendingReview: number;
-  approved: number;
-  salesLeads: number;
-  monthlyCost: number;
-}
-
-interface DiscoveryLead {
-  id: string;
-  name: string;
-  category: string;
-  address: string;
-  rating: number;
-  status: 'pending' | 'approved' | 'rejected';
-  selected: boolean;
-  // [2025-01-21 01:15] - Comprehensive enrichment fields
-  googlePlaceId?: string;
-  enhancedRating?: number;
-  verifiedAddress?: string;
-  latitude?: number;
-  longitude?: number;
-  enriched?: boolean;
-  enrichmentDate?: Date;
-  // Photo fields
-  photoUrl?: string;
-  photoReference?: string;
-  photoAttribution?: string;
-  // Business details
-  phoneNumber?: string;
-  website?: string;
-  businessType?: string;
-  priceLevel?: number; // 0-4 scale
-  // Operating hours
-  openingHours?: string[];
-  isOpenNow?: boolean;
-  // Reviews
-  reviewCount?: number;
-  reviewSummary?: string;
-  photo_gallery?: any; // Added photo_gallery field
-  partnership_status?: 'pending' | 'active' | 'suspended';
-}
-
 function App() {
-  // [2024-12-19 22:40] - Updated to use unified authentication
-  const [currentUser, setCurrentUser] = useState<UnifiedUser | null>(null);
-  const [isAuthenticating, setIsAuthenticating] = useState(true);
-  const [realTimeConnected, setRealTimeConnected] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>(generateSampleAnalyticsData());
-  
-  const [activeTab, setActiveTab] = useState('overview');
-  const [stats, setStats] = useState<PipelineStats>({
-    discoveryLeads: 0,
-    pendingReview: 0,
-    approved: 0,
-    salesLeads: 0,
-    monthlyCost: 0
-  });
-  
-  const [discoveryLeads, setDiscoveryLeads] = useState<DiscoveryLead[]>([]);
-  const [businessLocations, setBusinessLocations] = useState<Array<{
-    id: string;
-    name: string;
-    latitude: number;
-    longitude: number;
-    category: string;
-    address: string;
-  }>>([]);
-  const [selectedCount, setSelectedCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [dbConnected, setDbConnected] = useState(false);
-  const [dbError, setDbError] = useState<string | null>(null);
-  const [bulkAction, setBulkAction] = useState<string>('');
-  const [exportFormat, setExportFormat] = useState<'csv' | 'json'>('csv');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending'>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const costPerCall = 0.017; // $0.017 per Google Places API call
-  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
-  const [selectedBusinessForGallery, setSelectedBusinessForGallery] = useState<DiscoveryLead | null>(null);
-
-  // [2025-01-22 17:00] - Add approval management functions
-  const handleApproveBusiness = async (lead: DiscoveryLead) => {
-    try {
-      const { error } = await supabase
-        .from('businesses')
-        .update({ partnership_status: 'active' })
-        .eq('id', lead.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setDiscoveryLeads(leads => 
-        leads.map(l => l.id === lead.id ? { ...l, status: 'approved', partnership_status: 'active' } : l)
-      );
-
-      alert(`✅ "${lead.name}" has been approved and will now appear in the main app.`);
-    } catch (error: any) {
-      console.error('Approval error:', error);
-      alert(`Failed to approve business: ${error.message}`);
-    }
-  };
-
-  const handleRejectBusiness = async (lead: DiscoveryLead) => {
-    try {
-      const { error } = await supabase
-        .from('businesses')
-        .update({ partnership_status: 'suspended' })
-        .eq('id', lead.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setDiscoveryLeads(leads => 
-        leads.map(l => l.id === lead.id ? { ...l, status: 'rejected', partnership_status: 'suspended' } : l)
-      );
-
-      alert(`❌ "${lead.name}" has been rejected and will not appear in the main app.`);
-    } catch (error: any) {
-      console.error('Rejection error:', error);
-      alert(`Failed to reject business: ${error.message}`);
-    }
-  };
-
-  // [2025-01-22 17:00] - Add photo removal function
-  const handleRemovePhoto = async (photoUrl: string) => {
-    if (!selectedBusinessForGallery) return;
-
-    try {
-      const updatedPhotos = selectedBusinessForGallery.photo_gallery?.filter(
-        (photo: any) => photo.url !== photoUrl
-      ) || [];
-
-      const { error } = await supabase
-        .from('businesses')
-        .update({ photo_gallery: updatedPhotos })
-        .eq('id', selectedBusinessForGallery.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setSelectedBusinessForGallery(prev => prev ? {
-        ...prev,
-        photo_gallery: updatedPhotos
-      } : null);
-
-      setDiscoveryLeads(leads => 
-        leads.map(l => l.id === selectedBusinessForGallery.id ? 
-          { ...l, photo_gallery: updatedPhotos } : l
-        )
-      );
-
-      console.log(`📸 Photo removed from ${selectedBusinessForGallery.name}`);
-    } catch (error: any) {
-      console.error('Photo removal error:', error);
-      alert(`Failed to remove photo: ${error.message}`);
-    }
-  };
-
-  // [2024-12-19 22:40] - Updated authentication initialization
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
-  const initializeApp = async () => {
-    try {
-      // Check for existing authentication using unified auth
-      const existingUser = await authService.getCurrentUser();
-      if (existingUser) {
-        // Verify user has admin access
-        if (existingUser.roles?.includes('admin') || existingUser.roles?.includes('super_admin')) {
-          setCurrentUser(existingUser);
-          await initializeRealTimeServices();
-        } else {
-          console.warn('User does not have admin privileges');
-        }
-      }
-    } catch (error) {
-      console.error('Error initializing app:', error);
-    } finally {
-      setIsAuthenticating(false);
-    }
-  };
-
-  const initializeRealTimeServices = async () => {
-    try {
-      // [2024-12-15 23:55] - Connect with graceful fallback
-      await realTimeService.connect();
-      setRealTimeConnected(realTimeService.getConnectionStatus());
-
-      // Subscribe to real-time updates only once
-      realTimeService.onUpdate((update: RealTimeUpdate) => {
-        console.log('📡 Real-time update received:', update);
-        if (update.type === 'business_approved' || update.type === 'business_added') {
-          // Debounced refresh to prevent spam
-          setTimeout(() => fetchRealData(), 1000);
-        }
-      });
-
-      realTimeService.onStatsUpdate((newStats: DashboardStats) => {
-        console.log('📊 Stats update received:', newStats);
-        setStats({
-          discoveryLeads: newStats.discoveryLeads,
-          pendingReview: newStats.pendingReview,
-          approved: newStats.approved,
-          salesLeads: newStats.salesLeads,
-          monthlyCost: newStats.monthlyCost
-        });
-      });
-
-      // Load initial data once
-      fetchRealData();
-
-    } catch (error) {
-      console.log('⚠️ Real-time services unavailable, running in offline mode');
-      setRealTimeConnected(false);
-      fetchRealData(); // Still load initial data
-    }
-  };
-
-  const handleLogin = (user: UnifiedUser) => {
-    setCurrentUser(user);
-    initializeRealTimeServices();
-  };
-
-  const handleLogout = async () => {
-    await authService.signOut();
-    setCurrentUser(null);
-    realTimeService.disconnect();
-    setRealTimeConnected(false);
-  };
-
-  const fetchRealData = async () => {
-    console.log('🔄 Attempting to connect to Supabase database...');
-    setLoading(true);
-    
-    try {
-      console.log('📡 Testing database connection...');
-      
-      // [2025-01-21 06:05] - Load enriched data from localStorage first
-      const savedEnrichedData = localStorage.getItem('enrichedBusinessData');
-      let enrichedDataMap = new Map();
-      if (savedEnrichedData) {
-        try {
-          const parsedData = JSON.parse(savedEnrichedData);
-          parsedData.forEach((business: DiscoveryLead) => {
-            if (business.enriched) {
-              enrichedDataMap.set(business.id, business);
-            }
-          });
-          console.log(`📸 Loaded ${enrichedDataMap.size} enriched businesses from localStorage`);
-        } catch (error) {
-          console.error('Failed to parse saved enriched data:', error);
-        }
-      }
-
-      const { data: businesses, error: businessError } = await supabase
-        .from('businesses')
-        .select('*')
-        .limit(200);
-
-      if (businessError) {
-        throw new Error(`Database query failed: ${businessError.message}`);
-      }
-
-      setDbConnected(true);
-      console.log('✅ REAL database connection successful!');
-      console.log(`📊 Found ${businesses?.length || 0} businesses`);
-      
-      const allBusinesses = (businesses || []).map(b => ({
-        id: b.id,
-        name: b.name || b.business_name,
-        category: b.category || b.business_type || 'Business',
-        address: b.address || b.location,
-        rating: b.rating || b.google_rating || (3.5 + Math.random() * 1.5),
-        approved: b.partnership_status === 'active',
-        partnership_status: b.partnership_status,
-        googlePlaceId: b.google_place_id,
-        latitude: b.latitude || b.lat,
-        longitude: b.longitude || b.lng,
-        photo_gallery: b.photo_gallery
-      }));
-
-      // Only proceed with REAL data - never use demo data
-      if (allBusinesses.length === 0) {
-        throw new Error('No businesses found in database tables - check database configuration');
-      }
-      
-      // Calculate real stats
-      const totalLeads = allBusinesses.length;
-      const pending = allBusinesses.filter(b => !b.approved).length;
-      const approved = allBusinesses.filter(b => b.approved).length;
-      
-      setStats({
-        discoveryLeads: totalLeads,
-        pendingReview: pending,
-        approved: approved,
-        salesLeads: Math.floor(approved * 0.3), // Estimate 30% conversion
-        monthlyCost: totalLeads * costPerCall
-      });
-
-      // Transform data for discovery leads
-      const leads: DiscoveryLead[] = allBusinesses.slice(0, 20).map((business, index) => {
-        // [2025-01-22 17:00] - Fix photo URL handling for both old and new formats
-        let photoUrl = undefined;
-        let photoReference = undefined;
-        
-        if (business.photo_gallery && Array.isArray(business.photo_gallery) && business.photo_gallery.length > 0) {
-          const firstPhoto = business.photo_gallery[0];
-          if (typeof firstPhoto === 'string') {
-            // New format: direct URL strings
-            photoUrl = firstPhoto;
-          } else if (firstPhoto.url) {
-            // New format: objects with url property
-            photoUrl = firstPhoto.url;
-          } else if (firstPhoto.photo_reference) {
-            // Old format: photo_reference that needs proxy
-            photoReference = firstPhoto.photo_reference;
-            photoUrl = `http://localhost:3004/api/places/photo?photo_reference=${photoReference}`;
-          }
-        }
-        
-        const baseData = {
-          id: String(business.id || `lead-${index}`),
-          name: business.name || `Business ${index + 1}`,
-          category: business.category || 'Restaurant',
-          address: business.address || 'Address not available',
-          rating: Number(business.rating) || (3.5 + Math.random() * 1.5),
-          status: business.approved ? 'approved' : 'pending',
-          selected: false,
-          photo_gallery: business.photo_gallery,
-          photoUrl: photoUrl,
-          photoReference: photoReference,
-          partnership_status: business.partnership_status || (business.approved ? 'active' : 'pending'),
-          googlePlaceId: business.googlePlaceId || '',
-          latitude: business.latitude,
-          longitude: business.longitude
-        };
-        
-        // [2025-01-21 06:05] - Merge with enriched data from localStorage
-        const enrichedData = enrichedDataMap.get(baseData.id);
-        if (enrichedData) {
-          console.log(`📸 Merging enriched data for: ${baseData.name}`);
-          return { ...baseData, ...enrichedData, selected: false };
-        }
-        
-        return baseData;
-      });
-
-      setDiscoveryLeads(leads);
-
-      // [2024-12-15 17:12] - Extract location data for map
-      const locations = allBusinesses
-        .filter(business => business.latitude && business.longitude)
-        .map(business => ({
-          id: String(business.id || `location-${Math.random()}`),
-          name: business.name || 'Unknown Business',
-          latitude: Number(business.latitude),
-          longitude: Number(business.longitude),
-          category: business.category || 'Restaurant',
-          address: business.address || 'Address not available'
-        }));
-
-      setBusinessLocations(locations);
-    } catch (error: any) {
-      console.log('⚠️ Database connection failed, but dashboard will continue with limited functionality');
-      setDbConnected(false);
-      
-      // [2024-12-15 23:55] - Improved error handling with specific DNS guidance
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_NAME_NOT_RESOLVED')) {
-        setDbError('Network connectivity issue detected. The dashboard will operate in offline mode. Check your internet connection or DNS settings.');
-      } else {
-        setDbError(`Database unavailable: ${error instanceof Error ? error.message : 'Unknown error'}. Operating in limited mode.`);
-      }
-      
-      // Set minimal stats for offline mode
-      setStats({
+    var _this = this;
+    // [2024-12-19 22:40] - Updated to use unified authentication
+    var _a = useState(null), currentUser = _a[0], setCurrentUser = _a[1];
+    var _b = useState(true), isAuthenticating = _b[0], setIsAuthenticating = _b[1];
+    var _c = useState(false), realTimeConnected = _c[0], setRealTimeConnected = _c[1];
+    var _d = useState(generateSampleAnalyticsData()), analyticsData = _d[0], setAnalyticsData = _d[1];
+    var _e = useState('overview'), activeTab = _e[0], setActiveTab = _e[1];
+    var _f = useState({
         discoveryLeads: 0,
         pendingReview: 0,
         approved: 0,
         salesLeads: 0,
-        monthlyCost: 0.00
-      });
-      
-      setDiscoveryLeads([]);
-      setBusinessLocations([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const count = discoveryLeads.filter(lead => lead.selected).length;
-    setSelectedCount(count);
-  }, [discoveryLeads]);
-
-  const handleSelectLead = (id: string) => {
-    setDiscoveryLeads(leads => 
-      leads.map(lead => 
-        lead.id === id ? { ...lead, selected: !lead.selected } : lead
-      )
-    );
-  };
-
-  const handleSelectAll = () => {
-    const allSelected = discoveryLeads.every(lead => lead.selected);
-    setDiscoveryLeads(leads => 
-      leads.map(lead => ({ ...lead, selected: !allSelected }))
-    );
-  };
-
-  const handleEnrichWithGooglePlaces = async () => {
-    const selectedLeads = discoveryLeads.filter(lead => lead.selected);
-    if (selectedLeads.length === 0) {
-      alert('Please select at least one business to enrich.');
-      return;
-    }
-  
-    console.log(`Enriching ${selectedLeads.length} selected businesses...`);
-    setLoading(true);
-  
-    const updatedLeads = [...discoveryLeads];
-  
-    for (const lead of selectedLeads) {
-      const leadIndex = updatedLeads.findIndex(l => l.id === lead.id);
-      if (leadIndex === -1) continue;
-  
-      try {
-        let placeId = lead.googlePlaceId;
-  
-        // Step 1: Find Place ID if missing
-        if (!placeId) {
-          console.log(`🔍 No Place ID for ${lead.name}. Searching...`);
-          const searchResponse = await fetch(`http://localhost:3004/api/places/search?query=${encodeURIComponent(lead.name + ' ' + lead.address)}`);
-          const searchData = await searchResponse.json();
-          if (searchData.candidates && searchData.candidates.length > 0) {
-            placeId = searchData.candidates[0].place_id;
-            console.log(`   ✅ Found Place ID: ${placeId}`);
-            await supabase.from('businesses').update({ google_place_id: placeId }).eq('id', lead.id);
-          } else {
-            console.warn(`   ❌ Could not find a Google Place ID for ${lead.name}.`);
-            continue;
-          }
-        }
-        
-        // Step 2: Fetch photo references
-        console.log(`📸 Fetching photo references for ${lead.name} (Place ID: ${placeId})`);
-        const photosResponse = await fetch(`http://localhost:3004/api/places/photos/${placeId}`);
-        const photosData = await photosResponse.json();
-        
-        if (!photosData.success || photosData.photos.length === 0) {
-          console.log(`   ℹ️ No photos found for ${lead.name}.`);
-          continue;
-        }
-
-        console.log(`   Found ${photosData.photos.length} photo references. Starting download and upload process...`);
-
-        // Step 3: Download, upload to Supabase, and get public URLs
-        // NOTE: This assumes you have a Supabase Storage bucket named 'business-photos'.
-        // Please create it if it doesn't exist.
-        const supabasePhotoUrls = [];
-        for (const photo of photosData.photos) {
-          try {
-            const downloadUrl = `http://localhost:3004/api/places/photo/download?photo_reference=${photo.photo_reference}`;
-            const imageResponse = await fetch(downloadUrl);
-            if (!imageResponse.ok) continue;
-
-            const imageBlob = await imageResponse.blob();
-            
-            // [2025-01-22 16:00] - Sanitize filename to prevent upload errors
-            const safePhotoReference = photo.photo_reference.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 40);
-            const fileName = `${lead.id}_${safePhotoReference}.jpg`;
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('business-photos')
-              .upload(fileName, imageBlob, {
-                cacheControl: '3600',
-                upsert: true, // Overwrite if exists
-              });
-
-            if (uploadError) throw uploadError;
-
-            const { data: publicUrlData } = supabase.storage
-              .from('business-photos')
-              .getPublicUrl(uploadData.path);
-              
-            supabasePhotoUrls.push(publicUrlData.publicUrl);
-            console.log(`     ✅ Uploaded ${fileName} to Supabase.`);
-          } catch (uploadError: any) {
-            console.error(`     ❌ Failed to upload photo ${photo.photo_reference.substring(0, 40)}...:`, uploadError.message || uploadError);
-          }
-        }
-
-        if (supabasePhotoUrls.length === 0) {
-          console.warn(`   All photo uploads failed for ${lead.name}.`);
-          continue;
-        }
-
-        // Step 4: Update the business record with the new Supabase URLs
-        const { error: updateError } = await supabase
-          .from('businesses')
-          .update({ photo_gallery: supabasePhotoUrls })
-          .eq('id', lead.id);
-          
-        if (updateError) throw updateError;
-        
-        // Step 5: Update the UI state
-        updatedLeads[leadIndex] = {
-          ...updatedLeads[leadIndex],
-          enriched: true,
-          photoUrl: supabasePhotoUrls[0],
-          photoReference: undefined, // No longer needed
-          googlePlaceId: placeId,
-          photo_gallery: supabasePhotoUrls,
-        };
-        console.log(`   ✅ Successfully enriched ${lead.name} with ${supabasePhotoUrls.length} photos.`);
-
-      } catch (error) {
-        console.error(`Failed to enrich ${lead.name}:`, error);
-      }
-    }
-    
-    setDiscoveryLeads(updatedLeads);
-    setLoading(false);
-    console.log('Enrichment process completed.');
-  };
-
-  // [2024-12-15 23:10] - Advanced Admin Features
-  const handleBulkApproval = (action: 'approve' | 'reject') => {
-    if (selectedCount === 0) {
-      alert('Please select businesses to approve/reject.');
-      return;
-    }
-
-    const actionText = action === 'approve' ? 'approve' : 'reject';
-    const confirmed = confirm(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${selectedCount} selected businesses?`);
-    
-    if (confirmed) {
-      setDiscoveryLeads(leads => 
-        leads.map(lead => 
-          lead.selected 
-            ? { ...lead, status: action === 'approve' ? 'approved' : 'pending', selected: false }
-            : lead
-        )
-      );
-
-      // Update stats
-      const newApproved = discoveryLeads.filter(l => l.selected).length;
-      setStats(prev => ({
-        ...prev,
-        approved: action === 'approve' ? prev.approved + newApproved : prev.approved - newApproved,
-        pendingReview: action === 'approve' ? prev.pendingReview - newApproved : prev.pendingReview + newApproved,
-        salesLeads: Math.floor((action === 'approve' ? prev.approved + newApproved : prev.approved - newApproved) * 0.3)
-      }));
-
-      alert(`✅ Successfully ${actionText}ed ${selectedCount} businesses!`);
-    }
-  };
-
-  const handleExportData = () => {
-    const selectedBusinesses = discoveryLeads.filter(lead => lead.selected);
-    const dataToExport = selectedBusinesses.length > 0 ? selectedBusinesses : discoveryLeads;
-    
-    if (exportFormat === 'csv') {
-      const csvHeaders = 'ID,Name,Category,Address,Rating,Status\n';
-      const csvData = dataToExport.map(lead => 
-        `${lead.id},"${lead.name}","${lead.category}","${lead.address}",${lead.rating},${lead.status}`
-      ).join('\n');
-      
-      const blob = new Blob([csvHeaders + csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `localplus-businesses-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const jsonData = JSON.stringify(dataToExport, null, 2);
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `localplus-businesses-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    alert(`✅ Exported ${dataToExport.length} businesses as ${exportFormat.toUpperCase()}!`);
-  };
-
-  const handleBulkAction = () => {
-    if (selectedCount === 0) {
-      alert('Please select businesses first.');
-      return;
-    }
-
-    switch (bulkAction) {
-      case 'approve':
-        handleBulkApproval('approve');
-        break;
-      case 'reject':
-        handleBulkApproval('reject');
-        break;
-      case 'enrich':
-        handleEnrichWithGooglePlaces();
-        break;
-      case 'export':
-        handleExportData();
-        break;
-      default:
-        alert('Please select a bulk action.');
-    }
-    setBulkAction('');
-  };
-
-  // Filter businesses based on search and filters
-  const filteredLeads = discoveryLeads.filter(lead => {
-    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         lead.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || lead.category === categoryFilter;
-    
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
-
-  // Get unique categories for filter
-  const uniqueCategories = [...new Set(discoveryLeads.map(lead => lead.category))];
-
-  // [2025-01-21 01:15] - Test photo functionality
-  const addTestPhotoData = () => {
-    setDiscoveryLeads(leads => 
-      leads.map((lead, index) => {
-        if (index === 0) { // Add photo to first business
-          return {
-            ...lead,
-            enriched: true,
-            photoUrl: "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=AXCi2Q4xWQEyGJN8h8K7J0r8lVZ2aQ9DexampleRef&key=AIzaSyCEMtUfl8yJzVZIcTaaEajKRtqEJZZ_G2Y",
-            phoneNumber: "032 709 000",
-            website: "https://example.com",
-            businessType: "restaurant",
-            rating: 4.7,
-            reviewCount: 36,
-            isOpenNow: true
-          };
-        }
-        return lead;
-      })
-    );
-  };
-
-  // [2025-01-21 06:15] - Debug enrichment for specific business
-  const debugEnrichLetsSeaDirectly = async () => {
-    console.log('🔍 DEBUG: Starting Let\'s Sea enrichment test...');
-    
-    try {
-      const response = await fetch(`http://localhost:3004/api/places/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: "Let's Sea Hua Hin Al Fresco Resort 83, 188 ซอย หัวถนน 23, Tambon Nong Kae, Amphoe Hua Hin",
-          fields: 'place_id,name,rating,formatted_address,geometry,photos,formatted_phone_number,website,types,price_level,opening_hours,user_ratings_total,reviews'
-        })
-      });
-      
-      const result = await response.json();
-      console.log('🔍 DEBUG: API Response:', result);
-      
-      if (result.success && result.data && result.data.status === 'OK' && result.data.result) {
-        const place = result.data.result;
-        console.log('🔍 DEBUG: Place data:', place);
-        console.log('🔍 DEBUG: Photos available:', place.photos?.length || 0);
-        
-        if (place.photos && place.photos.length > 0) {
-          const photo = place.photos[0];
-          const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${result.apiKey}`;
-          console.log('🔍 DEBUG: Generated photo URL:', photoUrl);
-          
-          // Find Let's Sea in the current data and update it
-          setDiscoveryLeads(leads => {
-            const updatedLeads = leads.map(lead => {
-              if (lead.name.includes("Let's Sea") || lead.name.includes("Lets Sea")) {
-                console.log('🔍 DEBUG: Updating Let\'s Sea with photo:', photoUrl);
-                return {
-                  ...lead,
-                  enriched: true,
-                  photoUrl: photoUrl,
-                  photoReference: photo.photo_reference,
-                  enhancedRating: place.rating,
-                  phoneNumber: place.formatted_phone_number,
-                  website: place.website,
-                  businessType: place.types?.[0],
-                  reviewCount: place.user_ratings_total
-                };
-              }
-              return lead;
+        monthlyCost: 0
+    }), stats = _f[0], setStats = _f[1];
+    var _g = useState([]), discoveryLeads = _g[0], setDiscoveryLeads = _g[1];
+    var _h = useState([]), businessLocations = _h[0], setBusinessLocations = _h[1];
+    var _j = useState(0), selectedCount = _j[0], setSelectedCount = _j[1];
+    var _k = useState(true), loading = _k[0], setLoading = _k[1];
+    var _l = useState(false), dbConnected = _l[0], setDbConnected = _l[1];
+    var _m = useState(null), dbError = _m[0], setDbError = _m[1];
+    var _o = useState(''), bulkAction = _o[0], setBulkAction = _o[1];
+    var _p = useState('csv'), exportFormat = _p[0], setExportFormat = _p[1];
+    var _q = useState(''), searchTerm = _q[0], setSearchTerm = _q[1];
+    var _r = useState('all'), statusFilter = _r[0], setStatusFilter = _r[1];
+    var _s = useState('all'), categoryFilter = _s[0], setCategoryFilter = _s[1];
+    var costPerCall = 0.017; // $0.017 per Google Places API call
+    var _t = useState(false), galleryModalOpen = _t[0], setGalleryModalOpen = _t[1];
+    var _u = useState(null), selectedBusinessForGallery = _u[0], setSelectedBusinessForGallery = _u[1];
+    // [2025-01-22 17:00] - Add approval management functions
+    var handleApproveBusiness = function (lead) { return __awaiter(_this, void 0, void 0, function () {
+        var error, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, supabase
+                            .from('businesses')
+                            .update({ partnership_status: 'active' })
+                            .eq('id', lead.id)];
+                case 1:
+                    error = (_a.sent()).error;
+                    if (error)
+                        throw error;
+                    // Update local state
+                    setDiscoveryLeads(function (leads) {
+                        return leads.map(function (l) { return l.id === lead.id ? __assign(__assign({}, l), { status: 'approved', partnership_status: 'active' }) : l; });
+                    });
+                    alert("\u2705 \"".concat(lead.name, "\" has been approved and will now appear in the main app."));
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    console.error('Approval error:', error_1);
+                    alert("Failed to approve business: ".concat(error_1.message));
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleRejectBusiness = function (lead) { return __awaiter(_this, void 0, void 0, function () {
+        var error, error_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, supabase
+                            .from('businesses')
+                            .update({ partnership_status: 'suspended' })
+                            .eq('id', lead.id)];
+                case 1:
+                    error = (_a.sent()).error;
+                    if (error)
+                        throw error;
+                    // Update local state
+                    setDiscoveryLeads(function (leads) {
+                        return leads.map(function (l) { return l.id === lead.id ? __assign(__assign({}, l), { status: 'rejected', partnership_status: 'suspended' }) : l; });
+                    });
+                    alert("\u274C \"".concat(lead.name, "\" has been rejected and will not appear in the main app."));
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_2 = _a.sent();
+                    console.error('Rejection error:', error_2);
+                    alert("Failed to reject business: ".concat(error_2.message));
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); };
+    // [2025-01-22 17:00] - Add photo removal function
+    var handleRemovePhoto = function (photoUrl) { return __awaiter(_this, void 0, void 0, function () {
+        var updatedPhotos_1, error, error_3;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    if (!selectedBusinessForGallery)
+                        return [2 /*return*/];
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    updatedPhotos_1 = ((_a = selectedBusinessForGallery.photo_gallery) === null || _a === void 0 ? void 0 : _a.filter(function (photo) { return photo.url !== photoUrl; })) || [];
+                    return [4 /*yield*/, supabase
+                            .from('businesses')
+                            .update({ photo_gallery: updatedPhotos_1 })
+                            .eq('id', selectedBusinessForGallery.id)];
+                case 2:
+                    error = (_b.sent()).error;
+                    if (error)
+                        throw error;
+                    // Update local state
+                    setSelectedBusinessForGallery(function (prev) { return prev ? __assign(__assign({}, prev), { photo_gallery: updatedPhotos_1 }) : null; });
+                    setDiscoveryLeads(function (leads) {
+                        return leads.map(function (l) { return l.id === selectedBusinessForGallery.id ? __assign(__assign({}, l), { photo_gallery: updatedPhotos_1 }) : l; });
+                    });
+                    console.log("\uD83D\uDCF8 Photo removed from ".concat(selectedBusinessForGallery.name));
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_3 = _b.sent();
+                    console.error('Photo removal error:', error_3);
+                    alert("Failed to remove photo: ".concat(error_3.message));
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    // [2024-12-19 22:40] - Updated authentication initialization
+    useEffect(function () {
+        initializeApp();
+    }, []);
+    var initializeApp = function () { return __awaiter(_this, void 0, void 0, function () {
+        var existingUser, error_4;
+        var _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    _c.trys.push([0, 5, 6, 7]);
+                    return [4 /*yield*/, authService.getCurrentUser()];
+                case 1:
+                    existingUser = _c.sent();
+                    if (!existingUser) return [3 /*break*/, 4];
+                    if (!(((_a = existingUser.roles) === null || _a === void 0 ? void 0 : _a.includes('admin')) || ((_b = existingUser.roles) === null || _b === void 0 ? void 0 : _b.includes('super_admin')))) return [3 /*break*/, 3];
+                    setCurrentUser(existingUser);
+                    return [4 /*yield*/, initializeRealTimeServices()];
+                case 2:
+                    _c.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    console.warn('User does not have admin privileges');
+                    _c.label = 4;
+                case 4: return [3 /*break*/, 7];
+                case 5:
+                    error_4 = _c.sent();
+                    console.error('Error initializing app:', error_4);
+                    return [3 /*break*/, 7];
+                case 6:
+                    setIsAuthenticating(false);
+                    return [7 /*endfinally*/];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); };
+    var initializeRealTimeServices = function () { return __awaiter(_this, void 0, void 0, function () {
+        var unsubscribeUpdates, unsubscribeStats, error_5;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    // [2024-12-15 23:55] - Connect with graceful fallback
+                    return [4 /*yield*/, realTimeService.connect()];
+                case 1:
+                    // [2024-12-15 23:55] - Connect with graceful fallback
+                    _a.sent();
+                    setRealTimeConnected(realTimeService.getConnectionStatus());
+                    unsubscribeUpdates = realTimeService.onUpdate(function (update) {
+                        console.log('📡 Real-time update received:', update);
+                        if (update.type === 'business_approved' || update.type === 'business_added') {
+                            // Debounced refresh to prevent spam
+                            setTimeout(function () { return fetchRealData(); }, 1000);
+                        }
+                    });
+                    unsubscribeStats = realTimeService.onStatsUpdate(function (newStats) {
+                        console.log('📊 Stats update received:', newStats);
+                        setStats({
+                            discoveryLeads: newStats.discoveryLeads,
+                            pendingReview: newStats.pendingReview,
+                            approved: newStats.approved,
+                            salesLeads: newStats.salesLeads,
+                            monthlyCost: newStats.monthlyCost
+                        });
+                    });
+                    // Load initial data once
+                    fetchRealData();
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_5 = _a.sent();
+                    console.log('⚠️ Real-time services unavailable, running in offline mode');
+                    setRealTimeConnected(false);
+                    fetchRealData(); // Still load initial data
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleLogin = function (user) { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    setCurrentUser(user);
+                    return [4 /*yield*/, initializeRealTimeServices()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleLogout = function () { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, authService.signOut()];
+                case 1:
+                    _a.sent();
+                    setCurrentUser(null);
+                    realTimeService.disconnect();
+                    setRealTimeConnected(false);
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+    var fetchRealData = function () { return __awaiter(_this, void 0, void 0, function () {
+        var savedEnrichedData, enrichedDataMap_1, parsedData, _a, businesses, businessError, allBusinesses, totalLeads, pending, approved, leads, locations, error_6;
+        var _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    console.log('🔄 Attempting to connect to Supabase database...');
+                    setLoading(true);
+                    _d.label = 1;
+                case 1:
+                    _d.trys.push([1, 3, 4, 5]);
+                    console.log('📡 Testing database connection...');
+                    savedEnrichedData = localStorage.getItem('enrichedBusinessData');
+                    enrichedDataMap_1 = new Map();
+                    if (savedEnrichedData) {
+                        try {
+                            parsedData = JSON.parse(savedEnrichedData);
+                            parsedData.forEach(function (business) {
+                                if (business.enriched) {
+                                    enrichedDataMap_1.set(business.id, business);
+                                }
+                            });
+                            console.log("\uD83D\uDCF8 Loaded ".concat(enrichedDataMap_1.size, " enriched businesses from localStorage"));
+                        }
+                        catch (error) {
+                            console.error('Failed to parse saved enriched data:', error);
+                        }
+                    }
+                    return [4 /*yield*/, supabase
+                            .from('businesses')
+                            .select('*')
+                            .limit(200)];
+                case 2:
+                    _a = _d.sent(), businesses = _a.data, businessError = _a.error;
+                    if (businessError) {
+                        throw new Error("Database query failed: ".concat(businessError.message));
+                    }
+                    setDbConnected(true);
+                    console.log('✅ REAL database connection successful!');
+                    console.log("\uD83D\uDCCA Found ".concat((businesses === null || businesses === void 0 ? void 0 : businesses.length) || 0, " businesses"));
+                    allBusinesses = (businesses || []).map(function (b) { return ({
+                        id: b.id,
+                        name: b.name || b.business_name,
+                        category: b.category || b.business_type || 'Business',
+                        address: b.address || b.location,
+                        rating: b.rating || b.google_rating || (3.5 + Math.random() * 1.5),
+                        approved: b.partnership_status === 'active',
+                        partnership_status: b.partnership_status,
+                        googlePlaceId: b.google_place_id,
+                        latitude: b.latitude || b.lat,
+                        longitude: b.longitude || b.lng,
+                        photo_gallery: b.photo_gallery
+                    }); });
+                    // Only proceed with REAL data - never use demo data
+                    if (allBusinesses.length === 0) {
+                        throw new Error('No businesses found in database tables - check database configuration');
+                    }
+                    totalLeads = allBusinesses.length;
+                    pending = allBusinesses.filter(function (b) { return !b.approved; }).length;
+                    approved = allBusinesses.filter(function (b) { return b.approved; }).length;
+                    setStats({
+                        discoveryLeads: totalLeads,
+                        pendingReview: pending,
+                        approved: approved,
+                        salesLeads: Math.floor(approved * 0.3), // Estimate 30% conversion
+                        monthlyCost: totalLeads * costPerCall
+                    });
+                    leads = allBusinesses.slice(0, 20).map(function (business, index) {
+                        // [2025-01-22 17:00] - Fix photo URL handling for both old and new formats
+                        var photoUrl = undefined;
+                        var photoReference = undefined;
+                        if (business.photo_gallery && Array.isArray(business.photo_gallery) && business.photo_gallery.length > 0) {
+                            var firstPhoto = business.photo_gallery[0];
+                            if (typeof firstPhoto === 'string') {
+                                // New format: direct URL strings
+                                photoUrl = firstPhoto;
+                            }
+                            else if (firstPhoto.url) {
+                                // New format: objects with url property
+                                photoUrl = firstPhoto.url;
+                            }
+                            else if (firstPhoto.photo_reference) {
+                                // Old format: photo_reference that needs proxy
+                                photoReference = firstPhoto.photo_reference;
+                                photoUrl = "http://localhost:3004/api/places/photo?photo_reference=".concat(photoReference);
+                            }
+                        }
+                        var baseData = {
+                            id: String(business.id || "lead-".concat(index)),
+                            name: business.name || "Business ".concat(index + 1),
+                            category: business.category || 'Restaurant',
+                            address: business.address || 'Address not available',
+                            rating: Number(business.rating) || (3.5 + Math.random() * 1.5),
+                            status: business.approved ? 'approved' : 'pending',
+                            selected: false,
+                            photo_gallery: business.photo_gallery,
+                            photoUrl: photoUrl,
+                            photoReference: photoReference,
+                            partnership_status: business.partnership_status || (business.approved ? 'active' : 'pending'),
+                            googlePlaceId: business.googlePlaceId || '',
+                            latitude: business.latitude,
+                            longitude: business.longitude
+                        };
+                        // [2025-01-21 06:05] - Merge with enriched data from localStorage
+                        var enrichedData = enrichedDataMap_1.get(baseData.id);
+                        if (enrichedData) {
+                            console.log("\uD83D\uDCF8 Merging enriched data for: ".concat(baseData.name));
+                            return __assign(__assign(__assign({}, baseData), enrichedData), { selected: false });
+                        }
+                        return baseData;
+                    });
+                    setDiscoveryLeads(leads);
+                    locations = allBusinesses
+                        .filter(function (business) { return business.latitude && business.longitude; })
+                        .map(function (business) { return ({
+                        id: String(business.id || "location-".concat(Math.random())),
+                        name: business.name || 'Unknown Business',
+                        latitude: Number(business.latitude),
+                        longitude: Number(business.longitude),
+                        category: business.category || 'Restaurant',
+                        address: business.address || 'Address not available'
+                    }); });
+                    setBusinessLocations(locations);
+                    return [3 /*break*/, 5];
+                case 3:
+                    error_6 = _d.sent();
+                    console.log('⚠️ Database connection failed, but dashboard will continue with limited functionality');
+                    setDbConnected(false);
+                    // [2024-12-15 23:55] - Improved error handling with specific DNS guidance
+                    if (((_b = error_6.message) === null || _b === void 0 ? void 0 : _b.includes('Failed to fetch')) || ((_c = error_6.message) === null || _c === void 0 ? void 0 : _c.includes('ERR_NAME_NOT_RESOLVED'))) {
+                        setDbError('Network connectivity issue detected. The dashboard will operate in offline mode. Check your internet connection or DNS settings.');
+                    }
+                    else {
+                        setDbError("Database unavailable: ".concat(error_6 instanceof Error ? error_6.message : 'Unknown error', ". Operating in limited mode."));
+                    }
+                    // Set minimal stats for offline mode
+                    setStats({
+                        discoveryLeads: 0,
+                        pendingReview: 0,
+                        approved: 0,
+                        salesLeads: 0,
+                        monthlyCost: 0.00
+                    });
+                    setDiscoveryLeads([]);
+                    setBusinessLocations([]);
+                    return [3 /*break*/, 5];
+                case 4:
+                    setLoading(false);
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); };
+    useEffect(function () {
+        var count = discoveryLeads.filter(function (lead) { return lead.selected; }).length;
+        setSelectedCount(count);
+    }, [discoveryLeads]);
+    var handleSelectLead = function (id) {
+        setDiscoveryLeads(function (leads) {
+            return leads.map(function (lead) {
+                return lead.id === id ? __assign(__assign({}, lead), { selected: !lead.selected }) : lead;
             });
-            
-            // Save to localStorage
-            localStorage.setItem('enrichedBusinessData', JSON.stringify(updatedLeads));
-            console.log('🔍 DEBUG: Saved enriched data to localStorage');
-            
-            return updatedLeads;
-          });
-          
-          alert(`✅ DEBUG SUCCESS!\n\nLet's Sea enriched with:\n• Photo: ${photoUrl.substring(0, 50)}...\n• Rating: ${place.rating}/5\n• Phone: ${place.formatted_phone_number}\n• Reviews: ${place.user_ratings_total}\n\nCheck Business Curation tab now!`);
-        } else {
-          alert('❌ No photos found for Let\'s Sea');
+        });
+    };
+    var handleSelectAll = function () {
+        var allSelected = discoveryLeads.every(function (lead) { return lead.selected; });
+        setDiscoveryLeads(function (leads) {
+            return leads.map(function (lead) { return (__assign(__assign({}, lead), { selected: !allSelected })); });
+        });
+    };
+    var handleEnrichWithGooglePlaces = function () { return __awaiter(_this, void 0, void 0, function () {
+        var selectedLeads, updatedLeads, _loop_1, _i, selectedLeads_1, lead;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    selectedLeads = discoveryLeads.filter(function (lead) { return lead.selected; });
+                    if (selectedLeads.length === 0) {
+                        alert('Please select at least one business to enrich.');
+                        return [2 /*return*/];
+                    }
+                    console.log("Enriching ".concat(selectedLeads.length, " selected businesses..."));
+                    setLoading(true);
+                    updatedLeads = __spreadArray([], discoveryLeads, true);
+                    _loop_1 = function (lead) {
+                        var leadIndex, placeId, searchResponse, searchData, photosResponse, photosData, supabasePhotoUrls, _b, _c, photo, downloadUrl, imageResponse, imageBlob, safePhotoReference, fileName, _d, uploadData, uploadError, publicUrlData, uploadError_1, updateError, error_7;
+                        return __generator(this, function (_e) {
+                            switch (_e.label) {
+                                case 0:
+                                    leadIndex = updatedLeads.findIndex(function (l) { return l.id === lead.id; });
+                                    if (leadIndex === -1)
+                                        return [2 /*return*/, "continue"];
+                                    _e.label = 1;
+                                case 1:
+                                    _e.trys.push([1, 18, , 19]);
+                                    placeId = lead.googlePlaceId;
+                                    if (!!placeId) return [3 /*break*/, 6];
+                                    console.log("\uD83D\uDD0D No Place ID for ".concat(lead.name, ". Searching..."));
+                                    return [4 /*yield*/, fetch("http://localhost:3004/api/places/search?query=".concat(encodeURIComponent(lead.name + ' ' + lead.address)))];
+                                case 2:
+                                    searchResponse = _e.sent();
+                                    return [4 /*yield*/, searchResponse.json()];
+                                case 3:
+                                    searchData = _e.sent();
+                                    if (!(searchData.candidates && searchData.candidates.length > 0)) return [3 /*break*/, 5];
+                                    placeId = searchData.candidates[0].place_id;
+                                    console.log("   \u2705 Found Place ID: ".concat(placeId));
+                                    return [4 /*yield*/, supabase.from('businesses').update({ google_place_id: placeId }).eq('id', lead.id)];
+                                case 4:
+                                    _e.sent();
+                                    return [3 /*break*/, 6];
+                                case 5:
+                                    console.warn("   \u274C Could not find a Google Place ID for ".concat(lead.name, "."));
+                                    return [2 /*return*/, "continue"];
+                                case 6:
+                                    // Step 2: Fetch photo references
+                                    console.log("\uD83D\uDCF8 Fetching photo references for ".concat(lead.name, " (Place ID: ").concat(placeId, ")"));
+                                    return [4 /*yield*/, fetch("http://localhost:3004/api/places/photos/".concat(placeId))];
+                                case 7:
+                                    photosResponse = _e.sent();
+                                    return [4 /*yield*/, photosResponse.json()];
+                                case 8:
+                                    photosData = _e.sent();
+                                    if (!photosData.success || photosData.photos.length === 0) {
+                                        console.log("   \u2139\uFE0F No photos found for ".concat(lead.name, "."));
+                                        return [2 /*return*/, "continue"];
+                                    }
+                                    console.log("   Found ".concat(photosData.photos.length, " photo references. Starting download and upload process..."));
+                                    supabasePhotoUrls = [];
+                                    _b = 0, _c = photosData.photos;
+                                    _e.label = 9;
+                                case 9:
+                                    if (!(_b < _c.length)) return [3 /*break*/, 16];
+                                    photo = _c[_b];
+                                    _e.label = 10;
+                                case 10:
+                                    _e.trys.push([10, 14, , 15]);
+                                    downloadUrl = "http://localhost:3004/api/places/photo/download?photo_reference=".concat(photo.photo_reference);
+                                    return [4 /*yield*/, fetch(downloadUrl)];
+                                case 11:
+                                    imageResponse = _e.sent();
+                                    if (!imageResponse.ok)
+                                        return [3 /*break*/, 15];
+                                    return [4 /*yield*/, imageResponse.blob()];
+                                case 12:
+                                    imageBlob = _e.sent();
+                                    safePhotoReference = photo.photo_reference.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 40);
+                                    fileName = "".concat(lead.id, "_").concat(safePhotoReference, ".jpg");
+                                    return [4 /*yield*/, supabase.storage
+                                            .from('business-photos')
+                                            .upload(fileName, imageBlob, {
+                                            cacheControl: '3600',
+                                            upsert: true, // Overwrite if exists
+                                        })];
+                                case 13:
+                                    _d = _e.sent(), uploadData = _d.data, uploadError = _d.error;
+                                    if (uploadError)
+                                        throw uploadError;
+                                    publicUrlData = supabase.storage
+                                        .from('business-photos')
+                                        .getPublicUrl(uploadData.path).data;
+                                    supabasePhotoUrls.push(publicUrlData.publicUrl);
+                                    console.log("     \u2705 Uploaded ".concat(fileName, " to Supabase."));
+                                    return [3 /*break*/, 15];
+                                case 14:
+                                    uploadError_1 = _e.sent();
+                                    console.error("     \u274C Failed to upload photo ".concat(photo.photo_reference.substring(0, 40), "...:"), uploadError_1.message || uploadError_1);
+                                    return [3 /*break*/, 15];
+                                case 15:
+                                    _b++;
+                                    return [3 /*break*/, 9];
+                                case 16:
+                                    if (supabasePhotoUrls.length === 0) {
+                                        console.warn("   All photo uploads failed for ".concat(lead.name, "."));
+                                        return [2 /*return*/, "continue"];
+                                    }
+                                    return [4 /*yield*/, supabase
+                                            .from('businesses')
+                                            .update({ photo_gallery: supabasePhotoUrls })
+                                            .eq('id', lead.id)];
+                                case 17:
+                                    updateError = (_e.sent()).error;
+                                    if (updateError)
+                                        throw updateError;
+                                    // Step 5: Update the UI state
+                                    updatedLeads[leadIndex] = __assign(__assign({}, updatedLeads[leadIndex]), { enriched: true, photoUrl: supabasePhotoUrls[0], photoReference: undefined, googlePlaceId: placeId, photo_gallery: supabasePhotoUrls });
+                                    console.log("   \u2705 Successfully enriched ".concat(lead.name, " with ").concat(supabasePhotoUrls.length, " photos."));
+                                    return [3 /*break*/, 19];
+                                case 18:
+                                    error_7 = _e.sent();
+                                    console.error("Failed to enrich ".concat(lead.name, ":"), error_7);
+                                    return [3 /*break*/, 19];
+                                case 19: return [2 /*return*/];
+                            }
+                        });
+                    };
+                    _i = 0, selectedLeads_1 = selectedLeads;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < selectedLeads_1.length)) return [3 /*break*/, 4];
+                    lead = selectedLeads_1[_i];
+                    return [5 /*yield**/, _loop_1(lead)];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4:
+                    setDiscoveryLeads(updatedLeads);
+                    setLoading(false);
+                    console.log('Enrichment process completed.');
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+    // [2024-12-15 23:10] - Advanced Admin Features
+    var handleBulkApproval = function (action) {
+        if (selectedCount === 0) {
+            alert('Please select businesses to approve/reject.');
+            return;
         }
-      } else {
-        alert('❌ API call failed: ' + (result.data?.error?.message || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('🔍 DEBUG: Error:', error);
-      alert('❌ Network error: ' + (error instanceof Error ? error.message : 'Unknown error'));
-    }
-  };
-
-  // [2024-12-15 23:45] - Authentication Guard
-  if (isAuthenticating) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        var actionText = action === 'approve' ? 'approve' : 'reject';
+        var confirmed = confirm("".concat(actionText.charAt(0).toUpperCase() + actionText.slice(1), " ").concat(selectedCount, " selected businesses?"));
+        if (confirmed) {
+            setDiscoveryLeads(function (leads) {
+                return leads.map(function (lead) {
+                    return lead.selected
+                        ? __assign(__assign({}, lead), { status: action === 'approve' ? 'approved' : 'pending', selected: false }) : lead;
+                });
+            });
+            // Update stats
+            var newApproved_1 = discoveryLeads.filter(function (l) { return l.selected; }).length;
+            setStats(function (prev) { return (__assign(__assign({}, prev), { approved: action === 'approve' ? prev.approved + newApproved_1 : prev.approved - newApproved_1, pendingReview: action === 'approve' ? prev.pendingReview - newApproved_1 : prev.pendingReview + newApproved_1, salesLeads: Math.floor((action === 'approve' ? prev.approved + newApproved_1 : prev.approved - newApproved_1) * 0.3) })); });
+            alert("\u2705 Successfully ".concat(actionText, "ed ").concat(selectedCount, " businesses!"));
+        }
+    };
+    var handleExportData = function () {
+        var selectedBusinesses = discoveryLeads.filter(function (lead) { return lead.selected; });
+        var dataToExport = selectedBusinesses.length > 0 ? selectedBusinesses : discoveryLeads;
+        if (exportFormat === 'csv') {
+            var csvHeaders = 'ID,Name,Category,Address,Rating,Status\n';
+            var csvData = dataToExport.map(function (lead) {
+                return "".concat(lead.id, ",\"").concat(lead.name, "\",\"").concat(lead.category, "\",\"").concat(lead.address, "\",").concat(lead.rating, ",").concat(lead.status);
+            }).join('\n');
+            var blob = new Blob([csvHeaders + csvData], { type: 'text/csv' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = "localplus-businesses-".concat(new Date().toISOString().split('T')[0], ".csv");
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        else {
+            var jsonData = JSON.stringify(dataToExport, null, 2);
+            var blob = new Blob([jsonData], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = "localplus-businesses-".concat(new Date().toISOString().split('T')[0], ".json");
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        alert("\u2705 Exported ".concat(dataToExport.length, " businesses as ").concat(exportFormat.toUpperCase(), "!"));
+    };
+    var handleBulkAction = function () {
+        if (selectedCount === 0) {
+            alert('Please select businesses first.');
+            return;
+        }
+        switch (bulkAction) {
+            case 'approve':
+                handleBulkApproval('approve');
+                break;
+            case 'reject':
+                handleBulkApproval('reject');
+                break;
+            case 'enrich':
+                handleEnrichWithGooglePlaces();
+                break;
+            case 'export':
+                handleExportData();
+                break;
+            default:
+                alert('Please select a bulk action.');
+        }
+        setBulkAction('');
+    };
+    // Filter businesses based on search and filters
+    var filteredLeads = discoveryLeads.filter(function (lead) {
+        var matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lead.address.toLowerCase().includes(searchTerm.toLowerCase());
+        var matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+        var matchesCategory = categoryFilter === 'all' || lead.category === categoryFilter;
+        return matchesSearch && matchesStatus && matchesCategory;
+    });
+    // Get unique categories for filter
+    var uniqueCategories = __spreadArray([], new Set(discoveryLeads.map(function (lead) { return lead.category; })), true);
+    // [2025-01-21 01:15] - Test photo functionality
+    var addTestPhotoData = function () {
+        setDiscoveryLeads(function (leads) {
+            return leads.map(function (lead, index) {
+                if (index === 0) { // Add photo to first business
+                    return __assign(__assign({}, lead), { enriched: true, photoUrl: "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=AXCi2Q4xWQEyGJN8h8K7J0r8lVZ2aQ9DexampleRef&key=AIzaSyCEMtUfl8yJzVZIcTaaEajKRtqEJZZ_G2Y", phoneNumber: "032 709 000", website: "https://example.com", businessType: "restaurant", rating: 4.7, reviewCount: 36, isOpenNow: true });
+                }
+                return lead;
+            });
+        });
+    };
+    // [2025-01-21 06:15] - Debug enrichment for specific business
+    var debugEnrichLetsSeaDirectly = function () { return __awaiter(_this, void 0, void 0, function () {
+        var response, result, place_1, photo_1, photoUrl_1, error_8;
+        var _a, _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    console.log('🔍 DEBUG: Starting Let\'s Sea enrichment test...');
+                    _d.label = 1;
+                case 1:
+                    _d.trys.push([1, 4, , 5]);
+                    return [4 /*yield*/, fetch("http://localhost:3004/api/places/search", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: "Let's Sea Hua Hin Al Fresco Resort 83, 188 ซอย หัวถนน 23, Tambon Nong Kae, Amphoe Hua Hin",
+                                fields: 'place_id,name,rating,formatted_address,geometry,photos,formatted_phone_number,website,types,price_level,opening_hours,user_ratings_total,reviews'
+                            })
+                        })];
+                case 2:
+                    response = _d.sent();
+                    return [4 /*yield*/, response.json()];
+                case 3:
+                    result = _d.sent();
+                    console.log('🔍 DEBUG: API Response:', result);
+                    if (result.success && result.data && result.data.status === 'OK' && result.data.result) {
+                        place_1 = result.data.result;
+                        console.log('🔍 DEBUG: Place data:', place_1);
+                        console.log('🔍 DEBUG: Photos available:', ((_a = place_1.photos) === null || _a === void 0 ? void 0 : _a.length) || 0);
+                        if (place_1.photos && place_1.photos.length > 0) {
+                            photo_1 = place_1.photos[0];
+                            photoUrl_1 = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=".concat(photo_1.photo_reference, "&key=").concat(result.apiKey);
+                            console.log('🔍 DEBUG: Generated photo URL:', photoUrl_1);
+                            // Find Let's Sea in the current data and update it
+                            setDiscoveryLeads(function (leads) {
+                                var updatedLeads = leads.map(function (lead) {
+                                    var _a;
+                                    if (lead.name.includes("Let's Sea") || lead.name.includes("Lets Sea")) {
+                                        console.log('🔍 DEBUG: Updating Let\'s Sea with photo:', photoUrl_1);
+                                        return __assign(__assign({}, lead), { enriched: true, photoUrl: photoUrl_1, photoReference: photo_1.photo_reference, enhancedRating: place_1.rating, phoneNumber: place_1.formatted_phone_number, website: place_1.website, businessType: (_a = place_1.types) === null || _a === void 0 ? void 0 : _a[0], reviewCount: place_1.user_ratings_total });
+                                    }
+                                    return lead;
+                                });
+                                // Save to localStorage
+                                localStorage.setItem('enrichedBusinessData', JSON.stringify(updatedLeads));
+                                console.log('🔍 DEBUG: Saved enriched data to localStorage');
+                                return updatedLeads;
+                            });
+                            alert("\u2705 DEBUG SUCCESS!\n\nLet's Sea enriched with:\n\u2022 Photo: ".concat(photoUrl_1.substring(0, 50), "...\n\u2022 Rating: ").concat(place_1.rating, "/5\n\u2022 Phone: ").concat(place_1.formatted_phone_number, "\n\u2022 Reviews: ").concat(place_1.user_ratings_total, "\n\nCheck Business Curation tab now!"));
+                        }
+                        else {
+                            alert('❌ No photos found for Let\'s Sea');
+                        }
+                    }
+                    else {
+                        alert('❌ API call failed: ' + (((_c = (_b = result.data) === null || _b === void 0 ? void 0 : _b.error) === null || _c === void 0 ? void 0 : _c.message) || 'Unknown error'));
+                    }
+                    return [3 /*break*/, 5];
+                case 4:
+                    error_8 = _d.sent();
+                    console.error('🔍 DEBUG: Error:', error_8);
+                    alert('❌ Network error: ' + (error_8 instanceof Error ? error_8.message : 'Unknown error'));
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); };
+    // [2024-12-15 23:45] - Authentication Guard
+    if (isAuthenticating) {
+        return (<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-white text-center">
           <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p>Initializing LocalPlus Admin...</p>
         </div>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return <AdminLogin onLogin={handleLogin} />;
-  }
-
-  // [2025-01-21 07:45] - Database Management action handlers
-  const handleEditBusiness = (lead: DiscoveryLead) => {
-    // Open edit modal/form
-    alert(`🛠️ Edit Business: ${lead.name}\n\nThis would open an edit form with:\n• Business name: ${lead.name}\n• Address: ${lead.address}\n• Phone: ${lead.phoneNumber || 'Not set'}\n• Status: ${lead.status}`);
-  };
-
-  const handleViewBusinessDetails = (lead: DiscoveryLead) => {
-    // Show detailed view
-    const details = `📋 ${lead.name} - Complete Details\n\n` +
-      `📍 Address: ${lead.address}\n` +
-      `⭐ Rating: ${lead.enhancedRating || lead.rating}/5\n` +
-      `📞 Phone: ${lead.phoneNumber || 'Not available'}\n` +
-      `🌐 Website: ${lead.website || 'Not available'}\n` +
-      `🏷️ Type: ${lead.businessType || lead.category}\n` +
-      `📊 Status: ${lead.status}\n` +
-      `✅ Enriched: ${lead.enriched ? 'Yes' : 'No'}\n` +
-      `📸 Has Photo: ${lead.photoUrl ? 'Yes' : 'No'}\n` +
-      `📝 Reviews: ${lead.reviewCount || 'Unknown'} reviews`;
-    
-    alert(details);
-  };
-
-  const handleDeleteBusiness = (lead: DiscoveryLead) => {
-    if (confirm(`🗑️ Delete Business?\n\nAre you sure you want to delete "${lead.name}"?\n\nThis action cannot be undone.`)) {
-      setDiscoveryLeads(leads => leads.filter(l => l.id !== lead.id));
-      alert(`✅ "${lead.name}" has been deleted from the database.`);
+      </div>);
     }
-  };
-
-  const handleViewPhotoGallery = (lead: DiscoveryLead) => {
-    if (lead.photo_gallery && lead.photo_gallery.length > 0) {
-      setSelectedBusinessForGallery(lead);
-      setGalleryModalOpen(true);
-    } else {
-      alert(`📸 No Photos Available\n\n"${lead.name}" doesn't have any photos stored.\n\nUse the enrichment feature to add photos from Google Places.`);
+    if (!currentUser) {
+        return <AdminLogin onLogin={handleLogin}/>;
     }
-  };
-
-  // [2025-01-21 11:50] - Debug function to analyze photo data
-  const debugPhotoData = () => {
-    const photosData = discoveryLeads
-      .filter(lead => lead.photoUrl)
-      .map(lead => ({
-        name: lead.name,
-        photoUrl: lead.photoUrl!,
-        photoReference: lead.photoReference,
-        urlType: lead.photoUrl!.includes('googleapis.com') ? 'Google API' : 
-                 lead.photoUrl!.includes('localhost:3004') ? 'Backend Proxy' :
-                 lead.photoUrl!.includes('supabase') ? 'Supabase Storage' : 'Other'
-      }));
-    
-    console.log('📸 Photo Data Analysis:');
-    console.table(photosData);
-    alert(`📸 Photo Data Analysis:\n\n${photosData.length} businesses have photos\n\nBreakdown:\n- Google API URLs: ${photosData.filter(p => p.urlType === 'Google API').length}\n- Backend Proxy URLs: ${photosData.filter(p => p.urlType === 'Backend Proxy').length}\n- Supabase Storage URLs: ${photosData.filter(p => p.urlType === 'Supabase Storage').length}\n- Other URLs: ${photosData.filter(p => p.urlType === 'Other').length}\n\nCheck browser console for detailed table.`);
-  };
-
-  return (
-    <div>
+    // [2025-01-21 07:45] - Database Management action handlers
+    var handleEditBusiness = function (lead) {
+        // Open edit modal/form
+        alert("\uD83D\uDEE0\uFE0F Edit Business: ".concat(lead.name, "\n\nThis would open an edit form with:\n\u2022 Business name: ").concat(lead.name, "\n\u2022 Address: ").concat(lead.address, "\n\u2022 Phone: ").concat(lead.phoneNumber || 'Not set', "\n\u2022 Status: ").concat(lead.status));
+    };
+    var handleViewBusinessDetails = function (lead) {
+        // Show detailed view
+        var details = "\uD83D\uDCCB ".concat(lead.name, " - Complete Details\n\n") +
+            "\uD83D\uDCCD Address: ".concat(lead.address, "\n") +
+            "\u2B50 Rating: ".concat(lead.enhancedRating || lead.rating, "/5\n") +
+            "\uD83D\uDCDE Phone: ".concat(lead.phoneNumber || 'Not available', "\n") +
+            "\uD83C\uDF10 Website: ".concat(lead.website || 'Not available', "\n") +
+            "\uD83C\uDFF7\uFE0F Type: ".concat(lead.businessType || lead.category, "\n") +
+            "\uD83D\uDCCA Status: ".concat(lead.status, "\n") +
+            "\u2705 Enriched: ".concat(lead.enriched ? 'Yes' : 'No', "\n") +
+            "\uD83D\uDCF8 Has Photo: ".concat(lead.photoUrl ? 'Yes' : 'No', "\n") +
+            "\uD83D\uDCDD Reviews: ".concat(lead.reviewCount || 'Unknown', " reviews");
+        alert(details);
+    };
+    var handleDeleteBusiness = function (lead) {
+        if (confirm("\uD83D\uDDD1\uFE0F Delete Business?\n\nAre you sure you want to delete \"".concat(lead.name, "\"?\n\nThis action cannot be undone."))) {
+            setDiscoveryLeads(function (leads) { return leads.filter(function (l) { return l.id !== lead.id; }); });
+            alert("\u2705 \"".concat(lead.name, "\" has been deleted from the database."));
+        }
+    };
+    var handleViewPhotoGallery = function (lead) {
+        if (lead.photo_gallery && lead.photo_gallery.length > 0) {
+            setSelectedBusinessForGallery(lead);
+            setGalleryModalOpen(true);
+        }
+        else {
+            alert("\uD83D\uDCF8 No Photos Available\n\n\"".concat(lead.name, "\" doesn't have any photos stored.\n\nUse the enrichment feature to add photos from Google Places."));
+        }
+    };
+    // [2025-01-21 11:50] - Debug function to analyze photo data
+    var debugPhotoData = function () {
+        var photosData = discoveryLeads
+            .filter(function (lead) { return lead.photoUrl; })
+            .map(function (lead) { return ({
+            name: lead.name,
+            photoUrl: lead.photoUrl,
+            photoReference: lead.photoReference,
+            urlType: lead.photoUrl.includes('googleapis.com') ? 'Google API' :
+                lead.photoUrl.includes('localhost:3004') ? 'Backend Proxy' :
+                    lead.photoUrl.includes('supabase') ? 'Supabase Storage' : 'Other'
+        }); });
+        console.log('📸 Photo Data Analysis:');
+        console.table(photosData);
+        alert("\uD83D\uDCF8 Photo Data Analysis:\n\n".concat(photosData.length, " businesses have photos\n\nBreakdown:\n- Google API URLs: ").concat(photosData.filter(function (p) { return p.urlType === 'Google API'; }).length, "\n- Backend Proxy URLs: ").concat(photosData.filter(function (p) { return p.urlType === 'Backend Proxy'; }).length, "\n- Supabase Storage URLs: ").concat(photosData.filter(function (p) { return p.urlType === 'Supabase Storage'; }).length, "\n- Other URLs: ").concat(photosData.filter(function (p) { return p.urlType === 'Other'; }).length, "\n\nCheck browser console for detailed table."));
+    };
+    return (<div>
       {/* Gallery Modal */}
-      {galleryModalOpen && selectedBusinessForGallery && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      {galleryModalOpen && selectedBusinessForGallery && (<div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl w-full">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Photo Gallery: {selectedBusinessForGallery.name}</h2>
-              <button
-                onClick={() => setGalleryModalOpen(false)}
-                className="text-gray-500 hover:text-gray-800"
-              >
-                <XCircle size={28} />
+              <button onClick={function () { return setGalleryModalOpen(false); }} className="text-gray-500 hover:text-gray-800">
+                <XCircle size={28}/>
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
-              {selectedBusinessForGallery.photo_gallery.map((photo: any, index: number) => {
+              {selectedBusinessForGallery.photo_gallery.map(function (photo, index) {
                 // Handle both string URLs and object formats
-                const photoUrl = typeof photo === 'string' ? photo : (photo.url || photo.photo_reference);
-                const displayUrl = photo.photo_reference && !photo.url ? 
-                  `http://localhost:3004/api/places/photo?photo_reference=${photo.photo_reference}` : 
-                  photoUrl;
-                
-                return (
-                  <div key={index} className="relative aspect-w-1 aspect-h-1">
-                    <img
-                      src={displayUrl}
-                      alt={`${selectedBusinessForGallery.name} photo ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
-                    />
-                    <button
-                      onClick={() => handleRemovePhoto(displayUrl)}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-                      title="Remove photo"
-                    >
+                var photoUrl = typeof photo === 'string' ? photo : (photo.url || photo.photo_reference);
+                var displayUrl = photo.photo_reference && !photo.url ?
+                    "http://localhost:3004/api/places/photo?photo_reference=".concat(photo.photo_reference) :
+                    photoUrl;
+                return (<div key={index} className="relative aspect-w-1 aspect-h-1">
+                    <img src={displayUrl} alt={"".concat(selectedBusinessForGallery.name, " photo ").concat(index + 1)} className="w-full h-full object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"/>
+                    <button onClick={function () { return handleRemovePhoto(displayUrl); }} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors" title="Remove photo">
                       🗑️
                     </button>
-                  </div>
-                );
-              })}
+                  </div>);
+            })}
             </div>
             <div className="text-center mt-6 text-sm text-gray-500">
               Displaying {selectedBusinessForGallery.photo_gallery.length} photos.
             </div>
           </div>
-        </div>
-      )}
+        </div>)}
 
       {/* ADMIN HEADER WITH USER INFO */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center space-x-4">
-            <Shield size={32} className="text-white" />
+            <Shield size={32} className="text-white"/>
             <div>
               <h1 className="text-xl font-bold">LocalPlus Admin Dashboard</h1>
               <p className="text-purple-100 text-sm">Business Discovery & Analytics Platform</p>
@@ -862,25 +875,17 @@ function App() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${realTimeConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
+              <div className={"w-3 h-3 rounded-full ".concat(realTimeConnected ? 'bg-green-400' : 'bg-red-400')}></div>
               <span className="text-sm">{realTimeConnected ? 'WebSocket Live' : 'WebSocket Offline'}</span>
             </div>
             <div className="flex items-center space-x-3">
-              <img 
-                src={currentUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40'} 
-                alt={currentUser.firstName}
-                className="w-8 h-8 rounded-full"
-              />
+              <img src={currentUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40'} alt={currentUser.firstName} className="w-8 h-8 rounded-full"/>
               <div className="text-sm">
                 <div className="font-medium">{currentUser.firstName} {currentUser.lastName}</div>
-                <div className="text-purple-200">{currentUser.roles.join(', ')}</div>
+                <div className="text-purple-200">{currentUser.role}</div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                title="Logout"
-              >
-                <LogOut size={20} />
+              <button onClick={handleLogout} className="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Logout">
+                <LogOut size={20}/>
               </button>
             </div>
           </div>
@@ -888,19 +893,11 @@ function App() {
       </div>
 
       {/* STATUS BANNER */}
-      {!loading && (
-        <div className={`px-4 py-3 text-center text-sm font-medium ${
-          dbConnected 
-            ? 'bg-green-100 text-green-800 border-green-200' 
-            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-        } border-b`}>
-          {dbConnected ? (
-            <>🟢 Supabase Database Connected - Data Access Active</>
-          ) : (
-            <>⚠️ Database Offline - Cannot access Supabase data • {dbError}</>
-          )}
-        </div>
-      )}
+      {!loading && (<div className={"px-4 py-3 text-center text-sm font-medium ".concat(dbConnected
+                ? 'bg-green-100 text-green-800 border-green-200'
+                : 'bg-yellow-100 text-yellow-800 border-yellow-200', " border-b")}>
+          {dbConnected ? (<>🟢 Supabase Database Connected - Data Access Active</>) : (<>⚠️ Database Offline - Cannot access Supabase data • {dbError}</>)}
+        </div>)}
       
       {/* HEADER */}
       <div className="admin-header">
@@ -914,74 +911,39 @@ function App() {
       {/* NAVIGATION */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
         <div className="flex space-x-0 px-6 bg-white">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'overview'
-                ? 'border-blue-500 text-blue-600 bg-blue-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('overview'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'overview'
+            ? 'border-blue-500 text-blue-600 bg-blue-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             📊 Pipeline Overview
           </button>
-          <button
-            onClick={() => setActiveTab('discovery')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'discovery'
-                ? 'border-purple-500 text-purple-600 bg-purple-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('discovery'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'discovery'
+            ? 'border-purple-500 text-purple-600 bg-purple-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             🔍 Data Discovery
           </button>
-          <button
-            onClick={() => setActiveTab('cost')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'cost'
-                ? 'border-green-500 text-green-600 bg-green-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('cost'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'cost'
+            ? 'border-green-500 text-green-600 bg-green-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             💰 Cost Management
           </button>
-          <button
-            onClick={() => setActiveTab('curation')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'curation'
-                ? 'border-orange-500 text-orange-600 bg-orange-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('curation'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'curation'
+            ? 'border-orange-500 text-orange-600 bg-orange-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             🎯 Business Curation
           </button>
-          <button
-            onClick={() => setActiveTab('map')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'map'
-                ? 'border-indigo-500 text-indigo-600 bg-indigo-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('map'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'map'
+            ? 'border-indigo-500 text-indigo-600 bg-indigo-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             🗺️ Discovery Map
           </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'analytics'
-                ? 'border-pink-500 text-pink-600 bg-pink-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('analytics'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'analytics'
+            ? 'border-pink-500 text-pink-600 bg-pink-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             📈 Analytics
           </button>
-          <button
-            onClick={() => setActiveTab('database')}
-            className={`px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ${
-              activeTab === 'database'
-                ? 'border-cyan-500 text-cyan-600 bg-cyan-50/50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+          <button onClick={function () { return setActiveTab('database'); }} className={"px-6 py-4 font-semibold text-sm transition-all duration-200 border-b-2 ".concat(activeTab === 'database'
+            ? 'border-cyan-500 text-cyan-600 bg-cyan-50/50'
+            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')}>
             🗄️ Database Management
           </button>
         </div>
@@ -989,9 +951,8 @@ function App() {
 
       {/* MAIN CONTENT */}
       <div style={{ background: 'white', minHeight: '80vh', padding: '32px 24px', margin: '0 24px', borderRadius: '0 0 16px 16px', boxShadow: '0 4px 25px rgba(0, 0, 0, 0.1)' }}>
-        {activeTab === 'overview' && (
-          <div>
-            <h2 style={{fontSize: '2rem', fontWeight: '700', color: '#1e293b', marginBottom: '2rem'}}>📊 Pipeline Overview</h2>
+        {activeTab === 'overview' && (<div>
+            <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b', marginBottom: '2rem' }}>📊 Pipeline Overview</h2>
             
             <div className="stats-grid">
               <div className="stat-card blue">
@@ -1069,51 +1030,33 @@ function App() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
 
-        {activeTab === 'discovery' && (
-          <div className="space-y-6">
+        {activeTab === 'discovery' && (<div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Data Discovery</h2>
             <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">Discovery Leads</h3>
                 <div className="flex space-x-3">
-                  <button
-                    onClick={handleSelectAll}
-                    className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                  >
-                    {discoveryLeads.every(lead => lead.selected) ? 'Deselect All' : 'Select All'}
+                  <button onClick={handleSelectAll} className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    {discoveryLeads.every(function (lead) { return lead.selected; }) ? 'Deselect All' : 'Select All'}
                   </button>
-                  <button
-                    onClick={handleEnrichWithGooglePlaces}
-                    disabled={selectedCount === 0}
-                    className={`px-4 py-2 text-sm rounded-lg font-medium ${
-                      selectedCount > 0
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
+                  <button onClick={handleEnrichWithGooglePlaces} disabled={selectedCount === 0} className={"px-4 py-2 text-sm rounded-lg font-medium ".concat(selectedCount > 0
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed')}>
                     Enrich with Google Places ({selectedCount})
                   </button>
-                  <button
-                    onClick={addTestPhotoData}
-                    className="px-4 py-2 text-sm rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 ml-2"
-                  >
+                  <button onClick={addTestPhotoData} className="px-4 py-2 text-sm rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 ml-2">
                     🖼️ Test Photo Display
                   </button>
-                  <button
-                    onClick={debugEnrichLetsSeaDirectly}
-                    className="px-4 py-2 text-sm rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 ml-2"
-                  >
+                  <button onClick={debugEnrichLetsSeaDirectly} className="px-4 py-2 text-sm rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 ml-2">
                     🔍 DEBUG: Enrich Let's Sea
                   </button>
                 </div>
               </div>
             </div>
 
-            {selectedCount > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            {selectedCount > 0 && (<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h4 className="font-medium text-blue-900 mb-2">💰 Cost Calculator</h4>
                 <p className="text-sm text-blue-700">
                   Selected: {selectedCount} businesses
@@ -1124,8 +1067,7 @@ function App() {
                 <p className="text-xs text-blue-600 mt-1">
                   ({selectedCount} calls × ${costPerCall} per call)
                 </p>
-              </div>
-            )}
+              </div>)}
 
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -1152,52 +1094,31 @@ function App() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {loading ? (
-                    <tr>
+                  {loading ? (<tr>
                       <td colSpan={6} className="px-6 py-8 text-center">
                         <div className="flex items-center justify-center">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                           <span className="ml-3 text-gray-600">Loading real data from Supabase...</span>
                         </div>
                       </td>
-                    </tr>
-                  ) : discoveryLeads.length === 0 ? (
-                    <tr>
+                    </tr>) : discoveryLeads.length === 0 ? (<tr>
                       <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                         No businesses found in database
                       </td>
-                    </tr>
-                  ) : (
-                    discoveryLeads.map((lead) => (
-                      <tr key={lead.id} className={lead.selected ? 'bg-blue-50' : ''}>
+                    </tr>) : (discoveryLeads.map(function (lead) { return (<tr key={lead.id} className={lead.selected ? 'bg-blue-50' : ''}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={lead.selected}
-                            onChange={() => handleSelectLead(lead.id)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
+                          <input type="checkbox" checked={lead.selected} onChange={function () { return handleSelectLead(lead.id); }} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"/>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {lead.photoUrl ? (
-                            <div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-gray-100">
-                              <img 
-                                src={lead.photoUrl} 
-                                alt={`${lead.name} photo`}
-                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-200 cursor-pointer"
-                                onClick={() => window.open(lead.photoUrl, '_blank')}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Photo</div>';
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                          {lead.photoUrl ? (<div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-gray-100">
+                              <img src={lead.photoUrl} alt={"".concat(lead.name, " photo")} className="w-full h-full object-cover hover:scale-110 transition-transform duration-200 cursor-pointer" onClick={function () { return window.open(lead.photoUrl, '_blank'); }} onError={function (e) {
+                        var target = e.target;
+                        target.style.display = 'none';
+                        target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Photo</div>';
+                    }}/>
+                            </div>) : (<div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
                               <span className="text-gray-400 text-xs">No Photo</span>
-                            </div>
-                          )}
+                            </div>)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
@@ -1212,34 +1133,26 @@ function App() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                            <Star className="h-4 w-4 text-yellow-400 fill-current"/>
                             <span className="ml-1 text-sm text-gray-900">{lead.rating.toFixed(1)}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            lead.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            lead.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
+                          <span className={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full ".concat(lead.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    lead.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800')}>
                             {lead.status}
                           </span>
                         </td>
-                      </tr>
-                    ))
-                  )}
+                      </tr>); }))}
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          </div>)}
 
-        {activeTab === 'cost' && (
-          <RealCostTracker />
-        )}
+        {activeTab === 'cost' && (<RealCostTracker />)}
 
-        {activeTab === 'curation' && (
-          <div className="space-y-6">
+        {activeTab === 'curation' && (<div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Business Curation & Management</h2>
             
             {/* Search and Filter Controls */}
@@ -1248,21 +1161,11 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                  <input
-                    type="text"
-                    placeholder="Search businesses..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="text" placeholder="Search businesses..." value={searchTerm} onChange={function (e) { return setSearchTerm(e.target.value); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select value={statusFilter} onChange={function (e) { return setStatusFilter(e.target.value); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     <option value="all">All Status</option>
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
@@ -1270,24 +1173,14 @@ function App() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select value={categoryFilter} onChange={function (e) { return setCategoryFilter(e.target.value); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     <option value="all">All Categories</option>
-                    {uniqueCategories.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
+                    {uniqueCategories.map(function (category) { return (<option key={category} value={category}>{category}</option>); })}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Export Format</label>
-                  <select
-                    value={exportFormat}
-                    onChange={(e) => setExportFormat(e.target.value as 'csv' | 'json')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select value={exportFormat} onChange={function (e) { return setExportFormat(e.target.value); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     <option value="csv">CSV</option>
                     <option value="json">JSON</option>
                   </select>
@@ -1301,11 +1194,7 @@ function App() {
               <div className="flex flex-wrap gap-4 items-end">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Action</label>
-                  <select
-                    value={bulkAction}
-                    onChange={(e) => setBulkAction(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
+                  <select value={bulkAction} onChange={function (e) { return setBulkAction(e.target.value); }} className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     <option value="">Select Action</option>
                     <option value="approve">✅ Approve Selected</option>
                     <option value="reject">❌ Reject Selected</option>
@@ -1313,17 +1202,10 @@ function App() {
                     <option value="export">📊 Export Data</option>
                   </select>
                 </div>
-                <button
-                  onClick={handleBulkAction}
-                  disabled={selectedCount === 0 || !bulkAction}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
+                <button onClick={handleBulkAction} disabled={selectedCount === 0 || !bulkAction} className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
                   Execute Action ({selectedCount} selected)
                 </button>
-                <button
-                  onClick={handleExportData}
-                  className="px-6 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 font-medium"
-                >
+                <button onClick={handleExportData} className="px-6 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 font-medium">
                   📄 Export {exportFormat.toUpperCase()}
                 </button>
               </div>
@@ -1337,24 +1219,13 @@ function App() {
                     📋 Business Management ({filteredLeads.length} businesses)
                   </h3>
                   <div className="flex gap-2">
-                    <button
-                      onClick={handleSelectAll}
-                      className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
-                    >
-                      {discoveryLeads.every(lead => lead.selected) ? 'Deselect All' : 'Select All'}
+                    <button onClick={handleSelectAll} className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+                      {discoveryLeads.every(function (lead) { return lead.selected; }) ? 'Deselect All' : 'Select All'}
                     </button>
-                    <button
-                      onClick={() => handleBulkApproval('approve')}
-                      disabled={selectedCount === 0}
-                      className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50"
-                    >
+                    <button onClick={function () { return handleBulkApproval('approve'); }} disabled={selectedCount === 0} className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50">
                       ✅ Quick Approve
                     </button>
-                    <button
-                      onClick={() => handleBulkApproval('reject')}
-                      disabled={selectedCount === 0}
-                      className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
-                    >
+                    <button onClick={function () { return handleBulkApproval('reject'); }} disabled={selectedCount === 0} className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50">
                       ❌ Quick Reject
                     </button>
                   </div>
@@ -1366,12 +1237,7 @@ function App() {
                   <thead className="bg-gray-50/50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <input
-                          type="checkbox"
-                          checked={filteredLeads.length > 0 && filteredLeads.every(lead => lead.selected)}
-                          onChange={handleSelectAll}
-                          className="rounded border-gray-300"
-                        />
+                        <input type="checkbox" checked={filteredLeads.length > 0 && filteredLeads.every(function (lead) { return lead.selected; })} onChange={handleSelectAll} className="rounded border-gray-300"/>
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business</th>
@@ -1382,36 +1248,20 @@ function App() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredLeads.map((lead) => (
-                      <tr key={lead.id} className={`hover:bg-gray-50 ${lead.selected ? 'bg-blue-50' : ''}`}>
+                    {filteredLeads.map(function (lead) { return (<tr key={lead.id} className={"hover:bg-gray-50 ".concat(lead.selected ? 'bg-blue-50' : '')}>
                         <td className="px-6 py-4">
-                          <input
-                            type="checkbox"
-                            checked={lead.selected}
-                            onChange={() => handleSelectLead(lead.id)}
-                            className="rounded border-gray-300"
-                          />
+                          <input type="checkbox" checked={lead.selected} onChange={function () { return handleSelectLead(lead.id); }} className="rounded border-gray-300"/>
                         </td>
                         <td className="px-6 py-4">
-                          {lead.photoUrl ? (
-                            <div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-gray-100">
-                              <img 
-                                src={lead.photoUrl} 
-                                alt={`${lead.name} photo`}
-                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-200 cursor-pointer"
-                                onClick={() => window.open(lead.photoUrl, '_blank')}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Photo</div>';
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                          {lead.photoUrl ? (<div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-gray-100">
+                              <img src={lead.photoUrl} alt={"".concat(lead.name, " photo")} className="w-full h-full object-cover hover:scale-110 transition-transform duration-200 cursor-pointer" onClick={function () { return window.open(lead.photoUrl, '_blank'); }} onError={function (e) {
+                        var target = e.target;
+                        target.style.display = 'none';
+                        target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Photo</div>';
+                    }}/>
+                            </div>) : (<div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
                               <span className="text-gray-400 text-xs">No Photo</span>
-                            </div>
-                          )}
+                            </div>)}
                         </td>
                         <td className="px-6 py-4">
                           <div>
@@ -1422,81 +1272,57 @@ function App() {
                         <td className="px-6 py-4 text-sm text-gray-900">{lead.category}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                            <Star className="h-4 w-4 text-yellow-400 mr-1"/>
                             <span className="text-sm text-gray-900">{lead.rating.toFixed(1)}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            lead.status === 'approved' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                          <span className={"inline-flex px-2 py-1 text-xs font-semibold rounded-full ".concat(lead.status === 'approved'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800')}>
                             {lead.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm space-x-2">
-                          {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (
-                            <>
-                              <button
-                                onClick={() => handleApproveBusiness(lead)}
-                                className="text-green-600 hover:text-green-900 font-medium"
-                              >
+                          {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (<>
+                              <button onClick={function () { return handleApproveBusiness(lead); }} className="text-green-600 hover:text-green-900 font-medium">
                                 ✅ Approve
                               </button>
-                              <button
-                                onClick={() => handleRejectBusiness(lead)}
-                                className="text-red-600 hover:text-red-900 font-medium"
-                              >
+                              <button onClick={function () { return handleRejectBusiness(lead); }} className="text-red-600 hover:text-red-900 font-medium">
                                 ❌ Reject
                               </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setDiscoveryLeads(leads => 
-                                  leads.map(l => l.id === lead.id ? { ...l, status: 'pending', partnership_status: 'pending' } : l)
-                                );
-                              }}
-                              className="text-blue-600 hover:text-blue-900 font-medium"
-                            >
+                            </>) : (<button onClick={function () {
+                        setDiscoveryLeads(function (leads) {
+                            return leads.map(function (l) { return l.id === lead.id ? __assign(__assign({}, l), { status: 'pending', partnership_status: 'pending' }) : l; });
+                        });
+                    }} className="text-blue-600 hover:text-blue-900 font-medium">
                               🔄 Reset
-                            </button>
-                          )}
+                            </button>)}
                         </td>
-                      </tr>
-                    ))}
+                      </tr>); })}
                   </tbody>
                 </table>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
 
-        {activeTab === 'map' && (
-          <div className="space-y-8">
+        {activeTab === 'map' && (<div className="space-y-8">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-slate-800">🗺️ Discovery Map</h2>
                 <p className="text-slate-600 mt-1">Real-time business discovery locations with Azure Maps</p>
               </div>
               <div className="flex space-x-3">
-                <button 
-                  onClick={() => setActiveTab('discovery')}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2"
-                >
-                  <MapPin className="w-4 h-4" />
+                <button onClick={function () { return setActiveTab('discovery'); }} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2">
+                  <MapPin className="w-4 h-4"/>
                   Add Businesses
                 </button>
-                <button 
-                  onClick={fetchRealData}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2"
-                >
-                  <Activity className="w-4 h-4" />
+                <button onClick={fetchRealData} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2">
+                  <Activity className="w-4 h-4"/>
                   Refresh Map
                 </button>
                 <button className="bg-white hover:bg-gray-50 text-slate-700 px-4 py-2 rounded-xl font-medium transition-colors border border-gray-200 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
+                  <BarChart3 className="w-4 h-4"/>
                   Export Data
                 </button>
               </div>
@@ -1508,7 +1334,7 @@ function App() {
                 <div>
                   <h3 className="text-lg font-bold text-slate-800">📍 Business Locations</h3>
                   <p className="text-sm text-slate-600">
-                    {loading ? 'Loading...' : `${businessLocations.length} businesses mapped`}
+                    {loading ? 'Loading...' : "".concat(businessLocations.length, " businesses mapped")}
                   </p>
                 </div>
                 <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
@@ -1516,27 +1342,18 @@ function App() {
                 </div>
               </div>
               
-              {loading ? (
-                <div className="h-96 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl flex items-center justify-center">
+              {loading ? (<div className="h-96 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl flex items-center justify-center">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-slate-600">Loading map data from database...</p>
                   </div>
-                </div>
-              ) : businessLocations.length > 0 ? (
-                <AzureMapComponent 
-                  businesses={businessLocations} 
-                  height="400px" 
-                />
-              ) : (
-                <div className="h-96 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center border-2 border-dashed border-blue-300">
+                </div>) : businessLocations.length > 0 ? (<AzureMapComponent businesses={businessLocations} height="400px"/>) : (<div className="h-96 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center border-2 border-dashed border-blue-300">
                   <div className="text-center">
-                    <MapPin className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+                    <MapPin className="h-16 w-16 text-blue-500 mx-auto mb-4"/>
                     <h3 className="text-xl font-bold text-slate-700 mb-2">No Locations Found</h3>
                     <p className="text-slate-600 mb-4">No businesses with coordinates in database</p>
                   </div>
-                </div>
-              )}
+                </div>)}
             </div>
 
             {/* Real Map Stats */}
@@ -1559,26 +1376,21 @@ function App() {
               </div>
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
                 <div className="text-2xl font-bold text-orange-600">
-                  {loading ? '...' : businessLocations.filter(b => b.category === 'Restaurant').length}
+                  {loading ? '...' : businessLocations.filter(function (b) { return b.category === 'Restaurant'; }).length}
                 </div>
                 <div className="text-sm text-slate-600">Restaurants</div>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
 
-        {activeTab === 'analytics' && (
-          <div className="space-y-6">
+        {activeTab === 'analytics' && (<div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-slate-800">📈 Analytics Dashboard</h2>
                 <p className="text-slate-600 mt-1">Real-time business discovery analytics and insights</p>
               </div>
               <div className="flex space-x-3">
-                <button 
-                  onClick={() => setAnalyticsData(generateSampleAnalyticsData())}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors"
-                >
+                <button onClick={function () { return setAnalyticsData(generateSampleAnalyticsData()); }} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors">
                   🔄 Refresh Data
                 </button>
                 <button className="bg-white/70 hover:bg-white text-slate-700 px-4 py-2 rounded-xl font-medium transition-colors border border-white/20">
@@ -1588,56 +1400,45 @@ function App() {
             </div>
 
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
-              {!dbConnected ? (
-                <div className="text-center py-12">
+              {!dbConnected ? (<div className="text-center py-12">
                   <div className="text-yellow-600 mb-4">📊</div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">Analytics Offline</h3>
                   <p className="text-gray-600 mb-4">Charts require database connection for real-time data.</p>
-                  <button 
-                    onClick={fetchRealData}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
+                  <button onClick={fetchRealData} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                     🔄 Retry Connection
                   </button>
-                </div>
-              ) : (
-                <AnalyticsCharts data={analyticsData} loading={loading} />
-              )}
+                </div>) : (<AnalyticsCharts data={analyticsData} loading={loading}/>)}
             </div>
 
             {/* Real-time Activity Feed */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-slate-800">🔔 Real-time Activity</h3>
-                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  realTimeConnected 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <div className={"px-3 py-1 rounded-full text-xs font-semibold ".concat(realTimeConnected
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800')}>
                   {realTimeConnected ? '🟢 Live Connection' : '🔴 Offline'}
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center p-3 bg-blue-50/50 rounded-lg border border-blue-100/50">
-                  <Activity size={20} className="text-blue-500 mr-3" />
+                  <Activity size={20} className="text-blue-500 mr-3"/>
                   <div className="flex-1">
                     <span className="text-slate-700 font-medium">Analytics dashboard initialized</span>
                     <div className="text-xs text-slate-500 mt-1">Chart.js components loaded successfully</div>
                   </div>
                   <span className="text-slate-400 text-sm">Just now</span>
                 </div>
-                {currentUser && (
-                  <div className="flex items-center p-3 bg-green-50/50 rounded-lg border border-green-100/50">
-                    <Shield size={20} className="text-green-500 mr-3" />
+                {currentUser && (<div className="flex items-center p-3 bg-green-50/50 rounded-lg border border-green-100/50">
+                    <Shield size={20} className="text-green-500 mr-3"/>
                     <div className="flex-1">
                       <span className="text-slate-700 font-medium">{currentUser.firstName} {currentUser.lastName} logged in</span>
-                      <div className="text-xs text-slate-500 mt-1">Role: {currentUser.roles.join(', ')} | Session active</div>
+                      <div className="text-xs text-slate-500 mt-1">Role: {currentUser.role} | Session active</div>
                     </div>
                     <span className="text-slate-400 text-sm">Session start</span>
-                  </div>
-                )}
+                  </div>)}
                 <div className="flex items-center p-3 bg-purple-50/50 rounded-lg border border-purple-100/50">
-                  <TrendingUp size={20} className="text-purple-500 mr-3" />
+                  <TrendingUp size={20} className="text-purple-500 mr-3"/>
                   <div className="flex-1">
                     <span className="text-slate-700 font-medium">Real-time WebSocket service {realTimeConnected ? 'connected' : 'disconnected'}</span>
                     <div className="text-xs text-slate-500 mt-1">Monitoring database changes for live updates</div>
@@ -1646,58 +1447,37 @@ function App() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
 
-        {activeTab === 'database' && (
-          <div className="space-y-6">
+        {activeTab === 'database' && (<div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-slate-800">🗄️ Database Management</h2>
                 <p className="text-slate-600 mt-1">Direct database access - Pure Supabase data only</p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <button 
-                  onClick={fetchRealData}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
+                <button onClick={fetchRealData} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap">
                   🔄 Refresh Database
                 </button>
-                <button 
-                  onClick={handleEnrichWithGooglePlaces}
-                  disabled={selectedCount === 0}
-                  className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
-                    selectedCount > 0
-                      ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
+                <button onClick={handleEnrichWithGooglePlaces} disabled={selectedCount === 0} className={"px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap ".concat(selectedCount > 0
+                ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed')}>
                   ✨ Enrich Selected ({selectedCount})
                 </button>
-                <button 
-                  onClick={handleExportData}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
+                <button onClick={handleExportData} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap">
                   📁 Export Data
                 </button>
-                <button 
-                  onClick={() => alert('Cleanup feature coming soon!')}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
+                <button onClick={function () { return alert('Cleanup feature coming soon!'); }} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap">
                   🧹 Cleanup
                 </button>
-                <button 
-                  onClick={debugPhotoData}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
+                <button onClick={debugPhotoData} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2 whitespace-nowrap">
                   🔍 Debug Photos
                 </button>
               </div>
             </div>
 
             {/* Selection Info Banner */}
-            {selectedCount > 0 && (
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+            {selectedCount > 0 && (<div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium text-purple-900">✨ Ready to Enrich</h4>
@@ -1706,16 +1486,12 @@ function App() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      onClick={handleSelectAll}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors"
-                    >
-                      {discoveryLeads.every(lead => lead.selected) ? 'Deselect All' : 'Select All'}
+                    <button onClick={handleSelectAll} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors">
+                      {discoveryLeads.every(function (lead) { return lead.selected; }) ? 'Deselect All' : 'Select All'}
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>)}
 
             {/* Database Stats - Better Layout */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1728,21 +1504,21 @@ function App() {
               </div>
               <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 shadow-lg">
                 <div className="text-2xl font-bold">
-                  {loading ? '...' : discoveryLeads.filter(lead => lead.enriched).length}
+                  {loading ? '...' : discoveryLeads.filter(function (lead) { return lead.enriched; }).length}
                 </div>
                 <div className="text-sm opacity-90">Enriched</div>
                 <div className="text-xs opacity-75 mt-1">With Google data</div>
               </div>
               <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-4 shadow-lg">
                 <div className="text-2xl font-bold">
-                  {loading ? '...' : discoveryLeads.filter(lead => lead.photoUrl).length}
+                  {loading ? '...' : discoveryLeads.filter(function (lead) { return lead.photoUrl; }).length}
                 </div>
                 <div className="text-sm opacity-90">With Photos</div>
                 <div className="text-xs opacity-75 mt-1">Stored images</div>
               </div>
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 shadow-lg">
                 <div className="text-2xl font-bold">
-                  {loading ? '...' : discoveryLeads.filter(lead => lead.phoneNumber).length}
+                  {loading ? '...' : discoveryLeads.filter(function (lead) { return lead.phoneNumber; }).length}
                 </div>
                 <div className="text-sm opacity-90">Phone Numbers</div>
                 <div className="text-xs opacity-75 mt-1">Contact verified</div>
@@ -1759,12 +1535,7 @@ function App() {
                   </div>
                   <div className="flex items-center gap-3">
                     <label className="flex items-center gap-2 text-sm text-gray-600">
-                      <input
-                        type="checkbox"
-                        checked={discoveryLeads.length > 0 && discoveryLeads.every(lead => lead.selected)}
-                        onChange={handleSelectAll}
-                        className="rounded border-gray-300"
-                      />
+                      <input type="checkbox" checked={discoveryLeads.length > 0 && discoveryLeads.every(function (lead) { return lead.selected; })} onChange={handleSelectAll} className="rounded border-gray-300"/>
                       Select All
                     </label>
                   </div>
@@ -1786,32 +1557,21 @@ function App() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {loading ? (
-                      <tr>
+                    {loading ? (<tr>
                         <td colSpan={8} className="px-6 py-8 text-center">
                           <div className="flex items-center justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                             <span className="ml-3 text-gray-600">Loading database records...</span>
                           </div>
                         </td>
-                      </tr>
-                    ) : discoveryLeads.length === 0 ? (
-                      <tr>
+                      </tr>) : discoveryLeads.length === 0 ? (<tr>
                         <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                           No database records found
                         </td>
-                      </tr>
-                    ) : (
-                      discoveryLeads.map((lead) => (
-                        <tr key={lead.id} className="hover:bg-gray-50">
+                      </tr>) : (discoveryLeads.map(function (lead) { return (<tr key={lead.id} className="hover:bg-gray-50">
                           {/* Selection Checkbox */}
                           <td className="px-4 py-4">
-                            <input
-                              type="checkbox"
-                              checked={lead.selected}
-                              onChange={() => handleSelectLead(lead.id)}
-                              className="rounded border-gray-300"
-                            />
+                            <input type="checkbox" checked={lead.selected} onChange={function () { return handleSelectLead(lead.id); }} className="rounded border-gray-300"/>
                           </td>
 
                           {/* Business Name & Basic Info */}
@@ -1819,85 +1579,55 @@ function App() {
                             <div>
                               <div className="text-sm font-medium text-gray-900">{lead.name}</div>
                               <div className="text-sm text-gray-500">{lead.category}</div>
-                              {lead.enriched && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 mt-1">
+                              {lead.enriched && (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 mt-1">
                                   ✅ Enriched
-                                </span>
-                              )}
+                                </span>)}
                             </div>
                           </td>
 
                           {/* Photos - Real Database Images */}
                           <td className="px-4 py-4">
-                            {lead.photoUrl ? (
-                              <div className="flex items-center space-x-2">
-                                <img 
-                                  src={lead.photoUrl.includes('googleapis.com') && lead.photoReference ? 
-                                    `http://localhost:3004/api/places/photo?photo_reference=${lead.photoReference}&maxwidth=400&maxheight=400` : 
-                                    lead.photoUrl
-                                  } 
-                                  alt={lead.name}
-                                  className="w-16 h-16 rounded-lg object-cover border border-gray-200 hover:scale-105 transition-transform cursor-pointer"
-                                  onClick={() => handleViewPhotoGallery(lead)}
-                                  onError={(e) => {
-                                    // Fallback for broken images
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23e5e7eb"/><text x="32" y="32" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="24">📷</text></svg>';
-                                  }}
-                                />
+                            {lead.photoUrl ? (<div className="flex items-center space-x-2">
+                                <img src={lead.photoUrl.includes('googleapis.com') && lead.photoReference ?
+                        "http://localhost:3004/api/places/photo?photo_reference=".concat(lead.photoReference, "&maxwidth=400&maxheight=400") :
+                        lead.photoUrl} alt={lead.name} className="w-16 h-16 rounded-lg object-cover border border-gray-200 hover:scale-105 transition-transform cursor-pointer" onClick={function () { return handleViewPhotoGallery(lead); }} onError={function (e) {
+                        // Fallback for broken images
+                        var target = e.target;
+                        target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23e5e7eb"/><text x="32" y="32" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="24">📷</text></svg>';
+                    }}/>
                                 <div className="text-xs text-gray-500">
                                   <div className="text-green-600 font-medium">✅ Has Photo</div>
-                                  <button 
-                                    onClick={() => handleViewPhotoGallery(lead)}
-                                    className="text-blue-600 cursor-pointer hover:underline hover:text-blue-800"
-                                  >
+                                  <button onClick={function () { return handleViewPhotoGallery(lead); }} className="text-blue-600 cursor-pointer hover:underline hover:text-blue-800">
                                     View Gallery
                                   </button>
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
+                              </div>) : (<div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
                                 <span className="text-gray-400 text-xs">No Photo</span>
-                              </div>
-                            )}
+                              </div>)}
                           </td>
 
                           {/* Contact Info & Business Details */}
                           <td className="px-4 py-4">
                             <div className="text-sm space-y-1">
-                              {lead.phoneNumber ? (
-                                <div className="flex items-center text-green-600 text-xs">
+                              {lead.phoneNumber ? (<div className="flex items-center text-green-600 text-xs">
                                   📞 {lead.phoneNumber}
-                                </div>
-                              ) : (
-                                <div className="text-gray-400 text-xs">No phone</div>
-                              )}
-                              {lead.website ? (
-                                <div className="flex items-center text-blue-600 text-xs">
+                                </div>) : (<div className="text-gray-400 text-xs">No phone</div>)}
+                              {lead.website ? (<div className="flex items-center text-blue-600 text-xs">
                                   🌐 <a href={lead.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
                                     Website
                                   </a>
-                                </div>
-                              ) : (
-                                <div className="text-gray-400 text-xs">No website</div>
-                              )}
+                                </div>) : (<div className="text-gray-400 text-xs">No website</div>)}
                               {/* Business Type & Category */}
                               <div className="border-t border-gray-100 pt-1 mt-1">
-                                {lead.businessType && (
-                                  <div className="text-purple-600 text-xs font-medium">
+                                {lead.businessType && (<div className="text-purple-600 text-xs font-medium">
                                     🏷️ {lead.businessType}
-                                  </div>
-                                )}
-                                {lead.category && lead.category !== lead.businessType && (
-                                  <div className="text-orange-600 text-xs">
+                                  </div>)}
+                                {lead.category && lead.category !== lead.businessType && (<div className="text-orange-600 text-xs">
                                     🍽️ {lead.category}
-                                  </div>
-                                )}
-                                {lead.priceLevel && (
-                                  <div className="text-green-600 text-xs">
+                                  </div>)}
+                                {lead.priceLevel && (<div className="text-green-600 text-xs">
                                     💰 {'$'.repeat(lead.priceLevel)} Price Level
-                                  </div>
-                                )}
+                                  </div>)}
                               </div>
                             </div>
                           </td>
@@ -1906,13 +1636,9 @@ function App() {
                           <td className="px-4 py-4">
                             <div className="text-sm text-gray-900">
                               <div className="truncate max-w-48">{lead.address}</div>
-                              {lead.latitude && lead.longitude ? (
-                                <div className="text-xs text-green-600 mt-1">
+                              {lead.latitude && lead.longitude ? (<div className="text-xs text-green-600 mt-1">
                                   📍 {lead.latitude.toFixed(4)}, {lead.longitude.toFixed(4)}
-                                </div>
-                              ) : (
-                                <div className="text-xs text-gray-400 mt-1">No coordinates</div>
-                              )}
+                                </div>) : (<div className="text-xs text-gray-400 mt-1">No coordinates</div>)}
                             </div>
                           </td>
 
@@ -1922,34 +1648,28 @@ function App() {
                               <div className="flex items-center">
                                 ⭐ {lead.enhancedRating || lead.rating}/5
                               </div>
-                              {lead.reviewCount ? (
-                                <div className="text-xs text-green-600 mt-1">
+                              {lead.reviewCount ? (<div className="text-xs text-green-600 mt-1">
                                   {lead.reviewCount} reviews
-                                </div>
-                              ) : (
-                                <div className="text-xs text-gray-400 mt-1">No reviews</div>
-                              )}
+                                </div>) : (<div className="text-xs text-gray-400 mt-1">No reviews</div>)}
                             </div>
                           </td>
 
                           {/* Platform Status */}
                           <td className="px-4 py-4">
                             <div>
-                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                lead.status === 'approved' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : lead.status === 'rejected'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {lead.status === 'approved' ? '✅ Approved' : 
-                                 lead.status === 'rejected' ? '❌ Rejected' : 
-                                 '⏳ Pending Review'}
+                              <span className={"inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ".concat(lead.status === 'approved'
+                    ? 'bg-green-100 text-green-800'
+                    : lead.status === 'rejected'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800')}>
+                                {lead.status === 'approved' ? '✅ Approved' :
+                    lead.status === 'rejected' ? '❌ Rejected' :
+                        '⏳ Pending Review'}
                               </span>
                               <div className="text-xs text-gray-500 mt-1">
-                                {lead.status === 'approved' ? 'Ready for platform' : 
-                                 lead.status === 'rejected' ? 'Not suitable' : 
-                                 'Awaiting review'}
+                                {lead.status === 'approved' ? 'Ready for platform' :
+                    lead.status === 'rejected' ? 'Not suitable' :
+                        'Awaiting review'}
                               </div>
                             </div>
                           </td>
@@ -1958,58 +1678,34 @@ function App() {
                           <td className="px-4 py-4">
                             <div className="flex flex-wrap items-center gap-1">
                               {/* Approval Actions */}
-                                                             {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (
-                                <>
-                                  <button 
-                                    onClick={() => handleApproveBusiness(lead)}
-                                    className="text-green-600 hover:text-green-900 text-xs font-medium px-2 py-1 bg-green-50 rounded hover:bg-green-100 transition-colors"
-                                  >
+                                                             {(lead.partnership_status === 'pending' || lead.status === 'pending') ? (<>
+                                  <button onClick={function () { return handleApproveBusiness(lead); }} className="text-green-600 hover:text-green-900 text-xs font-medium px-2 py-1 bg-green-50 rounded hover:bg-green-100 transition-colors">
                                     ✅ Approve
                                   </button>
-                                  <button 
-                                    onClick={() => handleRejectBusiness(lead)}
-                                    className="text-red-600 hover:text-red-900 text-xs font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100 transition-colors"
-                                  >
+                                  <button onClick={function () { return handleRejectBusiness(lead); }} className="text-red-600 hover:text-red-900 text-xs font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100 transition-colors">
                                     ❌ Reject
                                   </button>
-                                </>
-                              ) : (
-                                <button 
-                                  onClick={() => {
-                                                                         setDiscoveryLeads(leads => 
-                                       leads.map(l => l.id === lead.id ? { ...l, status: 'pending', partnership_status: 'pending' } : l)
-                                     );
-                                  }}
-                                  className="text-blue-600 hover:text-blue-900 text-xs font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                                >
+                                </>) : (<button onClick={function () {
+                        setDiscoveryLeads(function (leads) {
+                            return leads.map(function (l) { return l.id === lead.id ? __assign(__assign({}, l), { status: 'pending', partnership_status: 'pending' }) : l; });
+                        });
+                    }} className="text-blue-600 hover:text-blue-900 text-xs font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors">
                                   🔄 Reset
-                                </button>
-                              )}
+                                </button>)}
                               
                               {/* Other Actions */}
-                              <button 
-                                onClick={() => handleEditBusiness(lead)}
-                                className="text-purple-600 hover:text-purple-900 text-xs font-medium px-2 py-1 bg-purple-50 rounded hover:bg-purple-100 transition-colors"
-                              >
+                              <button onClick={function () { return handleEditBusiness(lead); }} className="text-purple-600 hover:text-purple-900 text-xs font-medium px-2 py-1 bg-purple-50 rounded hover:bg-purple-100 transition-colors">
                                 ✏️ Edit
                               </button>
-                              <button 
-                                onClick={() => handleViewBusinessDetails(lead)}
-                                className="text-indigo-600 hover:text-indigo-900 text-xs font-medium px-2 py-1 bg-indigo-50 rounded hover:bg-indigo-100 transition-colors"
-                              >
+                              <button onClick={function () { return handleViewBusinessDetails(lead); }} className="text-indigo-600 hover:text-indigo-900 text-xs font-medium px-2 py-1 bg-indigo-50 rounded hover:bg-indigo-100 transition-colors">
                                 📋 View
                               </button>
-                              <button 
-                                onClick={() => handleDeleteBusiness(lead)}
-                                className="text-red-600 hover:text-red-900 text-xs font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100 transition-colors"
-                              >
+                              <button onClick={function () { return handleDeleteBusiness(lead); }} className="text-red-600 hover:text-red-900 text-xs font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100 transition-colors">
                                 🗑️ Delete
                               </button>
                             </div>
                           </td>
-                        </tr>
-                      ))
-                    )}
+                        </tr>); }))}
                   </tbody>
                 </table>
               </div>
@@ -2023,17 +1719,13 @@ function App() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Connection Status</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      dbConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={"px-2 py-1 rounded text-xs font-medium ".concat(dbConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
                       {dbConnected ? '🟢 Connected' : '🔴 Disconnected'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Real-time Updates</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      realTimeConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={"px-2 py-1 rounded text-xs font-medium ".concat(realTimeConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
                       {realTimeConnected ? '🟢 Active' : '🔴 Inactive'}
                     </span>
                   </div>
@@ -2065,11 +1757,8 @@ function App() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export default App;

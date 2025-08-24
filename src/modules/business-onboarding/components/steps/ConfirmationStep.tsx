@@ -1,28 +1,20 @@
 import React from 'react';
 import { CheckCircle, Download, Users, TrendingUp } from 'lucide-react';
-import { BusinessOnboardingData } from '../../types';
 import Button from '@/ui-components/common/Button';
-
-interface ConfirmationStepProps {
-  data: Partial<BusinessOnboardingData>;
-}
-
-const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ data }) => {
-  const handleGoHome = () => {
-    window.location.href = '/';
-  };
-
-  const handleDownloadApp = () => {
-    // TODO: Link to app stores or PWA install
-    console.log('Download app clicked');
-  };
-
-  return (
-    <div className="max-w-md mx-auto text-center space-y-6">
+var ConfirmationStep = function (_a) {
+    var data = _a.data;
+    var handleGoHome = function () {
+        window.location.href = '/';
+    };
+    var handleDownloadApp = function () {
+        // TODO: Link to app stores or PWA install
+        console.log('Download app clicked');
+    };
+    return (<div className="max-w-md mx-auto text-center space-y-6">
       {/* Success Icon */}
       <div className="flex justify-center mb-6">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-          <CheckCircle size={40} className="text-green-600" />
+          <CheckCircle size={40} className="text-green-600"/>
         </div>
       </div>
 
@@ -77,19 +69,19 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ data }) => {
         <h3 className="font-semibold text-red-900 mb-3">Your LocalPlus Benefits</h3>
         <div className="grid grid-cols-2 gap-4 text-left">
           <div className="flex items-center space-x-2">
-            <Users size={16} className="text-red-600" />
+            <Users size={16} className="text-red-600"/>
             <span className="text-sm text-red-800">Reach thousands of locals</span>
           </div>
           <div className="flex items-center space-x-2">
-            <TrendingUp size={16} className="text-red-600" />
+            <TrendingUp size={16} className="text-red-600"/>
             <span className="text-sm text-red-800">Boost visibility</span>
           </div>
           <div className="flex items-center space-x-2">
-            <CheckCircle size={16} className="text-red-600" />
+            <CheckCircle size={16} className="text-red-600"/>
             <span className="text-sm text-red-800">Free listing</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Download size={16} className="text-red-600" />
+            <Download size={16} className="text-red-600"/>
             <span className="text-sm text-red-800">Mobile-first reach</span>
           </div>
         </div>
@@ -110,20 +102,12 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ data }) => {
 
       {/* Action Buttons */}
       <div className="space-y-3 pt-4">
-        <Button
-          variant="primary"
-          onClick={handleDownloadApp}
-          className="w-full"
-        >
-          <Download size={20} className="mr-2" />
+        <Button variant="primary" onClick={handleDownloadApp} className="w-full">
+          <Download size={20} className="mr-2"/>
           Download LocalPlus App
         </Button>
         
-        <Button
-          variant="outline"
-          onClick={handleGoHome}
-          className="w-full"
-        >
+        <Button variant="outline" onClick={handleGoHome} className="w-full">
           Go to LocalPlus Homepage
         </Button>
       </div>
@@ -151,8 +135,6 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ data }) => {
           </a>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 };
-
-export default ConfirmationStep; 
+export default ConfirmationStep;

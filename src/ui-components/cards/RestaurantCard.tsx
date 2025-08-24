@@ -1,39 +1,17 @@
 import React from 'react';
-import { Restaurant } from '../../modules/restaurants/types';
-import Button from '../common/Button';
-import ImageCarousel from '../common/ImageCarousel';
-
-interface RestaurantCardProps {
-  restaurant: Restaurant;
-  onBookClick?: (restaurantId: string) => void;
-  onMenuClick?: (restaurantId: string) => void;
-  onOffPeakClick?: (restaurantId: string) => void;
-}
-
-const RestaurantCard: React.FC<RestaurantCardProps> = ({
-  restaurant,
-  onBookClick,
-  onMenuClick,
-  onOffPeakClick
-}) => {
-  return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm">
+import Button from '@/ui-components/common/Button';
+import ImageCarousel from '@/ui-components/common/ImageCarousel';
+var RestaurantCard = function (_a) {
+    var restaurant = _a.restaurant, onBookClick = _a.onBookClick, onMenuClick = _a.onMenuClick, onOffPeakClick = _a.onOffPeakClick;
+    return (<div className="bg-white rounded-xl overflow-hidden shadow-sm">
       {/* Restaurant Images Carousel */}
       <div className="relative h-48 bg-gray-200">
-        <ImageCarousel
-          images={(restaurant.photos || [restaurant.imageUrl]).filter((url): url is string => !!url)}
-          alt={restaurant.name}
-          className="h-full"
-          showDots={true}
-          showArrows={true}
-        />
+        <ImageCarousel images={restaurant.photos || [restaurant.imageUrl].filter(Boolean)} alt={restaurant.name} className="h-full" showDots={true} showArrows={true}/>
         
         {/* Today's Deal Badge */}
-        {restaurant.todaysDeal && (
-          <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+        {restaurant.todaysDeal && (<div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
             Deal
-          </div>
-        )}
+          </div>)}
       </div>
       
       {/* Restaurant Info */}
@@ -53,38 +31,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2">
-          {restaurant.hasReservation && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onBookClick?.(restaurant.id)}
-              className="text-xs"
-            >
+          {restaurant.hasReservation && (<Button variant="outline" size="sm" onClick={function () { return onBookClick === null || onBookClick === void 0 ? void 0 : onBookClick(restaurant.id); }} className="text-xs">
               Book
-            </Button>
-          )}
+            </Button>)}
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onMenuClick?.(restaurant.id)}
-            className="text-xs"
-          >
+          <Button variant="outline" size="sm" onClick={function () { return onMenuClick === null || onMenuClick === void 0 ? void 0 : onMenuClick(restaurant.id); }} className="text-xs">
             Menu
           </Button>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onOffPeakClick?.(restaurant.id)}
-            className="text-xs"
-          >
+          <Button variant="outline" size="sm" onClick={function () { return onOffPeakClick === null || onOffPeakClick === void 0 ? void 0 : onOffPeakClick(restaurant.id); }} className="text-xs">
             Off Peak
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 };
-
-export default RestaurantCard; 
+export default RestaurantCard;
