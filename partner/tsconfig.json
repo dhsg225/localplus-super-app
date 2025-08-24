@@ -9,7 +9,8 @@
       "shared/*": ["./shared/*"]
     },
     "composite": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
   },
   "include": [
     "partner/src",

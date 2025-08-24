@@ -1,8 +1,8 @@
 // [2024-07-08] - Supabase client configuration with service role key for admin operations
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // [2024-07-29] - Added check to ensure Supabase configuration is loaded correctly.
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -13,7 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Development mode logging
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.MODE === 'development') {
   console.log('🔧 Supabase client initialized in development mode')
 }
 
