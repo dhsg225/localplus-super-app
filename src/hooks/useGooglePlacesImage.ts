@@ -65,7 +65,7 @@ export const useGooglePlacesImage = (
 
 // Hook for preloading multiple restaurant images
 export const useRestaurantImageCache = (restaurants: Array<{ id: string; heroImage: string }>) => {
-  const [cachedImages, setCachedImages] = useState<Map<string, string>>(new Map());
+  const [cachedImages, setCachedImages] = useState<Map<string, string | null>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

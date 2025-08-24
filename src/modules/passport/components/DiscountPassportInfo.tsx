@@ -5,12 +5,9 @@ import {
   Star, 
   Trophy, 
   Target, 
-  Gift, 
   Users, 
   Zap, 
-  Heart,
   MapPin,
-  Clock,
   Percent,
   Crown,
   ArrowLeft

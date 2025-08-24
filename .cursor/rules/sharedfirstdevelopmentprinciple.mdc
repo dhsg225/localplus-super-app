@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+MANDATORY: Before creating any new component, service, or utility, follow the "Shared-First Development Principle":
+
+DECISION QUESTIONS:
+1. "Will this be used by 2+ apps?" → shared/ folder
+2. "Is this business logic or data access?" → shared/ folder  
+3. "Is this a reusable UI component?" → shared/ folder
+4. "Is this app-specific routing/navigation?" → src/ folder
+
+DECISION MATRIX:
+- Components: ✅ Shared (Button, FormInput, Modal, Table) | ❌ App-specific (Navigation, AppHeader)
+- Services: ✅ Shared (Database, API, Auth) | ❌ App-specific (routing)
+- Utils: ✅ Shared (Formatting, validation, storage) | ❌ App-specific (config, constants)
+- Types: ✅ Shared (Business models like Restaurant, Booking) | ❌ App-specific (Component props, app state)
+
+WORKFLOW: New Component → Ask "Reusable by 2+ apps?" → Yes = shared/components/ | No = src/components/
+
+NAMING: Shared = Generic names (Button, Modal) | App-specific = Prefixed names (ConsumerNavigation, PartnerHeader)
+
+STYLING: Shared components must be theme-able with props (theme="blue|red|gray"). Always export from shared/components/index.ts
+
+When in doubt, start in shared/ and move to app-specific only if truly unique.

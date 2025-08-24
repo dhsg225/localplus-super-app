@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUp, 
   Users, 
   Building2, 
   DollarSign, 
   MapPin, 
-  Clock,
-  Eye,
-  Award,
-  Calendar,
-  BarChart3
+  Award
 } from 'lucide-react';
 
 interface PlatformMetrics {

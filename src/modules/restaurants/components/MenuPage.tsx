@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Search, Star, Clock, DollarSign } from 'lucide-react';
+import { ArrowLeft, Search, Clock } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface MenuPageProps {
@@ -17,10 +17,6 @@ interface MenuCategory {
 // [2024-12-19 11:15 UTC] - Removed mock menu data, now using dynamic menu generation based on restaurant
 const generateMenuForRestaurant = (restaurantName: string): MenuCategory[] => {
   // Generate menu based on restaurant type/name
-  const isThaiRestaurant = restaurantName.toLowerCase().includes('thai') || 
-                          restaurantName.toLowerCase().includes('palace') ||
-                          restaurantName.toLowerCase().includes('som tam');
-  
   const isSeafoodRestaurant = restaurantName.toLowerCase().includes('seaside') ||
                              restaurantName.toLowerCase().includes('seafood');
 

@@ -6,7 +6,7 @@ async function testDiscovery() {
   
   try {
     console.log('🚀 Running Bangkok Restaurant Discovery...');
-    const result = await discoveryService.runBangkokRestaurantDiscovery();
+    const result = await discoveryService.runHuaHinRestaurantDiscovery();
     
     console.log('📊 Discovery Results:');
     console.log('  - Discovered:', result.discovered);
@@ -16,7 +16,7 @@ async function testDiscovery() {
     
     if (result.errors.length > 0) {
       console.log('❌ Errors occurred:');
-      result.errors.forEach(error => console.log('  -', error));
+      result.errors.forEach((error: string) => console.log('  -', error));
     }
     
     if (result.added > 0) {

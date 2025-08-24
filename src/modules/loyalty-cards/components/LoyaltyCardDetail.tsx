@@ -87,7 +87,7 @@ const getCurrentCard = () => {
   const cardId = pathSegments[pathSegments.length - 1];
   
   // Map card IDs to business keys
-  const cardMapping = {
+  const cardMapping: { [key: string]: string } = {
     'mock-1': 'cafe-aroma',
     'mock-2': 'blue-wave-spa', 
     'mock-3': 'golden-palace',
@@ -96,45 +96,11 @@ const getCurrentCard = () => {
   };
   
   const businessKey = cardMapping[cardId] || 'cafe-aroma';
-  return loyaltyCardVariations[businessKey];
+  const loyaltyCardKey = businessKey as keyof typeof loyaltyCardVariations;
+  return loyaltyCardVariations[loyaltyCardKey];
 };
 
 const mockCard = getCurrentCard();
-
-// [2024-05-10 16:15 UTC] - Vintage stamp component for customer view
-const VintageStamp: React.FC<{ 
-  isCollected: boolean; 
-  number: number; 
-  theme: typeof mockCard.theme;
-  index: number;
-}> = ({ isCollected, number, theme, index }) => {
-  // Random slight rotation and positioning for authentic look
-  const rotation = (index * 7) % 15 - 7; // -7 to +7 degrees
-  const offsetX = (index * 3) % 6 - 3; // -3 to +3 pixels
-  const offsetY = (index * 5) % 6 - 3; // -3 to +3 pixels
-  
-  return (
-    <div
-      className="relative w-10 h-10 flex items-center justify-center text-sm font-bold transition-all duration-300"
-      style={{
-        transform: `rotate(${rotation}deg) translate(${offsetX}px, ${offsetY}px)`,
-        backgroundColor: isCollected ? theme.primary : '#f9f9f9',
-        border: `3px solid ${theme.primary}`,
-        borderRadius: isCollected ? '50%' : '45%',
-        color: isCollected ? 'white' : theme.primary,
-        boxShadow: isCollected 
-          ? `0 2px 8px ${theme.primary}40, inset 0 1px 2px rgba(255,255,255,0.3)` 
-          : `0 1px 3px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.8)`,
-        // Vintage paper texture effect
-        backgroundImage: isCollected 
-          ? `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 50%)`
-          : `linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%)`
-      }}
-    >
-      {isCollected ? '✓' : number}
-    </div>
-  );
-};
 
 const LoyaltyCardDetail: React.FC = () => {
   const navigate = useNavigate();

@@ -88,7 +88,6 @@ export const curationAPI = {
         latitude: business.latitude,
         longitude: business.longitude,
         phone: business.phone,
-        email: business.email,
         website_url: business.website_url,
         google_rating: business.google_rating,
         google_review_count: business.google_review_count,
@@ -135,12 +134,12 @@ export const curationAPI = {
       console.log('📊 Fetching curation stats from database...');
       
       // [2024-12-19 16:30 UTC] - Get real data from suggested_businesses table
-      const { data: suggestedBusinesses, error: suggestedError } = await supabase
+      const { data: suggestedBusinesses } = await supabase
         .from('suggested_businesses')
         .select('curation_status, quality_score, created_at');
 
       // [2024-12-19 16:30 UTC] - Also get data from main businesses table
-      const { data: mainBusinesses, error: mainError } = await supabase
+      const { data: mainBusinesses } = await supabase
         .from('businesses')
         .select('partnership_status, created_at');
 

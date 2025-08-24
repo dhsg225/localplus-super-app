@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Plus, X, Upload, Camera } from 'lucide-react';
-import FormInput from '@/ui-components/forms/FormInput';
-import FormSelect from '@/ui-components/forms/FormSelect';
 
 interface MenuItem {
   id: string;
@@ -188,40 +186,55 @@ const MenuSubmissionStep: React.FC<MenuSubmissionStepProps> = ({ onNext, onBack 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormInput
-                label="Item Name"
-                value={currentItem.name || ''}
-                onChange={(value) => setCurrentItem({ ...currentItem, name: value })}
-                placeholder="e.g., Pad Thai"
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Item Name</label>
+                <input
+                  type="text"
+                  value={currentItem.name || ''}
+                  onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
+                  placeholder="e.g., Pad Thai"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  required
+                />
+              </div>
               
-              <FormInput
-                label="Price (฿)"
-                type="number"
-                value={currentItem.price?.toString() || ''}
-                onChange={(value) => setCurrentItem({ ...currentItem, price: parseFloat(value) || 0 })}
-                placeholder="0"
-                required
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price (฿)</label>
+                <input
+                  type="number"
+                  value={currentItem.price?.toString() || ''}
+                  onChange={(e) => setCurrentItem({ ...currentItem, price: parseFloat(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={currentItem.description || ''}
+                onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
+                placeholder="Brief description of the dish..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
-            <FormInput
-              label="Description"
-              value={currentItem.description || ''}
-              onChange={(value) => setCurrentItem({ ...currentItem, description: value })}
-              placeholder="Brief description of the dish..."
-              multiline
-            />
-
-            <FormSelect
-              label="Category"
-              value={currentItem.category || ''}
-              onChange={(value) => setCurrentItem({ ...currentItem, category: value })}
-              options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
-              placeholder="Select category"
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <select
+                value={currentItem.category || ''}
+                onChange={(e) => setCurrentItem({ ...currentItem, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(cat => ({ value: cat.id, label: cat.name })).map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Image Upload */}
             <div>

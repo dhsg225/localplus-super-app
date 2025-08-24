@@ -1,4 +1,4 @@
-import { supabase } from '@/config/database';
+import { supabase } from '../lib/supabase';
 import { 
   Province, 
   District, 
@@ -8,7 +8,7 @@ import {
   AddressComponents,
   LDP_PRIORITY_AREAS,
   LDPArea
-} from '@/types/geography';
+} from '../types/geography';
 
 export class GeographyService {
   private static instance: GeographyService;

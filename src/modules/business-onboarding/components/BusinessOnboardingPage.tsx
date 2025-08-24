@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { BusinessOnboardingData, OnboardingFormState, BusinessType } from '../types';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { BusinessOnboardingData, OnboardingFormState } from '../types';
 import Button from '@/ui-components/common/Button';
 import BusinessTypeStep from './steps/BusinessTypeStep';
 import BasicInfoStep from './steps/BasicInfoStep';

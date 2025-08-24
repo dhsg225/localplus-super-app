@@ -7,10 +7,8 @@ import {
   mockDistrictChallenges, 
   mockCuisineCallenges, 
   mockPassportActivities,
-  mockSavedDeals,
-  mockSubscriptionTiers
+  mockSavedDeals
 } from '../data/mockPassportData';
-import { PassportBadge } from '../types';
 
 // Mock businesses data with locations in Hua Hin
 const mockBusinesses = [
@@ -208,7 +206,7 @@ const PassportPage: React.FC = () => {
       .sort((a, b) => a.distance - b.distance);
   };
 
-  const handleQRScan = (businessId: number, redemptionCode: string) => {
+  const handleQRScan = (businessId: number) => {
     // In real app, this would call API to redeem
     setNearbyBusinesses(prev => 
       prev.map(business => 
@@ -228,7 +226,6 @@ const PassportPage: React.FC = () => {
       platinum: 500
     };
     
-    const currentLevelStamps = levelStamps[user.level];
     const nextLevel = user.level === 'bronze' ? 'silver' : 
                     user.level === 'silver' ? 'gold' : 
                     user.level === 'gold' ? 'platinum' : 'platinum';
@@ -411,7 +408,7 @@ const PassportPage: React.FC = () => {
                           </div>
                         ) : (
                           <button
-                            onClick={() => handleQRScan(business.id, business.redemptionCode)}
+                            onClick={() => handleQRScan(business.id)}
                             className="flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                           >
                             <QrCode size={14} className="mr-1" />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Check, Crown, Star, Zap, Gift, Clock, Users, Shield, Store, MapPin, Percent } from 'lucide-react';
+import { ArrowLeft, Check, Crown, Star, Zap, Users, Shield, Store, MapPin, Percent } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mockSubscriptionTiers } from '../data/mockPassportData';
 
@@ -8,7 +8,6 @@ const SubscriptionUpgrade: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState('premium-monthly');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const freeTier = mockSubscriptionTiers.find(t => t.id === 'free')!;
   const monthlyTier = mockSubscriptionTiers.find(t => t.id === 'premium-monthly')!;
   const yearlyTier = mockSubscriptionTiers.find(t => t.id === 'premium-yearly')!;
 

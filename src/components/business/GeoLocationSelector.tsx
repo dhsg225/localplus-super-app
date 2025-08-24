@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, MapPin, Search } from 'lucide-react';
+import { ChevronDown, MapPin } from 'lucide-react';
 import { geographyService } from '@/services/geographyService';
 import { Province, District, SubDistrict } from '@/types/geography';
 

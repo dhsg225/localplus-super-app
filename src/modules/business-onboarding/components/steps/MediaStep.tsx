@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, Image, FileText, Check } from 'lucide-react';
+import React from 'react';
+import { Upload, Image, FileText } from 'lucide-react';
 import { BusinessOnboardingData } from '../../types';
 import FormInput from '@/ui-components/forms/FormInput';
 

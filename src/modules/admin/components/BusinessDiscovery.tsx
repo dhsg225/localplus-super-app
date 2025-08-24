@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Star, Phone, Globe, Plus, Clock, Eye, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Star, Phone, Globe, Plus, CheckCircle } from 'lucide-react';
 import { googlePlacesService, GooglePlaceResult, GooglePlaceDetails } from '../../../services/googlePlaces';
 import { businessAPI } from '../../../lib/supabase';
 
@@ -166,7 +166,10 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
       const businessData = googlePlacesService.googlePlaceToBusiness(business, details || undefined);
       
       // Add to database
-      const newBusiness = await businessAPI.addBusiness(businessData);
+      const newBusiness = await businessAPI.addBusiness({
+        ...businessData,
+        partnership_status: 'pending'
+      });
       
       if (newBusiness) {
         setImportedBusinessIds(prev => new Set(prev).add(business.place_id));
@@ -178,7 +181,6 @@ const BusinessDiscovery: React.FC<BusinessDiscoveryProps> = ({ userLocation, onB
         // Also create a default discount offer
         await businessAPI.addDiscountOffer({
           business_id: newBusiness.id,
-          title: 'Welcome Discount',
           description: '10% off for new customers',
           discount_percentage: 10,
           valid_from: new Date().toISOString().split('T')[0],

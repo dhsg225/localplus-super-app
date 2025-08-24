@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart3, Database, DollarSign, Users, MapPin, Clock, Star, Building2, Shield, Bell, Activity, LogOut, Settings, Download, CheckCircle, XCircle, Search, Filter, Eye, User, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart3, MapPin, Star, Shield, Activity, LogOut, XCircle, TrendingUp } from 'lucide-react';
 import AzureMapComponent from './components/AzureMapComponent';
 import { AdminLogin } from './components/AdminLogin';
 import { AnalyticsCharts, generateSampleAnalyticsData, type AnalyticsData } from './components/AnalyticsCharts';
 import { RealCostTracker } from './components/RealCostTracker';
-import { adminAuth, type AdminUser } from './lib/auth';
+// [2024-12-19 22:40] - Migrated to unified authentication
+import { authService } from '@shared/services/authService';
+import type { UnifiedUser } from '@shared/services/authService';
 import { realTimeService, type RealTimeUpdate, type DashboardStats } from './lib/websocket';
 import { supabase } from './lib/supabase';
 import 'azure-maps-control/dist/atlas.min.css';
@@ -53,8 +55,8 @@ interface DiscoveryLead {
 }
 
 function App() {
-  // [2024-12-15 23:40] - Admin Authentication State
-  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+  // [2024-12-19 22:40] - Updated to use unified authentication
+  const [currentUser, setCurrentUser] = useState<UnifiedUser | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [realTimeConnected, setRealTimeConnected] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>(generateSampleAnalyticsData());
@@ -168,19 +170,29 @@ function App() {
     }
   };
 
-  // [2024-12-15 23:40] - Initialize authentication and real-time services
+  // [2024-12-19 22:40] - Updated authentication initialization
   useEffect(() => {
     initializeApp();
   }, []);
 
   const initializeApp = async () => {
-    // Check for existing authentication
-    const existingUser = adminAuth.getCurrentUser();
-    if (existingUser) {
-      setCurrentUser(existingUser);
-      await initializeRealTimeServices();
+    try {
+      // Check for existing authentication using unified auth
+      const existingUser = await authService.getCurrentUser();
+      if (existingUser) {
+        // Verify user has admin access
+        if (existingUser.roles?.includes('admin') || existingUser.roles?.includes('super_admin')) {
+          setCurrentUser(existingUser);
+          await initializeRealTimeServices();
+        } else {
+          console.warn('User does not have admin privileges');
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing app:', error);
+    } finally {
+      setIsAuthenticating(false);
     }
-    setIsAuthenticating(false);
   };
 
   const initializeRealTimeServices = async () => {
@@ -190,7 +202,7 @@ function App() {
       setRealTimeConnected(realTimeService.getConnectionStatus());
 
       // Subscribe to real-time updates only once
-      const unsubscribeUpdates = realTimeService.onUpdate((update: RealTimeUpdate) => {
+      realTimeService.onUpdate((update: RealTimeUpdate) => {
         console.log('📡 Real-time update received:', update);
         if (update.type === 'business_approved' || update.type === 'business_added') {
           // Debounced refresh to prevent spam
@@ -198,7 +210,7 @@ function App() {
         }
       });
 
-      const unsubscribeStats = realTimeService.onStatsUpdate((newStats: DashboardStats) => {
+      realTimeService.onStatsUpdate((newStats: DashboardStats) => {
         console.log('📊 Stats update received:', newStats);
         setStats({
           discoveryLeads: newStats.discoveryLeads,
@@ -219,15 +231,15 @@ function App() {
     }
   };
 
-  const handleLogin = async (user: AdminUser) => {
+  const handleLogin = (user: UnifiedUser) => {
     setCurrentUser(user);
-    await initializeRealTimeServices();
+    initializeRealTimeServices();
   };
 
   const handleLogout = async () => {
-    await adminAuth.logout();
-    realTimeService.disconnect();
+    await authService.signOut();
     setCurrentUser(null);
+    realTimeService.disconnect();
     setRealTimeConnected(false);
   };
 
@@ -861,7 +873,7 @@ function App() {
               />
               <div className="text-sm">
                 <div className="font-medium">{currentUser.firstName} {currentUser.lastName}</div>
-                <div className="text-purple-200">{currentUser.role}</div>
+                <div className="text-purple-200">{currentUser.roles.join(', ')}</div>
               </div>
               <button
                 onClick={handleLogout}
@@ -1619,7 +1631,7 @@ function App() {
                     <Shield size={20} className="text-green-500 mr-3" />
                     <div className="flex-1">
                       <span className="text-slate-700 font-medium">{currentUser.firstName} {currentUser.lastName} logged in</span>
-                      <div className="text-xs text-slate-500 mt-1">Role: {currentUser.role} | Session active</div>
+                      <div className="text-xs text-slate-500 mt-1">Role: {currentUser.roles.join(', ')} | Session active</div>
                     </div>
                     <span className="text-slate-400 text-sm">Session start</span>
                   </div>

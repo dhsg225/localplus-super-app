@@ -24,10 +24,7 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  // Update profile navigation based on auth state
-  const getProfilePath = () => {
-    return isAuthenticated ? "/profile" : "/auth/login";
-  };
+
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">

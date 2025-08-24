@@ -244,7 +244,7 @@ const MapSearchModule: React.FC<MapSearchModuleProps> = ({
     state.markers.forEach(marker => marker.setMap(null));
 
     // Create new markers
-    const newMarkers = results.map((business, index) => {
+    const newMarkers = results.map((business) => {
       const marker = new window.google.maps.Marker({
         position: business.location,
         map: state.mapInstance,

@@ -1,5 +1,5 @@
 // [2024-12-15 23:35] - Analytics Charts Component
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,

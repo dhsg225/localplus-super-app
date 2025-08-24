@@ -1,7 +1,7 @@
 // [2024-05-10 17:30 UTC] - Advertisement Management Dashboard
 
 import React, { useState } from 'react';
-import { Plus, Eye, Edit, Trash2, BarChart3, TrendingUp, Users, DollarSign, Filter, Search } from 'lucide-react';
+import { Plus, Eye, Edit, Trash2, BarChart3, TrendingUp, DollarSign, Search } from 'lucide-react';
 import { mockAdvertisements } from '../data/mockAds';
 import { getAdMetrics } from '../services/adAnalytics';
 import AdCard from './AdCard';
@@ -25,7 +25,7 @@ export const AdManagementDashboard: React.FC = () => {
   const analytics = ads.map(ad => getAdMetrics(ad.id));
   const totalImpressions = analytics.reduce((sum, a) => sum + a.impressions, 0);
   const totalClicks = analytics.reduce((sum, a) => sum + a.clicks, 0);
-  const totalRevenue = analytics.reduce((sum, a) => sum + (a.revenue || 0), 0);
+  const totalRevenue = 0; // analytics.reduce((sum, a) => sum + (a.revenue || 0), 0);
   const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0;
 
   const deleteAd = (adId: string) => {
@@ -215,22 +215,20 @@ export const AdManagementDashboard: React.FC = () => {
                             {ad.type === 'internal' ? 'Internal' : 'External'}
                           </span>
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            ad.status === 'active' 
+                            ad.isActive 
                               ? 'bg-green-100 text-green-800' 
-                              : ad.status === 'paused'
-                              ? 'bg-yellow-100 text-yellow-800'
                               : 'bg-red-100 text-red-800'
                           }`}>
-                            {ad.status}
+                            {ad.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
                       </div>
                       
                       {/* Render actual ad component */}
-                      {ad.displayType === 'banner' ? (
-                        <AdBanner ad={ad} />
+                      {ad.placement[0] === 'homepage-hero' ? (
+                        <AdBanner ad={ad} placement="homepage-hero" />
                       ) : (
-                        <AdCard ad={ad} />
+                        <AdCard ad={ad} placement="homepage-cards" />
                       )}
                     </div>
 
@@ -270,12 +268,7 @@ export const AdManagementDashboard: React.FC = () => {
                               </div>
                               <div className="text-gray-500">CTR</div>
                             </div>
-                            {adAnalytics.revenue > 0 && (
-                              <div className="text-center">
-                                <div className="font-semibold text-gray-900">฿{adAnalytics.revenue.toLocaleString()}</div>
-                                <div className="text-gray-500">Revenue</div>
-                              </div>
-                            )}
+                            
                           </div>
                         )}
 

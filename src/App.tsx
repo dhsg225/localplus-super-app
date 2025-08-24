@@ -1,7 +1,5 @@
 // Main App component - LocalPlus Super App
-import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { motion } from "framer-motion";
 
 // Authentication
 import { AuthProvider } from "./modules/auth/context/AuthContext";
@@ -50,7 +48,6 @@ import UserSettingsPage from "./modules/user-settings/components/UserSettingsPag
 
 // UI Components
 import HomePage from "./ui-components/common/HomePage";
-import LoadingSpinner from "./ui-components/common/LoadingSpinner";
 
 import LoyaltyProgramManagement from "./modules/business-management/components/LoyaltyProgramManagement";
 import LoyaltyCardsList from "./modules/loyalty-cards/components/LoyaltyCardsList";

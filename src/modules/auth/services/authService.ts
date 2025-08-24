@@ -62,8 +62,6 @@ const REFRESH_TOKEN_KEY = 'localplus_refresh_token';
 const USER_KEY = 'localplus_user';
 
 class AuthService {
-  private baseURL = 'http://localhost:3000/api';
-
   // Simulate API delay
   private delay(ms: number = 1000): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));

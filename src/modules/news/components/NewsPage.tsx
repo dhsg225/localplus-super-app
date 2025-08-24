@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Search, ChevronDown, ChevronRight, MapPin, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { newsCacheService } from '../services/newsCacheService';

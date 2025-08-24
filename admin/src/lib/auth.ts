@@ -1,5 +1,4 @@
 // [2024-12-15 23:20] - Admin Authentication System (adapted from mobile version)
-import { supabase } from './supabase';
 
 export interface AdminUser {
   id: string;

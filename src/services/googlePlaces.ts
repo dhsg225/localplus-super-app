@@ -130,7 +130,7 @@ class GooglePlacesService {
       }
 
       // Use real Google Places API to get details
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(
           document.createElement('div')
         );
@@ -144,7 +144,7 @@ class GooglePlacesService {
               'opening_hours', 'photos', 'geometry', 'types', 'business_status'
             ]
           },
-          (place, status) => {
+          (place: google.maps.places.PlaceResult | null, status: google.maps.places.PlacesServiceStatus) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
               resolve({
                 place_id: place.place_id!,
@@ -213,7 +213,7 @@ class GooglePlacesService {
   }
 
   // Get photo URL from Google Places photo reference
-  getPhotoUrl(photoReference: string, maxWidth: number = 400): string {
+  getPhotoUrl(photoReference: string): string {
     return photoReference || '/placeholder-business.jpg';
   }
 
@@ -303,11 +303,11 @@ class GooglePlacesService {
           radius: radiusMeters
         };
 
-        service.textSearch(request, (results, status) => {
+        service.textSearch(request, (results: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
             console.log(`✅ Found ${results.length} businesses for query: "${businessType}"`);
             
-            const mappedResults = results.map(place => ({
+            const mappedResults = results.map((place) => ({
               place_id: place.place_id!,
               name: place.name!,
               vicinity: place.vicinity || place.formatted_address || 'Hua Hin, Thailand',
@@ -361,11 +361,11 @@ class GooglePlacesService {
           type: googleType
         };
 
-        service.nearbySearch(request, (results, status) => {
+        service.nearbySearch(request, (results: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
             console.log(`✅ Found ${results.length} businesses for type: ${googleType}`);
             
-            const mappedResults = results.map(place => ({
+            const mappedResults = results.map((place) => ({
               place_id: place.place_id!,
               name: place.name!,
               vicinity: place.vicinity || 'Hua Hin, Thailand',

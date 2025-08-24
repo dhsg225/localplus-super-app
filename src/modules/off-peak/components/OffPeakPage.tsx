@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Clock, MapPin, Star, ArrowLeft, Filter } from 'lucide-react';
-import { OffPeakFilters } from '../types';
+import { OffPeakDeal, OffPeakTimeSlot, OffPeakFilters } from '../types';
 import OffPeakFiltersModal from './OffPeakFiltersModal';
 import { mockOffPeakDeals } from '../data/mockData';
+import { bookingService } from '../../../../shared/services/bookingService';
+import { useAuth } from '../../auth/context/AuthContext';
+import { CreateBookingData } from '../../../../shared/types';
+
+
+interface BookingState {
+  deal: OffPeakDeal;
+  timeSlot: OffPeakTimeSlot;
+}
 
 const OffPeakPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +28,9 @@ const OffPeakPage: React.FC = () => {
   });
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [restaurantFilter, setRestaurantFilter] = useState<string | null>(null);
+  const [bookingState, setBookingState] = useState<BookingState | null>(null);
+  const [isBooking, setIsBooking] = useState(false);
+  const { user } = useAuth();
   
   // Get current time in Thailand timezone (GMT+7)
   const currentTime = new Date();
@@ -73,6 +85,46 @@ const OffPeakPage: React.FC = () => {
   const applyFilters = (newFilters: OffPeakFilters) => {
     setFilters(newFilters);
     setShowFiltersModal(false);
+  };
+
+  const handleBookNow = (deal: OffPeakDeal, timeSlot: OffPeakTimeSlot) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setBookingState({ deal, timeSlot });
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!bookingState || !user) return;
+
+    setIsBooking(true);
+    try {
+      const { deal, timeSlot } = bookingState;
+      const bookingData: CreateBookingData = {
+        business_id: deal.restaurantId,
+        customer_name: `${user.firstName} ${user.lastName}`,
+        customer_email: user.email,
+        customer_phone: user.phone || 'N/A',
+        party_size: filters.pax,
+        booking_date: new Date().toISOString().split('T')[0], // Assuming today's date
+        booking_time: timeSlot.startTime,
+        special_requests: `Off-peak deal: ${deal.discountPercentage}% off.`,
+        status: 'confirmed'
+      };
+
+      await bookingService.createBooking(bookingData);
+      
+      // Reset state and show confirmation message
+      setBookingState(null);
+      alert('Booking confirmed!');
+
+    } catch (error) {
+      console.error('Failed to create booking:', error);
+      alert('Failed to book. Please try again.');
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   // Filter deals based on time slot and other filters
@@ -132,15 +184,6 @@ const OffPeakPage: React.FC = () => {
       case 'afternoon': return 'Afternoon';
       case 'late-night': return 'Late Night';
       default: return 'Special';
-    }
-  };
-
-  const getDealTypeTime = (type: string) => {
-    switch (type) {
-      case 'early-bird': return '11:30 - 14:30';
-      case 'afternoon': return '14:30 - 17:30';
-      case 'late-night': return '21:00 - 23:30';
-      default: return '';
     }
   };
 
@@ -284,6 +327,7 @@ const OffPeakPage: React.FC = () => {
                     <button
                       key={slot.id}
                       disabled={!slot.isAvailable}
+                      onClick={() => handleBookNow(deal, slot)}
                       className={`p-3 rounded-lg border text-center text-sm transition-colors ${
                         slot.isAvailable 
                           ? 'border-green-200 bg-green-50 text-green-800 hover:bg-green-100'
@@ -302,7 +346,10 @@ const OffPeakPage: React.FC = () => {
                 </div>
 
                 {/* Quick Book Button */}
-                <button className="w-full bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                <button 
+                  onClick={() => handleBookNow(deal, deal.timeSlots.find(ts => ts.isAvailable)!)}
+                  disabled={!deal.timeSlots.some(ts => ts.isAvailable)}
+                  className="w-full bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors disabled:bg-gray-400">
                   Book {deal.discountPercentage}% Off
                 </button>
               </div>
@@ -397,7 +444,10 @@ const OffPeakPage: React.FC = () => {
                   </div>
 
                   {/* Action Button */}
-                  <button className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                  <button 
+                    onClick={() => handleBookNow(deal, deal.timeSlots.find(ts => ts.isAvailable)!)}
+                    disabled={!deal.timeSlots.some(ts => ts.isAvailable)}
+                    className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:bg-gray-400">
                     Book {deal.discountPercentage}% Off Deal
                   </button>
                 </div>
@@ -413,6 +463,24 @@ const OffPeakPage: React.FC = () => {
           onClose={() => setShowFiltersModal(false)}
           onApplyFilters={applyFilters}
         />
+      )}
+
+      {bookingState && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Confirm Booking</h2>
+            <p><strong>Restaurant:</strong> {bookingState.deal.restaurantName}</p>
+            <p><strong>Deal:</strong> {bookingState.deal.discountPercentage}% off</p>
+            <p><strong>Time:</strong> {bookingState.timeSlot.startTime}</p>
+            <p><strong>Guests:</strong> {filters.pax}</p>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button onClick={() => setBookingState(null)} className="px-4 py-2 rounded bg-gray-200 text-gray-800">Cancel</button>
+              <button onClick={handleConfirmBooking} disabled={isBooking} className="px-4 py-2 rounded bg-red-600 text-white disabled:bg-gray-400">
+                {isBooking ? 'Booking...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

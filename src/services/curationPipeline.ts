@@ -2,7 +2,7 @@
 // Handles automated discovery, quality filtering, and curation workflow
 
 import { supabase } from '../lib/supabase';
-import { googlePlacesService, type GooglePlaceDetails } from './googlePlaces';
+import { googlePlacesService } from './googlePlaces';
 
 export interface DiscoveryFilters {
   minRating?: number;
@@ -180,7 +180,7 @@ export class CurationPipelineService {
       await supabase
         .from('discovery_campaigns')
         .update({
-          businesses_discovered: campaign.businessesDiscovered + results.discovered,
+          businesses_discovered: (campaign.businessesDiscovered || 0) + results.discovered,
           last_run_at: new Date().toISOString(),
           next_run_at: this.calculateNextRun(campaign.runFrequency)
         })

@@ -20,7 +20,7 @@ import {
   Menu
 } from 'lucide-react';
 
-import { ContextConfig, FilterGroup, BusinessCardAction } from './types';
+import { ContextConfig } from './types';
 
 // Cuisine options with icons
 export const CUISINE_FILTERS = [

@@ -34,7 +34,6 @@ class RealTimeService {
   private isConnected = false;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 2;
-  private reconnectDelay = 1000;
   private channel: any = null;
   private hasInitialized = false;
 
@@ -130,25 +129,20 @@ class RealTimeService {
     const { eventType, new: newRecord, old: oldRecord } = payload;
     
     let updateType: RealTimeUpdate['type'];
-    let message = '';
 
     switch (eventType) {
       case 'INSERT':
         updateType = 'business_added';
-        message = `New business added: ${newRecord.name || 'Unknown'}`;
         break;
       case 'UPDATE':
         if (newRecord.approved !== oldRecord.approved) {
           updateType = newRecord.approved ? 'business_approved' : 'business_rejected';
-          message = `Business ${newRecord.approved ? 'approved' : 'rejected'}: ${newRecord.name}`;
         } else {
           updateType = 'business_updated';
-          message = `Business updated: ${newRecord.name || 'Unknown'}`;
         }
         break;
       default:
         updateType = 'business_updated';
-        message = `Business modified: ${newRecord?.name || oldRecord?.name || 'Unknown'}`;
     }
 
     this.emitUpdate({ type: updateType, data: newRecord || oldRecord, timestamp: new Date() });
@@ -196,15 +190,7 @@ class RealTimeService {
     }
   }
 
-  private handleConnectionError(): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      console.log(`🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      setTimeout(() => { this.connect(); }, this.reconnectDelay * this.reconnectAttempts);
-    } else {
-      console.error('❌ Max reconnection attempts reached');
-    }
-  }
+
 
   async simulateBusinessApproval(businessId: string, businessName: string): Promise<void> {
     this.emitUpdate({

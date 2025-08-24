@@ -90,8 +90,6 @@ const AdBanner: React.FC<AdBannerProps> = ({
     }
   };
 
-  const buttonColors = getButtonColors();
-
   // Get icon for the ad
   const getIcon = () => {
     if (ad.title.toLowerCase().includes('dining') || ad.title.toLowerCase().includes('restaurant')) {

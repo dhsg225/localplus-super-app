@@ -36,17 +36,18 @@
       "@/shared/*": [
         "./src/shared/*"
       ],
-      "@/api-integrations/*": [
+      "@api-integrations/*": [
         "./src/api-integrations/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
       ]
     }
   },
   "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
+    "src",
+    "shared",
+    "admin/src",
+    "partner/src"
   ]
 }

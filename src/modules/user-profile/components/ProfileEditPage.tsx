@@ -36,7 +36,7 @@ const ProfileEditPage: React.FC = () => {
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(prev[parent as keyof typeof prev] || {}),
           [child]: value
         }
       }));

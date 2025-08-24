@@ -1,7 +1,7 @@
 // [2025-01-09 02:55 UTC] - Real API Cost Tracking with LIVE Google Cloud & Azure APIs
 import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, Calendar, AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react';
-import { fetchRealBillingData, type RealApiCost } from '../lib/realApiCosts';
+import { fetchRealBillingData } from '../lib/realApiCosts';
 
 interface APIUsage {
   name: string;

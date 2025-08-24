@@ -1,7 +1,7 @@
 import React from 'react';
-import { Restaurant } from '@/modules/restaurants/types';
-import Button from '@/ui-components/common/Button';
-import ImageCarousel from '@/ui-components/common/ImageCarousel';
+import { Restaurant } from '../../modules/restaurants/types';
+import Button from '../common/Button';
+import ImageCarousel from '../common/ImageCarousel';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -21,7 +21,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       {/* Restaurant Images Carousel */}
       <div className="relative h-48 bg-gray-200">
         <ImageCarousel
-          images={restaurant.photos || [restaurant.imageUrl].filter(Boolean)}
+          images={(restaurant.photos || [restaurant.imageUrl]).filter((url): url is string => !!url)}
           alt={restaurant.name}
           className="h-full"
           showDots={true}

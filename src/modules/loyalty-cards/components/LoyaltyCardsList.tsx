@@ -80,13 +80,11 @@ const LoyaltyCardsList: React.FC = () => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const fetchCards = async () => {
       setLoading(true);
-      setError(null);
       try {
         const { data, error } = await supabase
           .from('user_loyalty_stamps')

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, MapPin, Phone, Mail, Globe, CheckCircle, Clock, AlertTriangle, Search, BarChart3, Building, Tag, Newspaper, Megaphone } from 'lucide-react';
-import { businessAPI, Business, DiscountOffer } from '../../../lib/supabase';
-import { curationAPI, SuggestedBusiness, DiscoveryCampaign, CurationStats } from '../../../services/curationAPI';
+import { Plus, MapPin, Phone, Mail, Globe, Search, BarChart3, Building, Tag, Newspaper, Megaphone, Star } from 'lucide-react';
+import { businessAPI, Business } from '../../../lib/supabase';
+import { curationAPI, SuggestedBusiness, CurationStats } from '../../../services/curationAPI';
 import { discoveryService } from '../../../services/discoveryService';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import NewsAdminSettings from './NewsAdminSettings';
 import { useAuth } from '../../auth/context/AuthContext';
 import { supabase } from '../../../lib/supabase';
-import { googlePlacesService } from '../../../services/googlePlaces';
+import { googlePlacesService, GooglePlaceResult } from '../../../services/googlePlaces';
 import MapSearchModule from '../../../components/MapSearchModule';
 interface BusinessFormData {
   name: string;
@@ -48,7 +48,6 @@ const AdminDashboard: React.FC = () => {
   
   // Curation data state
   const [suggestedBusinesses, setSuggestedBusinesses] = useState<SuggestedBusiness[]>([]);
-  const [discoveryCampaigns, setDiscoveryCampaigns] = useState<DiscoveryCampaign[]>([]);
   const [curationStats, setCurationStats] = useState<CurationStats>({
     pendingCount: 0,
     approvedCount: 0,
@@ -66,8 +65,7 @@ const AdminDashboard: React.FC = () => {
   const [discoveryMessage, setDiscoveryMessage] = useState('');
 
   // [2024-12-19 18:00 UTC] - Enhanced pipeline state management
-  const [pipelineStatus, setPipelineStatus] = useState<'pending' | 'approved' | 'rejected' | 'sales_leads' | 'all'>('pending');
-  const [showContactMissing, setShowContactMissing] = useState(false);
+  const [pipelineStatus, ] = useState<'pending' | 'approved' | 'rejected' | 'sales_leads' | 'all'>('pending');
 
   // [2024-12-19 20:00 UTC] - Rejection dropdown state
   const [rejectingBusinessId, setRejectingBusinessId] = useState<string | null>(null);
@@ -75,7 +73,7 @@ const AdminDashboard: React.FC = () => {
 
   // [2024-12-19 20:15 UTC] - Manual business search state
   const [manualSearchQuery, setManualSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<GooglePlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
@@ -213,20 +211,17 @@ const AdminDashboard: React.FC = () => {
 
   const loadCurationData = async (statusFilter?: string) => {
     setCurationLoading(true);
+    setMessage(null);
     try {
-      const [businesses, campaigns, stats] = await Promise.all([
+      const [businesses, stats] = await Promise.all([
         curationAPI.getSuggestedBusinesses(statusFilter || pipelineStatus),
-        curationAPI.getDiscoveryCampaigns(), 
         curationAPI.getCurationStats()
       ]);
       
       setSuggestedBusinesses(businesses);
-      setDiscoveryCampaigns(campaigns);
       setCurationStats(stats);
       
-      // [2024-12-19 19:00 UTC] - Auto-discovery when pipeline is empty
-      const pendingBusinesses = businesses.filter(b => b.curation_status === 'pending');
-      if (pendingBusinesses.length === 0 && statusFilter !== 'all') {
+      if (businesses.length === 0) {
         console.log('📋 No pending businesses found - triggering auto-discovery...');
         setDiscoveryMessage('🔄 Pipeline empty - auto-discovering fresh businesses...');
         
@@ -248,7 +243,7 @@ const AdminDashboard: React.FC = () => {
       }
       
       // [2024-12-19 18:00 UTC] - Log contact data availability
-      const withContact = businesses.filter(b => b.phone || b.email || b.website_url).length;
+      const withContact = businesses.filter(b => b.phone || b.website_url).length;
       const withoutContact = businesses.length - withContact;
       console.log(`📊 Contact Data: ${withContact} with contact info, ${withoutContact} missing contact info`);
       console.log(`📋 Pipeline Status: Showing ${statusFilter || 'pending'} businesses (${businesses.length} total)`);
@@ -456,33 +451,40 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
 
     try {
-      // Generate coordinates from address if needed
-      const coordinates = await geocodeAddress(businessForm.address);
-      
-      const newBusiness = await businessAPI.addBusiness({
-        ...businessForm,
-        latitude: coordinates?.lat || businessForm.latitude,
-        longitude: coordinates?.lng || businessForm.longitude,
-        partnership_status: 'active'
-      });
+      if (businessForm.name && businessForm.category && businessForm.address) {
+        
+        const businessData = {
+          name: businessForm.name,
+          category: businessForm.category,
+          address: businessForm.address,
+          latitude: businessForm.latitude,
+          longitude: businessForm.longitude,
+          phone: businessForm.phone,
+          email: businessForm.email,
+          website_url: businessForm.website_url,
+          description: businessForm.description
+        };
+        
+        const newBusiness = await businessAPI.addBusiness(businessData);
 
-      if (newBusiness) {
-        handleBusinessAdded(newBusiness);
-        setShowAddBusiness(false);
-        setBusinessForm({
-          name: '',
-          category: 'Restaurants',
-          address: '',
-          latitude: 12.5684,
-          longitude: 99.9578,
-          phone: '',
-          email: '',
-          website_url: '',
-          description: ''
-        });
-        loadBusinesses();
-      } else {
-        setMessage({ type: 'error', text: 'Failed to add business. Please try again.' });
+        if (newBusiness) {
+          handleBusinessAdded(newBusiness);
+          setShowAddBusiness(false);
+          setBusinessForm({
+            name: '',
+            category: 'Restaurants',
+            address: '',
+            latitude: 12.5684,
+            longitude: 99.9578,
+            phone: '',
+            email: '',
+            website_url: '',
+            description: ''
+          });
+          loadBusinesses();
+        } else {
+          setMessage({ type: 'error', text: 'Failed to add business. Please try again.' });
+        }
       }
     } catch (error) {
       console.error('Error adding business:', error);
@@ -530,14 +532,20 @@ const AdminDashboard: React.FC = () => {
 
   // Geocoding function (you'll need to implement this with Google Maps API)
   const geocodeAddress = async (address: string) => {
-    // This is a placeholder - in production, use Google Geocoding API
+    setMessage({ type: 'info', text: `Geocoding "${address}"...` });
     try {
-      // Example implementation:
-      // const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`);
-      // const data = await response.json();
-      // return data.results[0]?.geometry?.location;
-      
-      return null; // For now, use manual coordinates
+      // This is a placeholder - in production, use Google Geocoding API
+      try {
+        // Example implementation:
+        // const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`);
+        // const data = await response.json();
+        // return data.results[0]?.geometry?.location;
+        
+        return null; // For now, use manual coordinates
+      } catch (error) {
+        console.error('Geocoding error:', error);
+        return null;
+      }
     } catch (error) {
       console.error('Geocoding error:', error);
       return null;
@@ -2214,19 +2222,15 @@ const AdminDashboard: React.FC = () => {
                 actions={['approve', 'reject', 'lead', 'details']}
                 initialLocation={{ lat: 12.5684, lng: 99.9578 }} // Hua Hin center
                 onApprove={handleApproveBusiness}
-                onReject={(business) => handleRejectBusiness(business.id, 'Map Discovery')}
-                onLead={handleFlagForSales}
-                onDetails={(business) => {
-                  console.log('🔍 Business Details:', business);
-                  setMessage({ 
-                    type: 'info', 
-                    text: `📋 ${business.name} - ${business.address} | Rating: ${business.rating || 'N/A'} | Types: ${business.types?.join(', ') || 'N/A'}` 
-                  });
+                onReject={handleRejectBusiness}
+                onCreateLead={handleSalesLead}
+                onBusinessAction={(action, business) => {
+                  if (action === 'details') {
+                    console.log('View details for:', business);
+                    // Here you would typically open a modal with business details
+                  }
                 }}
-                className="h-[700px]"
-                radiusSlider={true}
-                showLocationInfo={true}
-                maxResults={20}
+                className="h-[600px]"
               />
             </div>
           </div>

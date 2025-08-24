@@ -19,7 +19,6 @@ export interface DiscoveryFilters {
 }
 
 export class DiscoveryService {
-  private googlePlacesService = googlePlacesService;
   
   // [2024-12-19 19:00 UTC] - Track discovery state to avoid repeating searches
   private discoveryState = {
@@ -1138,7 +1137,6 @@ export class DiscoveryService {
             ...place,
             ...details,
             formatted_phone_number: details?.formatted_phone_number,
-            international_phone_number: details?.international_phone_number,
             website: details?.website,
             opening_hours: details?.opening_hours
           });
@@ -1179,11 +1177,11 @@ export class DiscoveryService {
       let primaryCategory = 'Restaurants'; // Default
       const types = businessData.google_types || [];
       
-      if (types.some(type => ['spa', 'beauty_salon', 'health', 'gym'].includes(type))) {
+      if (types.some((type: string) => ['spa', 'beauty_salon', 'health', 'gym'].includes(type))) {
         primaryCategory = 'Wellness';
-      } else if (types.some(type => ['store', 'shopping_mall', 'clothing_store'].includes(type))) {
+      } else if (types.some((type: string) => ['store', 'shopping_mall', 'clothing_store'].includes(type))) {
         primaryCategory = 'Shopping';
-      } else if (types.some(type => ['tourist_attraction', 'amusement_park', 'entertainment'].includes(type))) {
+      } else if (types.some((type: string) => ['tourist_attraction', 'amusement_park', 'entertainment'].includes(type))) {
         primaryCategory = 'Entertainment';
       }
       
@@ -1259,7 +1257,6 @@ discoveryService.searchBusinessByName = async function(query: string, location?:
           ...place,
           ...details,
           formatted_phone_number: details?.formatted_phone_number,
-          international_phone_number: details?.international_phone_number,
           website: details?.website,
           opening_hours: details?.opening_hours
         });
@@ -1299,11 +1296,11 @@ discoveryService.addManualBusiness = async function(businessData: any): Promise<
     let primaryCategory = 'Restaurants'; // Default
     const types = businessData.google_types || [];
     
-    if (types.some(type => ['spa', 'beauty_salon', 'health', 'gym'].includes(type))) {
+    if (types.some((type: string) => ['spa', 'beauty_salon', 'health', 'gym'].includes(type))) {
       primaryCategory = 'Wellness';
-    } else if (types.some(type => ['store', 'shopping_mall', 'clothing_store'].includes(type))) {
+    } else if (types.some((type: string) => ['store', 'shopping_mall', 'clothing_store'].includes(type))) {
       primaryCategory = 'Shopping';
-    } else if (types.some(type => ['tourist_attraction', 'amusement_park', 'entertainment'].includes(type))) {
+    } else if (types.some((type: string) => ['tourist_attraction', 'amusement_park', 'entertainment'].includes(type))) {
       primaryCategory = 'Entertainment';
     }
     

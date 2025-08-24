@@ -5,14 +5,12 @@ import MenuPage from './MenuPage';
 interface MenuModalProps {
   isOpen: boolean;
   onClose: () => void;
-  restaurantId: string;
   restaurantName: string;
 }
 
 const MenuModal: React.FC<MenuModalProps> = ({
   isOpen,
   onClose,
-  restaurantId,
   restaurantName
 }) => {
   if (!isOpen) return null;

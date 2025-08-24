@@ -14,7 +14,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'internal-promotion',
     placement: ['homepage-cards', 'homepage-hero', 'restaurants-top', 'deals-section'],
     priority: 9,
-    status: 'active',
     isActive: true,
     styling: {
       gradient: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
@@ -33,7 +32,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'internal-promotion',
     placement: ['homepage-cards', 'homepage-hero', 'profile-page', 'passport-page'],
     priority: 8,
-    status: 'active',
     isActive: true,
     styling: {
       gradient: 'linear-gradient(135deg, #F97316 0%, #DC2626 100%)',
@@ -55,7 +53,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'dining',
     placement: ['restaurants-top', 'homepage-hero', 'cuisine-explorer', 'deals-section'],
     priority: 7,
-    status: 'active',
     isActive: true,
     targetAudience: {
       interests: ['thai-food', 'dining', 'authentic-cuisine'],
@@ -81,7 +78,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'wellness',
     placement: ['services-banner', 'homepage-hero', 'homepage-cards'],
     priority: 6,
-    status: 'active',
     isActive: true,
     targetAudience: {
       ageRange: [25, 55],
@@ -108,7 +104,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'technology',
     placement: ['restaurants-bottom', 'homepage-hero', 'homepage-cards'],
     priority: 5,
-    status: 'active',
     isActive: true,
     targetAudience: {
       ageRange: [18, 45],
@@ -135,7 +130,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'travel',
     placement: ['events-sidebar', 'homepage-hero', 'passport-page'],
     priority: 6,
-    status: 'active',
     isActive: true,
     targetAudience: {
       interests: ['travel', 'hotels', 'beach', 'vacation'],
@@ -161,7 +155,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'retail',
     placement: ['homepage-cards', 'homepage-hero', 'profile-page'],
     priority: 4,
-    status: 'active',
     isActive: true,
     targetAudience: {
       ageRange: [18, 40],
@@ -187,7 +180,6 @@ export const mockAdvertisements: Advertisement[] = [
     category: 'technology',
     placement: ['business-dashboard', 'homepage-hero'],
     priority: 7,
-    status: 'active',
     isActive: true,
     targetAudience: {
       userType: 'business',

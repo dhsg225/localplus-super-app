@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit, Trash2, Camera, DollarSign, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, Camera, AlertCircle } from 'lucide-react';
 import { MenuItem } from '../types';
 import { mockRestaurantProfile } from '../data/mockData';
 
@@ -8,7 +8,6 @@ const MenuManagement: React.FC = () => {
   const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState<MenuItem[]>(mockRestaurantProfile.menu);
   const [isAddingItem, setIsAddingItem] = useState(false);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
   const [newItem, setNewItem] = useState<Partial<MenuItem>>({
     name: '',
@@ -23,7 +22,6 @@ const MenuManagement: React.FC = () => {
   });
 
   const categories = ['Appetizer', 'Soup', 'Main Course', 'Dessert', 'Beverage'];
-  const commonAllergens = ['Gluten', 'Dairy', 'Nuts', 'Shellfish', 'Soy', 'Eggs'];
 
   const handleAddItem = () => {
     if (newItem.name && newItem.price) {
@@ -275,7 +273,6 @@ const MenuManagement: React.FC = () => {
                             {item.isAvailable ? 'Available' : 'Unavailable'}
                           </button>
                           <button
-                            onClick={() => setEditingItem(item)}
                             className="p-1 text-gray-400 hover:text-gray-600"
                           >
                             <Edit size={14} />

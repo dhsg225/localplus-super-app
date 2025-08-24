@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, MapPin, Plus, X } from 'lucide-react';
+import { Clock, MapPin } from 'lucide-react';
 import { BusinessOnboardingData, OperatingHours } from '../../types';
 import FormInput from '@/ui-components/forms/FormInput';
 import FormSelect from '@/ui-components/forms/FormSelect';

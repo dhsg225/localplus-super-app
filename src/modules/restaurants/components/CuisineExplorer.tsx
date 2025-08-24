@@ -96,7 +96,7 @@ const getCityWithFallback = (cityName: string): { city: SupportedCity; areas: st
   if (cityName in LOCATION_DATA) {
     return {
       city: cityName as SupportedCity,
-      areas: LOCATION_DATA[cityName as SupportedCity].areas,
+      areas: [...LOCATION_DATA[cityName as SupportedCity].areas],
       isSupported: true
     };
   }
@@ -122,7 +122,6 @@ const CuisineExplorer: React.FC = () => {
   const [currentCity, setCurrentCity] = useState<SupportedCity>('Bangkok'); // Default to Bangkok
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [productionRestaurants, setProductionRestaurants] = useState<ProductionRestaurant[]>([]);
-  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
   const [filters, setFilters] = useState<CuisineFilters>({
     selectedCuisines: [],
     selectedLocations: [],
@@ -143,7 +142,6 @@ const CuisineExplorer: React.FC = () => {
   }, [currentCity, isLoadingLocation]);
 
   const loadRestaurants = async () => {
-    setIsLoadingRestaurants(true);
     try {
       console.log('🏪 Loading restaurants for cuisine explorer in:', currentCity);
       const restaurants = await restaurantService.getRestaurantsByLocation(currentCity);
@@ -153,7 +151,6 @@ const CuisineExplorer: React.FC = () => {
       console.error('🏪 Failed to load restaurants for cuisine explorer:', error);
       setProductionRestaurants([]);
     } finally {
-      setIsLoadingRestaurants(false);
     }
   };
 
@@ -299,10 +296,6 @@ const CuisineExplorer: React.FC = () => {
 
   const availableCuisines = useMemo(() => 
     Array.from(new Set(convertedRestaurants.map(restaurant => restaurant.cuisine))).sort()
-  , [convertedRestaurants]);
-
-  const availableLocations = useMemo(() => 
-    Array.from(new Set(convertedRestaurants.map(restaurant => restaurant.location))).sort()
   , [convertedRestaurants]);
 
   // Filter restaurants based on current filters

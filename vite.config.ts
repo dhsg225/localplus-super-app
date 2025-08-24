@@ -5,7 +5,9 @@ import path from "path"
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      include: "**/*.{jsx,tsx,js,ts}",
+    }),
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
@@ -25,8 +27,19 @@ export default defineConfig({
       "@/modules": path.resolve(__dirname, "./src/modules"),
       "@/ui-components": path.resolve(__dirname, "./src/ui-components"),
       "@/shared": path.resolve(__dirname, "./src/shared"),
-      "@/api-integrations": path.resolve(__dirname, "./src/api-integrations")
+      "@/api-integrations": path.resolve(__dirname, "./src/api-integrations"),
+      "@shared": path.resolve(__dirname, "./shared")
     }
+  },
+  esbuild: {
+    loader: 'jsx',
+    include: [
+      'src/**/*.js',
+      'src/**/*.jsx',
+      'src/**/*.ts',
+      'src/**/*.tsx'
+    ],
+    exclude: []
   },
   server: {
     port: 3000,

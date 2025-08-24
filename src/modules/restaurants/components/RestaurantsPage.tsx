@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowLeft, QrCode, ChefHat, Calendar, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish, Map } from 'lucide-react';
+import { Search, ArrowLeft, QrCode, Bot, Filter, MapPin, Star, Clock, Utensils, Coffee, Pizza, Fish, Map } from 'lucide-react';
 import MenuModal from './MenuModal';
 import { restaurantService, ProductionRestaurant } from '../../../services/restaurantService';
-import { dynamicSelectorService, type LocationBasedSelectors, type DynamicSelector } from '../../../shared/constants/dynamicSelectors';
-import TodaysDeals from './TodaysDeals';
-import CuisineExplorer from './CuisineExplorer';
+import { dynamicSelectorService, type LocationBasedSelectors } from '../../../shared/constants/dynamicSelectors';
 import AdContainer from "../../advertising/components/AdContainer";
 import ImageCarousel from '../../../ui-components/common/ImageCarousel';
 import MapSearchModule from '../../../components/MapSearchModule';
+import { Business } from '../../../lib/supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3004';
 
@@ -68,7 +67,6 @@ const RestaurantImage: React.FC<{ restaurant: ProductionRestaurant }> = ({ resta
 
 const RestaurantsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'menu' | 'book' | 'offpeak'>('menu');
   const [currentLocation, setCurrentLocation] = useState('Hua Hin');
   const [productionRestaurants, setProductionRestaurants] = useState<ProductionRestaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
@@ -203,7 +201,7 @@ const RestaurantsPage: React.FC = () => {
     if (restaurant) {
       setMenuModal({
         isOpen: true,
-        restaurantId,
+        restaurantId: restaurantId,
         restaurantName: restaurant.name
       });
     }
@@ -304,14 +302,12 @@ const RestaurantsPage: React.FC = () => {
               context="consumer"
               resultCardType="restaurant"
               actions={['view', 'call', 'directions', 'book', 'menu']}
-              onView={(business) => navigate(`/restaurants/${business.id}`)}
-              onCall={(business) => window.open(`tel:${business.phone}`, '_self')}
-              onDirections={(business) => {
+              onDirections={(business: Business) => {
                 const address = encodeURIComponent(business.address || business.name);
                 window.open(`https://maps.google.com?daddr=${address}`, '_blank');
               }}
-              onBook={(business) => navigate(`/restaurants/${business.id}/book`)}
-              onMenu={(business) => handleMenuClick(business.id)}
+              onBook={(business: Business) => navigate(`/restaurants/${business.id}/book`)}
+              onMenu={(business: Business) => handleMenuClick(business.id)}
               className="h-[600px]"
             />
           </div>
@@ -519,7 +515,6 @@ const RestaurantsPage: React.FC = () => {
 
           {isLoadingRestaurants ? (
             <div className="space-y-4">
-              {console.log('🚨 SHOWING LOADING STATE - isLoadingRestaurants:', isLoadingRestaurants)}
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="animate-pulse">
@@ -539,18 +534,11 @@ const RestaurantsPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {console.log('🚨 SHOWING RESTAURANT LIST - filteredRestaurants.length:', filteredRestaurants.length, 'isLoadingRestaurants:', isLoadingRestaurants)}
               {/* Som Tam Paradise Style Cards - Production Data */}
               {filteredRestaurants.map((restaurant) => (
                 <div key={restaurant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
                   {/* Hero Image */}
-                  {(() => {
-                    // [2025-01-05 10:10] - Debug: Check if component is called
-                    console.log(`🔥 RESTAURANT CARD RENDERING: ${restaurant.name}`);
-                    console.log(`🔥 Has photo_gallery:`, !!restaurant.photo_gallery);
-                    console.log(`🔥 Photo_gallery:`, restaurant.photo_gallery);
-                    return null;
-                  })()}
+                  
                   <RestaurantImage restaurant={restaurant} />
 
                   {/* Content */}
@@ -680,7 +668,6 @@ const RestaurantsPage: React.FC = () => {
       <MenuModal
         isOpen={menuModal.isOpen}
         onClose={closeMenuModal}
-        restaurantId={menuModal.restaurantId}
         restaurantName={menuModal.restaurantName}
       />
     </div>

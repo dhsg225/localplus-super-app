@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, MapPin, Phone, Mail, Globe, Camera } from 'lucide-react';
+import { ArrowLeft, Save, MapPin, Phone, Mail, Globe } from 'lucide-react';
 import { BusinessProfile, FormMode } from '../types';
 import { mockRestaurantProfile } from '../data/mockData';
 
@@ -41,7 +41,7 @@ const BusinessProfileEditor: React.FC<BusinessProfileEditorProps> = ({
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(prev[parent as keyof typeof prev] || {}),
           [child]: value
         }
       }));

@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Filter, MapPin, Star, Clock, Utensils, Search, Heart, Music, AirVent, Car } from 'lucide-react';
-import { CUISINE_TIERS, DINING_STYLES, DIETARY_FILTERS } from '../../../shared/constants/restaurants';
+import { CUISINE_TIERS } from '../../../shared/constants/restaurants';
 import { restaurantService } from '../../../services/restaurantService';
 
 interface Restaurant {
@@ -27,14 +27,10 @@ interface Restaurant {
   currentPromotions?: string[];
 }
 
-// [2024-12-19 23:45 UTC] - Removed mock data, now using production restaurants from database
-const mockRestaurants: Restaurant[] = [];
-
 const EnhancedRestaurantDiscovery: React.FC = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     cuisines: [] as string[],
     searchQuery: '',
@@ -48,7 +44,6 @@ const EnhancedRestaurantDiscovery: React.FC = () => {
 
   const loadProductionRestaurants = async () => {
     try {
-      setIsLoading(true);
       console.log('🏪 Loading restaurants for enhanced discovery...');
              const productionRestaurants = await restaurantService.getRestaurantsByLocation('Hua Hin');
       console.log('🏪 Loaded restaurants for enhanced discovery:', productionRestaurants.length);
@@ -77,7 +72,6 @@ const EnhancedRestaurantDiscovery: React.FC = () => {
       console.error('🏪 Failed to load restaurants for enhanced discovery:', error);
       setRestaurants([]);
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -356,7 +350,7 @@ const EnhancedRestaurantDiscovery: React.FC = () => {
                   {/* Features row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {restaurant.features.slice(0, 3).map((feature, index) => (
+                      {restaurant.features.slice(0, 3).map((feature) => (
                         <div key={feature} className="p-1.5 bg-gray-100 rounded-lg">
                           {feature === 'live-music' && <Music size={14} className="text-gray-600" />}
                           {feature === 'air-conditioning' && <AirVent size={14} className="text-gray-600" />}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit3, Settings, Shield, Bell, MapPin, Calendar, Mail, Phone, Crown, Star, Award } from 'lucide-react';
+import { ArrowLeft, Edit3, Settings, Shield, MapPin, Calendar, Mail, Phone, Star, Award } from 'lucide-react';
 import { useAuth } from '../../auth/context/AuthContext';
 
 const ProfilePage: React.FC = () => {

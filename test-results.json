@@ -1,0 +1,841 @@
+{
+  "config": {
+    "configFile": "/Users/admin/Dropbox/Development/LocalPlus v2/playwright.config.ts",
+    "rootDir": "/Users/admin/Dropbox/Development/LocalPlus v2/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/admin/Dropbox/Development/LocalPlus v2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/admin/Dropbox/Development/LocalPlus v2/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/admin/Dropbox/Development/LocalPlus v2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/admin/Dropbox/Development/LocalPlus v2/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/admin/Dropbox/Development/LocalPlus v2/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/admin/Dropbox/Development/LocalPlus v2/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.1",
+    "workers": 5,
+    "webServer": {
+      "command": "cd partner && npm run dev",
+      "url": "http://localhost:3005",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "partner-portal.spec.ts",
+      "file": "partner-portal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Partner app loads and shows login form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:31.609Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-69cf474a99660721c8a2",
+          "file": "partner-portal.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "Signup flow: can access dashboard via development bypass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1309,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "Select options found: [\n  \u001b[32m'Choose a business'\u001b[39m,\n  \u001b[32m'View Talay Restaurant'\u001b[39m,\n  \u001b[32m'Hamaya Japanese Restaurant'\u001b[39m,\n  \u001b[32m'ISEA Beach Bar & Restaurant @ Veranda Resort Hua Hin'\u001b[39m,\n  \u001b[32m'Fu Lue Chinese restaurant'\u001b[39m,\n  \u001b[32m'Sungwean Seafood'\u001b[39m,\n  \u001b[32m\"Shannon's Coastal Kitchen\"\u001b[39m,\n  \u001b[32m'Didine Restaurant Cha-Am'\u001b[39m,\n  \u001b[32m'Shylae Seafood And Resort'\u001b[39m,\n  \u001b[32m'Kedai Makan Muslim Abang Mana'\u001b[39m,\n  \u001b[32m'Crepeshock Cha-am เครปชาร์โคลต้นตำรับ'\u001b[39m,\n  \u001b[32m'Feast Thailand Food & Sight Seeing Tours'\u001b[39m,\n  \u001b[32m'Aree Indian Restaurant'\u001b[39m,\n  \u001b[32m'Jek Piek Seafood Restaurant'\u001b[39m,\n  \u001b[32m'Chomkluen'\u001b[39m,\n  \u001b[32m'Cowboy Cha-am'\u001b[39m,\n  \u001b[32m'Krua Khai Muk'\u001b[39m,\n  \u001b[32m'Khrua Khiang Khluen'\u001b[39m,\n  \u001b[32m'Gingerfire Restaurant'\u001b[39m,\n  \u001b[32m'Mae Keb Khanomthai'\u001b[39m,\n  \u001b[32m'Daddy Deli'\u001b[39m,\n  \u001b[32m\"Let's Sea Hua Hin Al Fresco Resort\"\u001b[39m,\n  \u001b[32m'The Deck Restaurant & Bar'\u001b[39m,\n  \u001b[32m'Ruam Saep Yok Khok Som Tam'\u001b[39m,\n  \u001b[32m'The Rock Hua Hin Beachfront Spa Resort'\u001b[39m,\n  \u001b[32m'Panorama Restaurant at Coral Hotel Bangsaphan'\u001b[39m,\n  \u001b[32m'Six Palms Saloon'\u001b[39m,\n  \u001b[32m'MAWIN BBQ หมูย่างเกาหลี ย่างเนย'\u001b[39m,\n  \u001b[32m'Mon Mai Restaurant'\u001b[39m,\n  \u001b[32m'Jitara Seafood'\u001b[39m,\n  \u001b[32m\"Let's Sea\"\u001b[39m,\n  \u001b[32m'Ban Pu Pen Restaurant'\u001b[39m,\n  \u001b[32m'Sailom Hua Hin Restaurant'\u001b[39m,\n  \u001b[32m'Charoen Pochana'\u001b[39m\n]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:31.636Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-44a4d4eff4a10ab0f8e5",
+          "file": "partner-portal.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "Login flow: dev bypass shows dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 1244,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:31.654Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-863cfafcb6d56d605d2f",
+          "file": "partner-portal.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "Dashboard: can navigate to different pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 15086,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:31.584Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-3012fefe2ca5fe996a02",
+          "file": "partner-portal.spec.ts",
+          "line": 76,
+          "column": 5
+        },
+        {
+          "title": "Notifications: can view and configure notifications",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 4405,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:31.591Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-868ce3e673dd5c020e8c",
+          "file": "partner-portal.spec.ts",
+          "line": 128,
+          "column": 5
+        },
+        {
+          "title": "No 401/403 errors on main pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 7373,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:34.346Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-3796cd359403fa128937",
+          "file": "partner-portal.spec.ts",
+          "line": 155,
+          "column": 5
+        },
+        {
+          "title": "No console errors during navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 7455,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:34.413Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-e83dccc208d9a7ea17a7",
+          "file": "partner-portal.spec.ts",
+          "line": 200,
+          "column": 5
+        },
+        {
+          "title": "Partner app loads and shows login form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1633,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:35.036Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-52f9a98af51cab073233",
+          "file": "partner-portal.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "Signup flow: can access dashboard via development bypass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 903,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "Select options found: [ \u001b[32m'No businesses available'\u001b[39m ]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:37.272Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-0f761e341fec3dd2c87e",
+          "file": "partner-portal.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "Login flow: dev bypass shows dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 1283,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:37.928Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-f32218ba9e7a5d1774da",
+          "file": "partner-portal.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "Dashboard: can navigate to different pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14829,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:38.180Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-37ad2c6172aebe435722",
+          "file": "partner-portal.spec.ts",
+          "line": 76,
+          "column": 5
+        },
+        {
+          "title": "Notifications: can view and configure notifications",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 3997,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:39.856Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-e9f9e322560c5fd7191b",
+          "file": "partner-portal.spec.ts",
+          "line": 128,
+          "column": 5
+        },
+        {
+          "title": "No 401/403 errors on main pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 8295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:42.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-19068e3079702bdeca06",
+          "file": "partner-portal.spec.ts",
+          "line": 155,
+          "column": 5
+        },
+        {
+          "title": "No console errors during navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 8406,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:42.222Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-6ed2cf483df84a960e83",
+          "file": "partner-portal.spec.ts",
+          "line": 200,
+          "column": 5
+        },
+        {
+          "title": "Partner app loads and shows login form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 1104,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:44.696Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-b2271cf3afd27e320689",
+          "file": "partner-portal.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "Signup flow: can access dashboard via development bypass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 892,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "Select options found: [ \u001b[32m'No businesses available'\u001b[39m ]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:45.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-1e0e278c4c6b0124ea52",
+          "file": "partner-portal.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "Login flow: dev bypass shows dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 731,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:46.840Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-25213ce16d75e969bb02",
+          "file": "partner-portal.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "Dashboard: can navigate to different pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 14548,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:47.574Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-48b3102bde7d0feded86",
+          "file": "partner-portal.spec.ts",
+          "line": 76,
+          "column": 5
+        },
+        {
+          "title": "Notifications: can view and configure notifications",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 4125,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:48.559Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-b285d8af49d3cbabf8cc",
+          "file": "partner-portal.spec.ts",
+          "line": 128,
+          "column": 5
+        },
+        {
+          "title": "No 401/403 errors on main pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 7724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:51.645Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-90851c098f087fa8b3aa",
+          "file": "partner-portal.spec.ts",
+          "line": 155,
+          "column": 5
+        },
+        {
+          "title": "No console errors during navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 7797,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-07-19T05:53:52.326Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00a8788b7342b130ae6a-d16f799be795ff9c1329",
+          "file": "partner-portal.spec.ts",
+          "line": 200,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-07-19T05:53:31.051Z",
+    "duration": 31094.054999999997,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

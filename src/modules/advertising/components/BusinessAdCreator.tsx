@@ -2,15 +2,8 @@
 
 import React, { useState } from 'react';
 import { 
-  Wand2, 
-  Upload, 
-  Eye, 
   CreditCard, 
   MapPin, 
-  Calendar,
-  Target,
-  DollarSign,
-  Clock,
   Sparkles,
   ArrowLeft,
   ArrowRight,
@@ -19,26 +12,10 @@ import {
   AlertCircle,
   Info
 } from 'lucide-react';
-import { Advertisement, AdCategory, AdPlacement } from '../types';
+import { AdPlacement } from '../types';
 
 interface BusinessAdCreatorProps {
-  businessId?: string;
   businessName?: string;
-  onSubmit?: (adData: Partial<Advertisement>) => void;
-}
-
-interface BusinessAdData {
-  businessName: string;
-  businessDescription: string;
-  contactEmail: string;
-  contactPhone: string;
-  targetAudience: string;
-  adGoal: string;
-  budget: number;
-  duration: number;
-  placement: string[];
-  frequency: 'low' | 'medium' | 'high';
-  location: string[];
 }
 
 interface GeneratedAd {
@@ -50,9 +27,7 @@ interface GeneratedAd {
 }
 
 export const BusinessAdCreator: React.FC<BusinessAdCreatorProps> = ({
-  businessId = '',
   businessName = '',
-  onSubmit
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -65,7 +40,7 @@ export const BusinessAdCreator: React.FC<BusinessAdCreatorProps> = ({
     adGoal: '',
     budget: 500,
     duration: 7,
-    placement: ['homepage-banner'] as AdPlacement[],
+    placement: ['homepage-banner' as AdPlacement],
     frequency: 'medium' as 'low' | 'medium' | 'high',
     location: ['bangkok'] as string[]
   });
@@ -82,12 +57,21 @@ export const BusinessAdCreator: React.FC<BusinessAdCreatorProps> = ({
     { number: 5, title: 'Review & Submit', description: 'Final review and submission' }
   ];
 
-  const placementOptions = [
-    { id: 'homepage-banner', name: 'Homepage Banner', price: 50, description: 'Prime visibility on homepage' },
-    { id: 'restaurant-top', name: 'Restaurant Page Top', price: 40, description: 'Top of restaurant listings' },
-    { id: 'search-results', name: 'Search Results', price: 35, description: 'Within search results' },
-    { id: 'category-pages', name: 'Category Pages', price: 30, description: 'Category-specific placement' },
-    { id: 'sidebar', name: 'Sidebar Ads', price: 25, description: 'Sidebar placement across site' }
+  const placementOptions: { id: AdPlacement; name: string; price: number; description: string }[] = [
+    { id: 'homepage-hero', name: 'Homepage Hero', price: 50, description: 'Prime visibility on homepage hero' },
+    { id: 'homepage-cards', name: 'Homepage Cards', price: 40, description: 'Cards on homepage' },
+    { id: 'restaurants-top', name: 'Restaurant Page Top', price: 35, description: 'Top of restaurant listings' },
+    { id: 'restaurants-bottom', name: 'Restaurant Page Bottom', price: 30, description: 'Bottom of restaurant listings' },
+    { id: 'events-sidebar', name: 'Events Sidebar', price: 25, description: 'Sidebar on events page' },
+    { id: 'services-banner', name: 'Services Banner', price: 20, description: 'Banner on services page' },
+    { id: 'cuisine-explorer', name: 'Cuisine Explorer', price: 20, description: 'Cuisine explorer section' },
+    { id: 'deals-section', name: 'Deals Section', price: 20, description: 'Deals section' },
+    { id: 'passport-page', name: 'Passport Page', price: 20, description: 'Passport page' },
+    { id: 'profile-page', name: 'Profile Page', price: 20, description: 'Profile page' },
+    { id: 'loyalty-cards', name: 'Loyalty Cards', price: 20, description: 'Loyalty cards section' },
+    { id: 'business-dashboard', name: 'Business Dashboard', price: 20, description: 'Business dashboard' },
+    { id: 'floating-banner', name: 'Floating Banner', price: 20, description: 'Floating banner' },
+    { id: 'modal-overlay', name: 'Modal Overlay', price: 20, description: 'Modal overlay' }
   ];
 
   const locationOptions = [

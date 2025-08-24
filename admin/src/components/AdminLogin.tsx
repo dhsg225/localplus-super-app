@@ -1,15 +1,22 @@
-// [2024-12-15 23:25] - Admin Login Component
+// [2024-12-19 23:00] - Admin Login Component using enhanced admin authentication
 import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
-import { adminAuth, type LoginCredentials, type AdminUser } from '../lib/auth';
+import { adminAuth } from '../lib/supabase';
+import type { UnifiedUser } from '@shared/services/authService';
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
 
 interface AdminLoginProps {
-  onLogin: (user: AdminUser) => void;
+  onLogin: (user: UnifiedUser) => void;
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
-    email: 'admin@localplus.co.th', // Pre-filled for demo
+    email: 'admin@localplus.com', // Updated for unified auth
     password: 'admin123',
     rememberMe: false
   });
@@ -24,10 +31,76 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
     setError(null);
 
     try {
-      const response = await adminAuth.login(credentials);
-      onLogin(response.user);
+      const result = await adminAuth.signIn(credentials.email, credentials.password);
+      
+      if (!result.user) {
+        setError('Login failed: No user returned');
+        return;
+      }
+
+      // Check if user has admin role
+      const hasAdminRole = await adminAuth.checkAdminRole(result.user.id);
+      
+      if (!hasAdminRole) {
+        setError('Access denied: Admin privileges required');
+        return;
+      }
+
+      const user: UnifiedUser = {
+        id: result.user.id,
+        email: result.user.email || '',
+        firstName: result.user.user_metadata?.firstName || '',
+        lastName: result.user.user_metadata?.lastName || '',
+        roles: ['admin'],
+        isEmailVerified: result.user.email_confirmed_at != null,
+        isActive: true,
+        createdAt: new Date(result.user.created_at),
+        lastLoginAt: new Date(),
+        loginProvider: 'email'
+      };
+
+      onLogin(user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateAdminAccount = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await adminAuth.signUp(
+        credentials.email,
+        credentials.password,
+        'LocalPlus',
+        'Administrator'
+      );
+
+      if (!result.user) {
+        setError('Account creation failed: No user returned');
+        return;
+      }
+
+      const user: UnifiedUser = {
+        id: result.user.id,
+        email: result.user.email || '',
+        firstName: 'LocalPlus',
+        lastName: 'Administrator',
+        roles: ['admin'],
+        isEmailVerified: result.user.email_confirmed_at != null,
+        isActive: true,
+        createdAt: new Date(result.user.created_at),
+        lastLoginAt: new Date(),
+        loginProvider: 'email'
+      };
+
+      console.log('✅ Admin account created:', user.email);
+      onLogin(user);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Account creation failed');
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +124,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           </h1>
           <p className="text-gray-300">
             Secure access to dashboard
+          </p>
+          <p className="text-purple-300 text-sm mt-1">
+            🔄 Now using Unified Authentication
           </p>
         </div>
 
@@ -140,14 +216,27 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                 'Access Dashboard'
               )}
             </button>
+
+            {/* Create Admin Account Button */}
+            <button
+              type="button"
+              onClick={handleCreateAdminAccount}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              Create Admin Account
+            </button>
           </form>
 
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-            <h4 className="text-blue-200 font-medium mb-2">Demo Credentials:</h4>
+            <h4 className="text-blue-200 font-medium mb-2">Unified Auth Credentials:</h4>
             <div className="text-sm text-blue-100 space-y-1">
-              <div><strong>Super Admin:</strong> admin@localplus.co.th / admin123</div>
-              <div><strong>Curator:</strong> curator@localplus.co.th / curator123</div>
+              <div><strong>Test Admin:</strong> admin@localplus.com / admin123</div>
+              <div><strong>Partner:</strong> shannon@localplus.com / testpass123</div>
+              <div className="text-xs text-blue-200 mt-2">
+                ✨ Same login works across all LocalPlus apps
+              </div>
             </div>
           </div>
         </div>

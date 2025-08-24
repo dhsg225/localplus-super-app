@@ -23,7 +23,7 @@ const generateRandomDeals = (restaurantId: string, restaurantName: string, resta
     'late-night': 'Enjoy our late night special menu in a cozy atmosphere perfect for evening dining.'
   };
   
-  const deals = [];
+  const deals: OffPeakDeal[] = [];
   let dealCounter = 1;
   
   // Generate 3 unique deals per restaurant (one per type) with unique percentages

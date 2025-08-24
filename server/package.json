@@ -1,0 +1,21 @@
+{
+  "name": "localplus-secure-api",
+  "version": "1.0.0",
+  "description": "Secure API server for LocalPlus business operations",
+  "main": "api-server.js",
+  "scripts": {
+    "start": "node api-server.js",
+    "dev": "nodemon api-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.38.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["api", "security", "supabase", "localplus"],
+  "author": "LocalPlus Team",
+  "license": "MIT"
+} 

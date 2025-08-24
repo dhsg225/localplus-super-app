@@ -9,8 +9,7 @@ import {
   DollarSign,
   MapPin,
   Calendar,
-  AlertTriangle,
-  Filter
+  AlertTriangle
 } from 'lucide-react';
 import { Advertisement } from '../types';
 

@@ -1,6 +1,5 @@
 // [2025-01-06 15:00 UTC] - Restaurant service for production data from database
 import { supabase } from '../lib/supabase';
-import { googlePlacesImageService } from './googlePlacesImageService';
 
 export interface ProductionRestaurant {
   id: string;
@@ -192,7 +191,6 @@ export class RestaurantService {
     }
     
     const name = business.name?.toLowerCase() || '';
-    const category = business.category?.toLowerCase() || '';
     const cuisineTypes = business.cuisine_types_localplus || [];
     
     // Use curated cuisine information for better descriptions

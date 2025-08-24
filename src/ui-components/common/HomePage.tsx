@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Wrench, MessageCircle, Clock, Settings, MapPin, ChevronDown, Award, Star } from 'lucide-react';
 import RotatingHeadlines from '../../modules/news/components/RotatingHeadlines';
-import AdContainer from '../../modules/advertising/components/AdContainer';
 
 // Location interface
 interface LocationData {

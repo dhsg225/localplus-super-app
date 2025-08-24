@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, Percent, Star, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Star, TrendingUp } from 'lucide-react';
 // [2024-12-19 11:20 UTC] - Removed mock off-peak deals import, now using dynamic deal generation
 
 const TodaysDeals: React.FC = () => {
@@ -92,7 +92,11 @@ const TodaysDeals: React.FC = () => {
         discountPercentage: 20,
         description: '20% off dinner sets',
         isPopular: true,
-        location: 'Hua Hin Center'
+        location: 'Hua Hin Center',
+        rating: 4.8,
+        reviewCount: 120,
+        cuisine: 'Thai',
+        restaurantImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400'
       },
       {
         id: '2', 
@@ -101,7 +105,11 @@ const TodaysDeals: React.FC = () => {
         discountPercentage: 20,
         description: '20% off lunch orders',
         isPopular: false,
-        location: 'Hua Hin Center'
+        location: 'Hua Hin Center',
+        rating: 4.5,
+        reviewCount: 80,
+        cuisine: 'Thai',
+        restaurantImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400'
       },
       {
         id: '3',
@@ -110,7 +118,11 @@ const TodaysDeals: React.FC = () => {
         discountPercentage: 15,
         description: 'Happy Hour 5-7 PM',
         isPopular: true,
-        location: 'Beach Road'
+        location: 'Beach Road',
+        rating: 4.6,
+        reviewCount: 210,
+        cuisine: 'Seafood',
+        restaurantImage: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400'
       }
     ];
   };

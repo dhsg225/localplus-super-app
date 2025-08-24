@@ -1,4 +1,4 @@
-import { BusinessProfile, RestaurantProfile, BusinessManagementSection, BusinessAnalytics, BusinessNotification } from '../types';
+import { RestaurantProfile, BusinessManagementSection, BusinessAnalytics, BusinessNotification } from '../types';
 
 // Mock restaurant profile (extending our existing restaurant data)
 export const mockRestaurantProfile: RestaurantProfile = {
@@ -67,7 +67,11 @@ export const mockRestaurantProfile: RestaurantProfile = {
   // Restaurant-specific fields
   cuisine: ['Thai', 'Asian Fusion'],
   priceRange: 'mid-range',
+  diningStyle: ['Casual Dining', 'Family Friendly'],
   hasReservation: true,
+  hasDelivery: true,
+  hasBeachfront: false,
+  isHalal: false,
   menu: [
     {
       id: 'menu-1',

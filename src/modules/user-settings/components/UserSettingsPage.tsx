@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Globe, Settings, User, Shield, Newspaper, Eye, Database, Wifi } from 'lucide-react';
+import { ArrowLeft, Bell, Shield, Newspaper, Database } from 'lucide-react';
 import { newsCacheService } from '../../news/services/newsCacheService';
 
 interface NewsSettings {
@@ -51,7 +51,6 @@ const UserSettingsPage: React.FC = () => {
     }
   });
 
-  const [availableCategories, setAvailableCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Mock news categories - in production this would come from your news API

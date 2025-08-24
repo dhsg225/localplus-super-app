@@ -1,7 +1,6 @@
 // [2024-05-10 17:30 UTC] - Advertisement Container Component
 
 import React, { useState, useEffect } from 'react';
-import { Advertisement, AdDisplayOptions } from '../types';
 import { getAdsByPlacement } from '../data/mockAds';
 import AdCard from './AdCard';
 import AdBanner from './AdBanner';
@@ -54,7 +53,7 @@ const AdContainer: React.FC<AdContainerProps> = ({
     if (dismissedAds.includes(ad.id)) return false;
     
     // Only show active ads
-    if (ad.status !== 'active') return false;
+    if (!ad.isActive) return false;
     
     return true;
   }).slice(0, maxAds);
@@ -127,7 +126,7 @@ const AdContainer: React.FC<AdContainerProps> = ({
   // Multiple ads display
   return (
     <div className={`space-y-4 ${className}`}>
-      {filteredAds.map((ad, index) => (
+      {filteredAds.map((ad) => (
         <div key={ad.id}>
           {displayType === 'banner' ? (
             <AdBanner 

@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { Clock, MapPin, Star, Users, Tag, ChevronRight } from 'lucide-react';
+import { MapPin, Star, ChevronRight } from 'lucide-react';
 import { OffPeakDeal } from '../types';
 
 interface OffPeakDealCardProps {
   deal: OffPeakDeal;
-  selectedDate: string;
   selectedPax: number;
   onBookNow?: (deal: OffPeakDeal) => void;
 }
 
 const OffPeakDealCard: React.FC<OffPeakDealCardProps> = ({
   deal,
-  selectedDate,
   selectedPax,
   onBookNow
 }) => {

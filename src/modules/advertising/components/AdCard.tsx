@@ -1,7 +1,7 @@
 // [2024-05-10 17:30 UTC] - Reusable Advertisement Card Component
 
 import React, { useEffect } from 'react';
-import { ExternalLink, Clock, Award } from 'lucide-react';
+import { Clock, Award } from 'lucide-react';
 import { Advertisement } from '../types';
 import { trackAdInteraction } from '../services/adAnalytics';
 
