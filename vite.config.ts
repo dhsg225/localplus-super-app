@@ -31,16 +31,6 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared")
     }
   },
-  esbuild: {
-    loader: 'jsx',
-    include: [
-      'src/**/*.js',
-      'src/**/*.jsx',
-      'src/**/*.ts',
-      'src/**/*.tsx'
-    ],
-    exclude: []
-  },
   server: {
     port: 3000,
     open: true,
