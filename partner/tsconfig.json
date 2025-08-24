@@ -2,23 +2,23 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",
-    "baseUrl": ".",
+    "rootDir": "..",
+    "baseUrl": "..",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./partner/src/*"],
+      "shared/*": ["./shared/*"]
     },
     "composite": true,
     "jsx": "react-jsx"
   },
   "include": [
-    "src",
-    "shared",
-    "vite.config.ts"
+    "partner/src",
+    "shared"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "../admin",
-    "../src"
+    "admin",
+    "src"
   ]
 }
