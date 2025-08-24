@@ -20,6 +20,5 @@
     "dist",
     "../admin",
     "../src"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  ]
 }
