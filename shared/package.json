@@ -1,0 +1,9 @@
+{
+  "name": "@localplus/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.ts",
+  "scripts": {
+    "build": "echo 'No build step for shared package yet'"
+  }
+}

@@ -4,13 +4,9 @@
   "description": "LocalPlus Super App - LDP Lifestyle Ecosystem for Thailand cities and districts",
   "private": true,
   "homepage": "https://www.localplus.city",
-  "workspaces": [
-    "admin",
-    "partner"
-  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "pnpm --parallel build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
