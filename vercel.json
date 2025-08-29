@@ -1,5 +1,4 @@
 {
   "installCommand": "pnpm install",
   "buildCommand": "pnpm build"
-  // This comment is here to trigger a new Vercel deployment (take 2).
 } 
