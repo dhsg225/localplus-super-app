@@ -11,4 +11,7 @@ export default defineConfig({
       allow: ['..'],
     },
   },
+  optimizeDeps: {
+    include: ['@supabase/supabase-js', 'uuid'],
+  },
 })
