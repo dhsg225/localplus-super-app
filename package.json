@@ -4,6 +4,7 @@
   "description": "LocalPlus Super App - LDP Lifestyle Ecosystem for Thailand cities and districts",
   "private": true,
   "homepage": "https://www.localplus.city",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "dev": "vite",
     "build": "pnpm --parallel build",
