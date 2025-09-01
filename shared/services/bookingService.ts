@@ -569,18 +569,39 @@ export const bookingService = {
     // [DEV BYPASS] If dev user is present, return fallback restaurant(s)
     const devUserRaw = typeof window !== 'undefined' ? localStorage.getItem('partner_dev_user') : null;
     if (devUserRaw) {
-      // Try to get Shannon's restaurant or fallback
-      const { data: allRestaurants, error } = await supabase
-        .from('businesses')
-        .select('*');
-      if (error) throw error;
-      let devRestaurants = allRestaurants.filter((r: any) =>
-        r.name && r.name.toLowerCase().includes('shannon')
-      );
-      if (devRestaurants.length === 0) {
-        devRestaurants = allRestaurants.slice(0, 1); // fallback to first
+      console.log('🔧 [DEV BYPASS] Returning mock restaurant data.');
+      // Return a completely fake restaurant object to avoid any network calls
+      const mockRestaurant: Restaurant = {
+        id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+        name: "Shannon's Steakhouse (DEV)",
+        address: '123 Dev Mode Lane, Mocksville',
+        phone: '555-0123',
+        email: 'shannon-dev@localplus.com',
+        website_url: 'https://www.localplus.com',
+        category_id: 'steakhouse',
+        latitude: 35.7796,
+        longitude: -80.8882,
+        description: 'A mock restaurant for development purposes.',
+        business_hours: {}, 
+        partnership_status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // [2024-07-29] - Validate mock data before returning to catch format issues early
+      try {
+        const { validateRestaurant, logValidationErrors } = await import('../utils/validation');
+        const validation = validateRestaurant(mockRestaurant);
+        logValidationErrors(validation, 'Mock Restaurant Data');
+        
+        if (!validation.isValid) {
+          console.warn('⚠️  Mock restaurant data has validation issues. This may cause runtime errors.');
+        }
+      } catch (error) {
+        console.warn('⚠️  Could not validate mock restaurant data:', error);
       }
-      return devRestaurants;
+      
+      return Promise.resolve([mockRestaurant]);
     }
     // Normal Supabase user
     const { data: { user } } = await supabase.auth.getUser();

@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 // [2024-12-19 10:32] - Partner booking dashboard for managing restaurant bookings
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../shared/components';
-import { ToastProvider, useToast } from '../../shared/components/Toast';
+import { useToast } from '../../shared/components/Toast';
 import { bookingService } from '../../../shared/services/bookingService';
 var BookingDashboard = function () {
     var _a = useState([]), bookings = _a[0], setBookings = _a[1];
@@ -47,8 +47,11 @@ var BookingDashboard = function () {
     var _e = useState(''), selectedDate = _e[0], setSelectedDate = _e[1];
     var _f = useState(true), loading = _f[0], setLoading = _f[1];
     var _g = useState(''), error = _g[0], setError = _g[1];
-    var showToast = useToast().showToast;
     var _h = useState(null), actionLoading = _h[0], setActionLoading = _h[1]; // bookingId of action in progress
+    
+    // Get toast function at component level
+    var toast = useToast();
+    var showToast = toast.showToast;
     // Load partner's restaurants
     useEffect(function () {
         var loadRestaurants = function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -194,7 +197,7 @@ var BookingDashboard = function () {
                     _d.label = 14;
                 case 14:
                     setBookings(function (prev) { return prev.map(function (booking) { return booking.id === bookingId ? updatedBooking_1 : booking; }); });
-                    showToast(actionMsg, 'success');
+                                            showToast(actionMsg, 'success');
                     return [3 /*break*/, 17];
                 case 15:
                     err_3 = _d.sent();
@@ -206,7 +209,7 @@ var BookingDashboard = function () {
                     else if (err_3 === null || err_3 === void 0 ? void 0 : err_3.message)
                         msg = err_3.message;
                     setError(msg);
-                    showToast(msg, 'error');
+                                            showToast(msg, 'error');
                     console.error('Error updating booking:', err_3);
                     return [3 /*break*/, 17];
                 case 16:
@@ -256,8 +259,7 @@ var BookingDashboard = function () {
         </div>
       </div>);
     }
-    return (<ToastProvider>
-      <div className="p-6 max-w-7xl mx-auto">
+    return (<div className="p-6 max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Booking Dashboard</h1>
           <p className="text-gray-600">Manage your restaurant bookings</p>
@@ -473,7 +475,6 @@ var BookingDashboard = function () {
               </table>
             </div>)}
         </div>
-      </div>
-    </ToastProvider>);
+      </div>);
 };
 export default BookingDashboard;

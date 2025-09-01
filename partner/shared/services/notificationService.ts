@@ -1,19 +1,26 @@
 import { supabase } from './supabase'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { Booking, BookingNotification } from '../types'
 
 // [2024-12-19 10:30] - Notification service for booking status changes and preferences management
 
+// Cached service role client
+let serviceRoleClient: SupabaseClient | null = null;
+
 // Service role client for dev bypass (bypasses RLS)
 const getServiceRoleClient = () => {
   if (typeof window === 'undefined') return null; // Server-side, use regular client
-  
+
   const devUserRaw = localStorage.getItem('partner_dev_user');
   if (!devUserRaw) return null; // Not in dev bypass mode
-  
+
+  if (serviceRoleClient) {
+    return serviceRoleClient;
+  }
+
   // Use service role key for dev bypass to bypass RLS
   // Create with a unique key to avoid conflicts
-  return createClient(
+  serviceRoleClient = createClient(
     'https://joknprahhqdhvdhzmuwl.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impva25wcmFoaHFkaHZkaHptdXdsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTY1MjcxMCwiZXhwIjoyMDY1MjI4NzEwfQ.8Esm5KMfVJAQxHoKrEV9exsMASEFTnHfKOdqSt5cDFk',
     {
@@ -24,6 +31,7 @@ const getServiceRoleClient = () => {
       }
     }
   );
+  return serviceRoleClient;
 };
 
 export interface NotificationPreferences {

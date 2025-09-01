@@ -20,7 +20,8 @@
     "dev:full": "concurrently \"npm run news-server\" \"npm run dev\"",
     "dev:admin": "cd admin && npm run dev",
     "dev:partner": "cd partner && npm run dev",
-    "deploy": "npm run version:patch && npm run build && git add package.json && git commit -m \"Version bump to $(node -p 'require(\"./package.json\").version')\" && git push && npx vercel --prod"
+    "deploy": "npm run version:patch && npm run build && git add package.json && git commit -m \"Version bump to $(node -p 'require(\"./package.json\").version')\" && git push && npx vercel --prod",
+    "prepare": "husky && husky install"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
@@ -59,6 +60,8 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.1.5",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.2.2",
@@ -78,5 +81,14 @@
     "pwa"
   ],
   "author": "LDP - Local Digital Publication",
-  "license": "MIT"
+  "license": "MIT",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }

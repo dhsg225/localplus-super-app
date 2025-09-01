@@ -44,19 +44,13 @@ var Dashboard = function (_a) {
     var _c = useState([]), restaurants = _c[0], setRestaurants = _c[1];
     var _d = useState(true), loading = _d[0], setLoading = _d[1];
     var _e = useState(''), error = _e[0], setError = _e[1];
-    var _f = useState(false), isDevelopmentMode = _f[0], setIsDevelopmentMode = _f[1];
     useEffect(function () {
         var loadDashboardData = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var devUser, restaurantData, err_1, allRestaurants, fallbackErr_1, allBookings, bookingErr_1, err_2, errorMessage;
+            var restaurantData, err_1, allRestaurants, fallbackErr_1, isDevelopmentMode, allBookings, bookingErr_1, err_2, errorMessage;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 13, 14, 15]);
-                        devUser = localStorage.getItem('partner_dev_user');
-                        if (devUser) {
-                            setIsDevelopmentMode(true);
-                            console.log('🔧 Development mode active');
-                        }
+                        _a.trys.push([0, 12, 13, 14]);
                         restaurantData = [];
                         _a.label = 1;
                     case 1:
@@ -83,43 +77,52 @@ var Dashboard = function (_a) {
                             restaurantData = allRestaurants.slice(0, 1);
                         }
                         console.log('🔧 Development fallback restaurants:', restaurantData.length);
-                        setIsDevelopmentMode(true);
                         return [3 /*break*/, 7];
                     case 6:
                         fallbackErr_1 = _a.sent();
                         console.error('❌ Development fallback also failed:', fallbackErr_1);
-                        throw new Error('Failed to load restaurant data. Please check your setup.');
+                        setError('Failed to load restaurant data. Please check your setup.');
+                        return [3 /*break*/, 7];
                     case 7: return [3 /*break*/, 8];
                     case 8:
                         setRestaurants(restaurantData);
-                        if (!(restaurantData.length > 0)) return [3 /*break*/, 12];
-                        _a.label = 9;
+                        isDevelopmentMode = !!localStorage.getItem('partner_dev_user');
+                        if (!isDevelopmentMode && restaurantData.length > 0) return [3 /*break*/, 10];
+                        setBookings([]);
+                        return [3 /*break*/, 13];
                     case 9:
-                        _a.trys.push([9, 11, , 12]);
+                        if (!(restaurantData.length > 0)) return [3 /*break*/, 13];
+                        _a.label = 10;
+                    case 10:
+                        _a.trys.push([10, 12, , 13]);
                         return [4 /*yield*/, Promise.all(restaurantData.map(function (restaurant) {
                                 return bookingService.getUpcomingBookings(restaurant.id, 7);
                             }))];
-                    case 10:
+                    case 11:
                         allBookings = _a.sent();
                         setBookings(allBookings.flat());
-                        return [3 /*break*/, 12];
-                    case 11:
+                        return [3 /*break*/, 13];
+                    case 12:
                         bookingErr_1 = _a.sent();
                         console.warn('⚠️ Failed to load bookings:', bookingErr_1);
                         // Don't throw error, just show empty bookings
                         setBookings([]);
-                        return [3 /*break*/, 12];
-                    case 12: return [3 /*break*/, 15];
-                    case 13:
+                        return [3 /*break*/, 13];
+                    case 13: 
+                        // Always set loading to false when data loading is complete
+                        setLoading(false);
+                        return [3 /*break*/, 16];
+                    case 14:
                         err_2 = _a.sent();
                         errorMessage = err_2 instanceof Error ? err_2.message : 'Failed to load dashboard data';
                         setError(errorMessage);
                         console.error('Error loading dashboard:', err_2);
-                        return [3 /*break*/, 15];
-                    case 14:
+                        // Set loading to false even on error
                         setLoading(false);
+                        return [3 /*break*/, 16];
+                    case 15:
                         return [7 /*endfinally*/];
-                    case 15: return [2 /*return*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         }); };
@@ -157,16 +160,12 @@ var Dashboard = function (_a) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Partner Dashboard</h1>
         <p className="text-gray-600">Manage your restaurant bookings and settings</p>
-        {isDevelopmentMode && (<div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-            🔧 Development Mode
-          </div>)}
+        
       </div>
 
       {error && (<div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-600">{error}</p>
-          {isDevelopmentMode && (<p className="text-sm text-gray-600 mt-2">
-              Running in development mode. Some features may be limited.
-            </p>)}
+          
         </div>)}
 
       {/* Quick Stats */}
@@ -282,9 +281,7 @@ var Dashboard = function (_a) {
 
         {todayBookings.length === 0 ? (<div className="p-8 text-center">
             <p className="text-gray-500">No bookings for today</p>
-            {isDevelopmentMode && (<p className="text-sm text-gray-400 mt-2">
-                In development mode, booking data may be limited
-              </p>)}
+            
           </div>) : (<div className="divide-y divide-gray-200">
             {todayBookings.slice(0, 5).map(function (booking) { return (<div key={booking.id} className="p-6 hover:bg-gray-50">
                 <div className="flex items-center justify-between">

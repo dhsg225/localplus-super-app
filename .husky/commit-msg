@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# [2024-07-29] - Commit message hook to ensure proper formatting
+# This hook validates commit messages before they're accepted
+
+echo "📝 Validating commit message..."
+
+# Get the commit message from the first argument
+commit_msg="$1"
+
+# Check if commit message is empty
+if [ -z "$commit_msg" ]; then
+    echo "❌ Commit message cannot be empty"
+    exit 1
+fi
+
+# Check if commit message is too short
+if [ ${#commit_msg} -lt 10 ]; then
+    echo "❌ Commit message is too short (minimum 10 characters)"
+    echo "Current message: '$commit_msg'"
+    echo ""
+    echo "🔧 Examples of good commit messages:"
+    echo "• 'Fix JSX parsing error in App.jsx'"
+    echo "• 'Add validation utility for mock data'"
+    echo "• 'Update environment variable handling'"
+    exit 1
+fi
+
+# Check if commit message starts with common prefixes
+if [[ "$commit_msg" =~ ^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: ]]; then
+    echo "✅ Commit message follows conventional format"
+elif [[ "$commit_msg" =~ ^(WIP|wip|TODO|todo) ]]; then
+    echo "⚠️  Warning: Commit message suggests work in progress"
+    echo "Consider using 'git stash' instead of committing incomplete work"
+elif [[ "$commit_msg" =~ ^(fix|Fix|FIX) ]]; then
+    echo "✅ Commit message indicates a bug fix"
+elif [[ "$commit_msg" =~ ^(add|Add|ADD) ]]; then
+    echo "✅ Commit message indicates new feature addition"
+elif [[ "$commit_msg" =~ ^(update|Update|UPDATE) ]]; then
+    echo "✅ Commit message indicates an update"
+else
+    echo "⚠️  Consider using conventional commit format:"
+    echo "• feat: add new feature"
+    echo "• fix: resolve bug"
+    echo "• docs: update documentation"
+    echo "• style: formatting changes"
+    echo "• refactor: code restructuring"
+    echo "• test: add or update tests"
+    echo "• chore: maintenance tasks"
+fi
+
+# Check for common problematic patterns
+if [[ "$commit_msg" =~ (temp|temporary|debug|test|wip|fixme) ]]; then
+    echo "⚠️  Warning: Commit message contains words that suggest temporary/debug code"
+    echo "Consider if this commit should be made or if you need to clean up first"
+fi
+
+# Check for overly generic messages
+if [[ "$commit_msg" =~ ^(update|fix|change|modify|edit)$ ]]; then
+    echo "❌ Commit message is too generic"
+    echo "Be specific about what you're updating, fixing, or changing"
+    echo ""
+    echo "🔧 Examples:"
+    echo "• Instead of 'fix', use 'Fix UUID validation in mock data'"
+    echo "• Instead of 'update', use 'Update environment variable handling'"
+    echo "• Instead of 'change', use 'Change file extension from .js to .jsx'"
+    exit 1
+fi
+
+echo "✅ Commit message validation passed!"
+echo "�� Ready to commit!"

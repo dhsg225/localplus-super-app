@@ -170,4 +170,7 @@ export function getErrorMessage(error: any): string {
   if (error?.message) return error.message
   if (error?.error?.message) return error.error.message
   return 'An unexpected error occurred'
-} 
+}
+
+// [2024-07-29] - Added validation utilities to prevent mock data and UUID format errors
+export * from './validation' 

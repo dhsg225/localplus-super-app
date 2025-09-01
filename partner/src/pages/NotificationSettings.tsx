@@ -73,7 +73,8 @@ var NotificationSettings = function (_a) {
     var _h = useState(''), testEmail = _h[0], setTestEmail = _h[1];
     var _j = useState(''), testPhone = _j[0], setTestPhone = _j[1];
     var _k = useState('general'), activeTab = _k[0], setActiveTab = _k[1];
-    var showToast = useToast().showToast;
+    var toast = useToast();
+    var showToast = toast.showToast;
     useEffect(function () {
         loadRestaurants();
     }, []);

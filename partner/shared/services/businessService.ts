@@ -1,11 +1,5 @@
 // [2024-12-19] - Business service for signup and partner operations
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = 'https://joknprahhqdhvdhzmuwl.supabase.co';
-const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impva25wcmFoaHFkaHZkaHptdXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NTI3MTAsImV4cCI6MjA2NTIyODcxMH0.YYkEkYFWgd_4-OtgG47xj6b5MX_fu7zNQxrW9ymR8Xk';
-
-// Regular client for authenticated operations
-const supabase = createClient(supabaseUrl, anonKey);
+import { supabase } from './supabase'; // Use the central Supabase client
 
 // [2024-12-19] - Vercel API routes URL (production-ready)
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
@@ -25,6 +19,8 @@ export interface Business {
 export const businessService = {
   // Get businesses for signup (uses Vercel API routes)
   async getBusinessesForSignup(): Promise<Business[]> {
+    return []; // Temporarily disabled
+    /*
     try {
       console.log('🔒 Fetching businesses via Vercel API routes...');
       
@@ -43,6 +39,7 @@ export const businessService = {
       console.error('❌ Error fetching businesses via Vercel API:', err);
       return [];
     }
+    */
   },
 
   // Get businesses for authenticated users (uses regular client)

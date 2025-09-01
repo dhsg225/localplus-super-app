@@ -1,0 +1,84 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# [2024-07-29] - Pre-commit hook to prevent common development issues
+# This hook catches problems before they're committed to the repository
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Check for JSX syntax in .js files (common cause of build failures)
+echo "📁 Checking for JSX in .js files..."
+if find src/ partner/src/ admin/src/ -name "*.js" -exec grep -l "<[A-Z]" {} \; 2>/dev/null | grep -q .; then
+    echo "❌ Found JSX syntax in .js files. These should be renamed to .jsx:"
+    find src/ partner/src/ admin/src/ -name "*.js" -exec grep -l "<[A-Z]" {} \; 2>/dev/null
+    echo ""
+    echo "🔧 Fix by renaming these files to .jsx extension"
+    exit 1
+fi
+
+# 2. Check for missing environment files
+echo "🔑 Checking environment files..."
+if [ ! -f .env ] && [ ! -f env.example ]; then
+    echo "❌ No .env or env.example file found in root directory"
+    echo "🔧 Create env.example with required environment variables"
+    exit 1
+fi
+
+if [ ! -f partner/.env ] && [ ! -f partner/env.example ]; then
+    echo "❌ No .env or env.example file found in partner directory"
+    echo "🔧 Create partner/env.example with required environment variables"
+    exit 1
+fi
+
+# 3. Check for invalid UUID formats in mock data
+echo "🆔 Checking for invalid UUID formats in mock data..."
+if grep -r "mock-[a-z]*-[0-9]*" shared/services/ --include="*.ts" --include="*.js" 2>/dev/null | grep -q .; then
+    echo "❌ Found invalid UUID formats in mock data:"
+    grep -r "mock-[a-z]*-[0-9]*" shared/services/ --include="*.ts" --include="*.js" 2>/dev/null
+    echo ""
+    echo "🔧 Fix by using valid UUID format: 550e8400-e29b-41d4-a716-446655440000"
+    exit 1
+fi
+
+# 4. Check for common environment variable issues (skip .d.ts files)
+echo "🌍 Checking environment variable patterns..."
+if find shared/services/ -name "*.ts" -o -name "*.js" | grep -v "\.d\.ts" | xargs grep "VITE_SUPABASE_URL" 2>/dev/null | grep -v "import.meta.env" | grep -v "VITE_SUPABASE_URL\?:" | grep -q .; then
+    echo "❌ Found hardcoded Supabase URLs. Use environment variables instead:"
+    find shared/services/ -name "*.ts" -o -name "*.js" | grep -v "\.d\.ts" | xargs grep "VITE_SUPABASE_URL" 2>/dev/null | grep -v "import.meta.env" | grep -v "VITE_SUPABASE_URL\?:"
+    echo ""
+    echo "🔧 Use import.meta.env.VITE_SUPABASE_URL instead of hardcoded values"
+    exit 1
+fi
+
+# 5. Check for proper file extensions in imports (skip library imports)
+echo "📦 Checking import statements for proper file extensions..."
+if grep -r "from.*\.js['\"]" src/ partner/src/ admin/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null | grep -v "\.jsx" | grep -v "chart\.js" | grep -v "node_modules" | grep -q .; then
+    echo "❌ Found imports from .js files that should be .jsx:"
+    grep -r "from.*\.js['\"]" src/ partner/src/ admin/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null | grep -v "\.jsx" | grep -v "chart\.js" | grep -v "node_modules"
+    echo ""
+    echo "🔧 Update imports to use .jsx extension for JSX files"
+    exit 1
+fi
+
+# 6. Check for useToast context issues (allow proper usage patterns)
+echo "🍞 Checking for useToast context issues..."
+if grep -r "useToast()" src/ partner/src/ admin/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null | grep -v "const.*useToast" | grep -v "var.*useToast" | grep -q .; then
+    echo "❌ Found potential useToast context issues:"
+    grep -r "useToast()" src/ partner/src/ admin/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null | grep -v "const.*useToast" | grep -v "var.*useToast"
+    echo ""
+    echo "🔧 Ensure useToast is called within ToastProvider context"
+    exit 1
+fi
+
+# 7. Check for proper TypeScript interface usage
+echo "📝 Checking TypeScript interface compliance..."
+if grep -r "website:" shared/services/ --include="*.ts" --include="*.js" 2>/dev/null | grep -q .; then
+    echo "❌ Found 'website' property that should be 'website_url':"
+    grep -r "website:" shared/services/ --include="*.ts" --include="*.js" 2>/dev/null
+    echo ""
+    echo "🔧 Use 'website_url' to match Restaurant interface"
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
+echo "�� Ready to commit!"

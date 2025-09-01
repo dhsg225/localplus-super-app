@@ -3,8 +3,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
-import App from "./App";
+import App from "./App.jsx";
 import "./styles/globals.css";
+import { AuthProvider } from "./modules/auth/context/AuthContext.jsx";
 
 console.log("🚀 Main.tsx loaded");
 
@@ -30,7 +31,9 @@ if (rootElement) {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </React.StrictMode>
