@@ -37,6 +37,15 @@ export interface ValidationResult {
 export const validateRestaurant = (restaurant: any): ValidationResult => {
   const errors: string[] = [];
 
+  // Handle null/undefined cases
+  if (!restaurant) {
+    errors.push('Restaurant object is required');
+    return {
+      isValid: false,
+      errors
+    };
+  }
+
   // Check required fields
   if (!restaurant.id) {
     errors.push('Restaurant ID is required');
