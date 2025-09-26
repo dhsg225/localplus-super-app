@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@localplus/shared": "workspace:*",
     "@supabase/supabase-js": "^2.50.3",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.263.1",
