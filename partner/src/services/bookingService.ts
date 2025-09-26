@@ -127,5 +127,16 @@ export const bookingService = {
       console.error('Error marking no-show:', error);
       throw error;
     }
+  },
+
+  async getPartnerRestaurants(): Promise<any[]> {
+    try {
+      // Mock partner restaurants
+      console.log('[MOCK] Fetching partner restaurants');
+      return [{ id: '550e8400-e29b-41d4-a716-446655440000', name: 'Shannon\'s Coastal Kitchen' }];
+    } catch (error) {
+      console.error('Error fetching partner restaurants:', error);
+      throw error;
+    }
   }
 }

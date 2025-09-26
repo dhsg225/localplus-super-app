@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 // [2024-12-19 22:30] - Partner login form with development bypass for email confirmation
 import React, { useState } from 'react';
 import { supabase } from '../services/supabase';
+import { restaurantService } from '../services/restaurantService';
 export var LoginForm = function (_a) {
     var onLoginSuccess = _a.onLoginSuccess;
     var _b = useState('shannon@localplus.com'), email = _b[0], setEmail = _b[1];
