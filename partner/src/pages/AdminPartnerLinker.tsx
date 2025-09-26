@@ -127,7 +127,7 @@ var AdminPartnerLinker = function () {
           {businesses.map(function (biz) { return (<option key={biz.id} value={biz.id}>{biz.name} ({biz.id})</option>); })}
         </select>
       </div>
-      <Button onClick={handleLink} isLoading={loading} theme="blue">
+      <button onClick={handleLink} isLoading={loading} theme="blue" class="px-3 py-2 bg-blue-600 text-white rounded"
         Link User to Business
       </Button>
       {message && <div className="mt-4 text-sm text-blue-700">{message}</div>}

@@ -449,22 +449,22 @@ var BookingDashboard = function () {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         {booking.status === 'pending' && (<>
-                            <Button onClick={function () { return handleStatusChange(booking.id, 'confirmed'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id}>
+                            <button onClick={function () { return handleStatusChange(booking.id, 'confirmed'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id} class="px-3 py-2 bg-blue-600 text-white rounded"
                               Confirm
                             </Button>
-                            <Button onClick={function () { return handleStatusChange(booking.id, 'cancelled'); }} theme="red" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id}>
+                            <button onClick={function () { return handleStatusChange(booking.id, 'cancelled'); }} theme="red" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id} class="px-3 py-2 bg-blue-600 text-white rounded"
                               Cancel
                             </Button>
                           </>)}
                         {booking.status === 'confirmed' && (<>
-                            <Button onClick={function () { return handleStatusChange(booking.id, 'seated'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id}>
+                            <button onClick={function () { return handleStatusChange(booking.id, 'seated'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id} class="px-3 py-2 bg-blue-600 text-white rounded"
                               Seat
                             </Button>
-                            <Button onClick={function () { return handleStatusChange(booking.id, 'no_show'); }} theme="red" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id}>
+                            <button onClick={function () { return handleStatusChange(booking.id, 'no_show'); }} theme="red" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id} class="px-3 py-2 bg-blue-600 text-white rounded"
                               No Show
                             </Button>
                           </>)}
-                        {booking.status === 'seated' && (<Button onClick={function () { return handleStatusChange(booking.id, 'completed'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id}>
+                        {booking.status === 'seated' && (<button onClick={function () { return handleStatusChange(booking.id, 'completed'); }} theme="blue" size="sm" isLoading={actionLoading === booking.id} disabled={actionLoading === booking.id} class="px-3 py-2 bg-blue-600 text-white rounded"
                             Complete
                           </Button>)}
                       </td>

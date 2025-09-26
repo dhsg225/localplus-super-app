@@ -319,7 +319,7 @@ var StaffManagement = function () {
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900">Staff</h2>
           {role === 'owner' && (<>
-              <Button theme="blue" size="sm" onClick={function () { return setInviteOpen(true); }}>
+              <button theme="blue" size="sm" onClick={function () { return setInviteOpen(true); }} class="px-3 py-2 bg-blue-600 text-white rounded"
                 + Invite Staff
               </Button>
               {inviteOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
@@ -340,8 +340,8 @@ var StaffManagement = function () {
                       {inviteError && <div className="text-red-600 text-sm">{inviteError}</div>}
                       {inviteSuccess && <div className="text-green-600 text-sm">{inviteSuccess}</div>}
                       <div className="flex justify-end gap-2">
-                        <Button type="button" theme="gray" size="sm" onClick={function () { return setInviteOpen(false); }} disabled={inviteLoading}>Cancel</Button>
-                        <Button type="submit" theme="blue" size="sm" isLoading={inviteLoading} disabled={inviteLoading}>Send Invite</Button>
+                        <button type="button" theme="gray" size="sm" onClick={function () { return setInviteOpen(false); }} disabled={inviteLoading} class="px-3 py-2 bg-blue-600 text-white rounded"Cancel</Button>
+                        <button type="submit" theme="blue" size="sm" isLoading={inviteLoading} disabled={inviteLoading} class="px-3 py-2 bg-blue-600 text-white rounded"Send Invite</Button>
                       </div>
                     </form>
                   </div>
@@ -380,7 +380,7 @@ var StaffManagement = function () {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.is_active ? 'Active' : 'Inactive'}</td>
                     {role === 'owner' && (<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {!isSelf ? (<Button theme="red" size="sm" isLoading={actionLoading === member.id} disabled={actionLoading === member.id} onClick={function () { return handleRemove(member.id); }}>
+                        {!isSelf ? (<button theme="red" size="sm" isLoading={actionLoading === member.id} disabled={actionLoading === member.id} onClick={function () { return handleRemove(member.id); }} class="px-3 py-2 bg-blue-600 text-white rounded"
                             Remove
                           </Button>) : (<span className="text-gray-400 text-xs">(You)</span>)}
                       </td>)}

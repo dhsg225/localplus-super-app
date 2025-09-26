@@ -369,7 +369,7 @@ var AvailabilitySettings = function () {
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Time Slots</h2>
-            <Button onClick={addTimeSlot} theme="blue" size="sm">
+            <button onClick={addTimeSlot} theme="blue" size="sm" class="px-3 py-2 bg-blue-600 text-white rounded"
               Add Time Slot
             </Button>
           </div>
@@ -403,7 +403,7 @@ var AvailabilitySettings = function () {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} isLoading={saving} disabled={saving} theme="blue">
+        <button onClick={handleSave} isLoading={saving} disabled={saving} theme="blue" class="px-3 py-2 bg-blue-600 text-white rounded"
           {saving ? 'Saving...' : 'Save Settings'}
         </Button>
       </div>
