@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, MapPin, Star, Shield, Activity, LogOut, XCircle, TrendingUp } from 'lucide-react';
-import AzureMapComponent from './components/AzureMapComponent';
+import AzureMapComponent from './components/AzureMapComponent.jsx';
 import { AdminLogin } from './components/AdminLogin';
 import { AnalyticsCharts, generateSampleAnalyticsData, type AnalyticsData } from './components/AnalyticsCharts';
 import { RealCostTracker } from './components/RealCostTracker';
 // [2024-12-19 22:40] - Migrated to unified authentication
-import { authService } from '@shared/services/authService';
-import type { UnifiedUser } from '@shared/services/authService';
+import { authService } from './services/authService';
+import type { UnifiedUser } from './services/authService';
 import { realTimeService, type RealTimeUpdate, type DashboardStats } from './lib/websocket';
 import { supabase } from './lib/supabase';
 import 'azure-maps-control/dist/atlas.min.css';
