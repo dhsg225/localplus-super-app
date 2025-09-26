@@ -4,6 +4,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Pnpm workspace files (causing Vercel build errors)
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
 # Production builds
 dist/
 build/
