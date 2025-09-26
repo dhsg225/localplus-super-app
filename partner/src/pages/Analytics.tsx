@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import React, { useState, useEffect } from 'react';
-import { bookingService } from '../../../shared/services/bookingService';
+import { bookingService } from '../services/bookingService';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 var DEMO_REVENUE_PER_BOOKING = 20; // USD per completed booking (for demo)
 var Analytics = function () {

@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './styles/index.css';
 
 // [2024-07-29] - Added health check integration to catch issues early
-import { developmentHealthCheck, logHealthCheckResult } from '../../shared/services/healthCheck';
+// Health check removed for deployment compatibility
 
 console.log('🚀 Partner App Main.tsx loaded');
 

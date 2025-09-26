@@ -35,8 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../shared/services/supabase';
-import { Button } from '../../shared/components';
+import { supabase } from '../services/supabase';
 var AdminPartnerLinker = function () {
     var _a = useState([]), users = _a[0], setUsers = _a[1];
     var _b = useState([]), businesses = _b[0], setBusinesses = _b[1];

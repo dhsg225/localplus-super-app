@@ -10,7 +10,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 // [2024-12-19 10:39] - Enhanced partner app navigation with improved design
 // [2024-12-19 22:30] - Navigation component with unified auth support
 import React, { useState, useRef } from 'react';
-import { Button } from '../../shared/components';
+// Button component removed for deployment compatibility
 var Navigation = function (_a) {
     var currentPage = _a.currentPage, onPageChange = _a.onPageChange, user = _a.user, onLogout = _a.onLogout, showAdminLink = _a.showAdminLink;
     // Main and more items split

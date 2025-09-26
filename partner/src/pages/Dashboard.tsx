@@ -35,9 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import React, { useState, useEffect } from 'react';
-import { Button } from '../../shared/components';
-import { bookingService } from '../../../shared/services/bookingService';
-import { restaurantService } from '../../shared/services/restaurantService';
+import { bookingService } from '../services/bookingService';
 var Dashboard = function (_a) {
     var onNavigate = _a.onNavigate;
     var _b = useState([]), bookings = _b[0], setBookings = _b[1];

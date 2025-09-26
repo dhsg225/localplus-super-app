@@ -67,8 +67,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 // [2024-12-19 10:33] - Availability settings page for managing restaurant hours and time slots
 import React, { useState, useEffect } from 'react';
-import { Button } from '../../shared/components';
-import { bookingService } from '../../../shared/services/bookingService';
+import { bookingService } from '../services/bookingService';
 var AvailabilitySettings = function () {
     var _a = useState([]), restaurants = _a[0], setRestaurants = _a[1];
     var _b = useState(''), selectedRestaurant = _b[0], setSelectedRestaurant = _b[1];

@@ -36,9 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 // [2024-12-19 10:32] - Partner booking dashboard for managing restaurant bookings
 import React, { useState, useEffect } from 'react';
-import { Button } from '../../shared/components';
-import { useToast } from '../../shared/components/Toast';
-import { bookingService } from '../../../shared/services/bookingService';
+import { bookingService } from '../services/bookingService';
 var BookingDashboard = function () {
     var _a = useState([]), bookings = _a[0], setBookings = _a[1];
     var _b = useState([]), restaurants = _b[0], setRestaurants = _b[1];

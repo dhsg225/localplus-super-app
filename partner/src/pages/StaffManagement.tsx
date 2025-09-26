@@ -46,9 +46,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import React, { useState, useEffect } from 'react';
-import { bookingService } from '../../../shared/services/bookingService';
-import { authService } from '../../shared/services/authService';
-import { Button } from '../../shared/components';
+import { bookingService } from '../services/bookingService';
 var StaffManagement = function () {
     var _a = useState([]), restaurants = _a[0], setRestaurants = _a[1];
     var _b = useState(''), selectedRestaurant = _b[0], setSelectedRestaurant = _b[1];
