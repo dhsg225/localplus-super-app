@@ -60,7 +60,11 @@ function App() {
         try {
             var stored = typeof window !== 'undefined' ? localStorage.getItem('partner_dev_user') : null;
             if (stored) {
-                setUser(JSON.parse(stored));
+                var parsed = JSON.parse(stored);
+                // Ensure roles array exists for access checks
+                if (!parsed.roles && parsed.role) parsed.roles = [parsed.role];
+                if (!parsed.roles) parsed.roles = ['partner'];
+                setUser(parsed);
             }
         }
         catch (e) {

@@ -223,7 +223,8 @@ export var LoginForm = function (_a) {
                     email: email,
                     firstName: 'Shannon',
                     lastName: 'Restaurant Owner',
-                    role: 'partner'
+                    role: 'partner',
+                    roles: ['partner']
                 };
                 localStorage.setItem('partner_dev_user', JSON.stringify(mockUser));
                 console.log('✅ Development bypass successful');
