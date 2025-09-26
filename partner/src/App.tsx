@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import { useState, useEffect } from 'react';
-import { ToastProvider } from '../../shared/components/Toast';
+// ToastProvider removed for deployment compatibility
 import Navigation from './components/Navigation';
 import { LoginForm } from './components/LoginForm';
 import Dashboard from './pages/Dashboard';
@@ -45,9 +45,8 @@ import Analytics from './pages/Analytics';
 import StaffManagement from './pages/StaffManagement';
 import NotificationSettings from './pages/NotificationSettings';
 import AdminPartnerLinker from './pages/AdminPartnerLinker';
-import { authService } from '../../shared/services/authService';
-import { supabase } from '../../shared/services/supabase';
-import { bookingService } from '../../shared/services/bookingService'; // [2024-07-08] - For partner restaurant check
+import { supabase } from './services/supabase';
+import { bookingService } from './services/bookingService';
 import './styles/App.css';
 function App() {
     var _this = this;
