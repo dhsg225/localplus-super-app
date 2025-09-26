@@ -258,10 +258,16 @@ export var LoginForm = function (_a) {
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4">
-            <FormInput label="Email" type="email" value={email} onChange={function (e) { return setEmail(e.target.value); }} required placeholder="Enter your email"/>
-            <FormInput label="Password" type="password" value={password} onChange={function (e) { return setPassword(e.target.value); }} required placeholder="Enter your password"/>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input className="w-full border rounded px-3 py-2" type="email" value={email} onChange={function (e) { return setEmail(e.target.value); }} required placeholder="Enter your email" />
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input className="w-full border rounded px-3 py-2" type="password" value={password} onChange={function (e) { return setPassword(e.target.value); }} required placeholder="Enter your password" />
             {/* [2024-07-08] - Business selector for signup */}
-            <FormSelect label="Select Business" value={selectedBusiness} onChange={function (e) { return setSelectedBusiness(e.target.value); }} options={businesses.map(function (b) { return ({ value: b.id, label: b.name }); })} required placeholder={businesses.length === 0 ? 'No businesses available' : 'Choose a business'} disabled={businesses.length === 0}/>
+            <label className="block text-sm font-medium text-gray-700">Select Business</label>
+            <select className="w-full border rounded px-3 py-2" value={selectedBusiness} onChange={function (e) { return setSelectedBusiness(e.target.value); }} required disabled={businesses.length === 0}>
+              <option value="">{businesses.length === 0 ? 'No businesses available' : 'Choose a business'}</option>
+              {businesses.map(function (b) { return (<option key={b.id} value={b.id}>{b.name}</option>); })}
+            </select>
           </div>
 
           {error && (<div className="bg-red-50 border border-red-200 rounded-md p-3">
@@ -269,16 +275,15 @@ export var LoginForm = function (_a) {
             </div>)}
 
           <div className="space-y-3">
-            <Button type="submit" theme="blue" className="w-full" isLoading={loading}>
-              Sign In
-            </Button>
-            <Button type="button" theme="gray" className="w-full" onClick={handleCreateAccount} isLoading={loading} disabled={businesses.length === 0}>
-              Create Partner Account
-            </Button>
-            
-            <Button type="button" theme="red" className="w-full" onClick={handleDevelopmentBypass} isLoading={loading}>
+            <button type="submit" className="w-full px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+            <button type="button" className="w-full px-4 py-2 bg-gray-600 text-white rounded disabled:opacity-50" onClick={handleCreateAccount} disabled={loading || businesses.length === 0}>
+              {loading ? 'Working...' : 'Create Partner Account'}
+            </button>
+            <button type="button" className="w-full px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50" onClick={handleDevelopmentBypass} disabled={loading}>
               🔧 Development Bypass
-            </Button>
+            </button>
           </div>
 
           <div className="text-center">

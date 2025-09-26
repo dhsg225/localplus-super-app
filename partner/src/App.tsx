@@ -56,54 +56,24 @@ function App() {
     var _g = useState('dashboard'), currentPage = _g[0], setCurrentPage = _g[1];
     var _h = useState(false), noPartnerAccess = _h[0], setNoPartnerAccess = _h[1]; // [2024-07-08] - Track if user is unlinked
     useEffect(function () {
-        // Check current auth state
-        var checkAuth = function () { return __awaiter(_this, void 0, void 0, function () {
-            var currentUser, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, 3, 4]);
-                        return [4 /*yield*/, authService.getCurrentUser()];
-                    case 1:
-                        currentUser = _a.sent();
-                        setUser(currentUser);
-                        return [3 /*break*/, 4];
-                    case 2:
-                        error_1 = _a.sent();
-                        console.error('Error checking auth state:', error_1);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        setLoading(false);
-                        return [7 /*endfinally*/];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); };
-        checkAuth();
-        // Listen for auth changes
-        var subscription = supabase.auth.onAuthStateChange(function (event, session) { return __awaiter(_this, void 0, void 0, function () {
-            var currentUser;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(event === 'SIGNED_IN' && (session === null || session === void 0 ? void 0 : session.user))) return [3 /*break*/, 2];
-                        return [4 /*yield*/, authService.getUserProfile(session.user)];
-                    case 1:
-                        currentUser = _a.sent();
-                        setUser(currentUser);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        if (event === 'SIGNED_OUT') {
-                            setUser(null);
-                        }
-                        _a.label = 3;
-                    case 3:
-                        setLoading(false);
-                        return [2 /*return*/];
-                }
-            });
-        }); }).data.subscription;
-        return function () { return subscription.unsubscribe(); };
+        // Minimal local auth: read mock user from localStorage
+        try {
+            var stored = typeof window !== 'undefined' ? localStorage.getItem('partner_dev_user') : null;
+            if (stored) {
+                setUser(JSON.parse(stored));
+            }
+        }
+        catch (e) {
+            // ignore
+        }
+        finally {
+            setLoading(false);
+        }
+        // Subscribe to Supabase auth changes only to clear local user on sign out
+        var sub = supabase.auth.onAuthStateChange(function (event) {
+            if (event === 'SIGNED_OUT') setUser(null);
+        }).data.subscription;
+        return function () { return sub.unsubscribe(); };
     }, []);
     useEffect(function () {
         // [DEV BYPASS] Only allow in development
@@ -161,29 +131,18 @@ function App() {
             });
         }
     }, [user]);
-    var handleLoginSuccess = function () { return __awaiter(_this, void 0, void 0, function () {
-        var currentUser;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, authService.getCurrentUser()];
-                case 1:
-                    currentUser = _a.sent();
-                    setUser(currentUser);
-                    return [2 /*return*/];
-            }
-        });
-    }); };
-    var handleLogout = function () { return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, authService.signOut()];
-                case 1:
-                    _a.sent();
-                    setUser(null);
-                    return [2 /*return*/];
-            }
-        });
-    }); };
+    var handleLoginSuccess = function () {
+        // After login, read the mock user and set state
+        var stored = typeof window !== 'undefined' ? localStorage.getItem('partner_dev_user') : null;
+        if (stored) setUser(JSON.parse(stored));
+    };
+    var handleLogout = function () {
+        try {
+            localStorage.removeItem('partner_dev_user');
+        }
+        catch (e) {}
+        setUser(null);
+    };
     // Show loading while checking auth state
     if (loading) {
         return (<div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -257,13 +216,11 @@ function App() {
                 return <Dashboard onNavigate={function (page) { return setCurrentPage(page); }}/>;
         }
     };
-    return (<ToastProvider>
-      <div className="min-h-screen bg-gray-50">
+    return (<div className="min-h-screen bg-gray-50">
         <Navigation currentPage={currentPage} onPageChange={function (page) { return setCurrentPage(page); }} user={user} onLogout={handleLogout} showAdminLink={(_d = user.roles) === null || _d === void 0 ? void 0 : _d.includes('admin')}/>
         <main className="ml-64">
           {renderPage()}
         </main>
-      </div>
-    </ToastProvider>);
+      </div>);
 }
 export default App;
