@@ -253,15 +253,15 @@ var Dashboard = function (_a) {
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button theme="blue" className="w-full" onClick={function () { return onNavigate && onNavigate('bookings'); }}>
+            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded" onClick={function () { return onNavigate && onNavigate('bookings'); }}>
               📋 Manage Bookings
-            </Button>
-            <Button theme="gray" className="w-full" onClick={function () { return onNavigate && onNavigate('availability'); }}>
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-600 text-white rounded" onClick={function () { return onNavigate && onNavigate('availability'); }}>
               🕐 Availability Settings
-            </Button>
-            <Button theme="gray" className="w-full" onClick={function () { return onNavigate && onNavigate('analytics'); }}>
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-600 text-white rounded" onClick={function () { return onNavigate && onNavigate('analytics'); }}>
               📊 View Analytics
-            </Button>
+            </button>
           </div>
         </div>
       </div>

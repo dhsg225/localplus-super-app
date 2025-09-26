@@ -107,12 +107,12 @@ var Navigation = function (_a) {
                 </p>
               </div>
             </div>
-            <Button variant="outline" theme="blue" size="sm" className="hidden sm:block">
+            <button className="hidden sm:block px-3 py-1 border border-blue-600 text-blue-600 rounded text-sm">
               Settings
-            </Button>
-            <Button variant="primary" theme="red" size="sm" onClick={onLogout}>
+            </button>
+            <button className="px-3 py-1 bg-red-600 text-white rounded text-sm" onClick={onLogout}>
               Logout
-            </Button>
+            </button>
           </div>
         </div>
       </div>
